@@ -1606,16 +1606,16 @@ class EndpointTester {
       await this.testEndpoint(
         'Marketing',
         'getNegativeKeywords',
-        'GET /sell/marketing/v1/ad_campaign/{campaign_id}/negative_keyword',
-        () => this.api.marketing.getNegativeKeywords(createdCampaignId!, { limit: 5 }),
-        { campaign_id: createdCampaignId, limit: 5 }
+        'GET /sell/marketing/v1/negative_keyword',
+        () => this.api.marketing.getNegativeKeywords(createdCampaignId, undefined, undefined, 5),
+        { campaign_ids: createdCampaignId, limit: 5 }
       );
 
       await this.testEndpoint(
         'Marketing',
         'bulkCreateNegativeKeyword',
         'POST /sell/marketing/v1/bulk_create_negative_keyword',
-        () => this.api.marketing.bulkCreateNegativeKeyword({ negativeKeywords: [] } as any),
+        () => this.api.marketing.bulkCreateNegativeKeywords({ requests: [] }),
         {}
       );
 
@@ -1623,7 +1623,7 @@ class EndpointTester {
         'Marketing',
         'bulkUpdateNegativeKeyword',
         'POST /sell/marketing/v1/bulk_update_negative_keyword',
-        () => this.api.marketing.bulkUpdateNegativeKeyword({ negativeKeywords: [] } as any),
+        () => this.api.marketing.bulkUpdateNegativeKeywords({ requests: [] }),
         {}
       );
 

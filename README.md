@@ -12,7 +12,7 @@
 [![MseeP.ai Security Assessment Badge](https://mseep.net/pr/yosefhayim-ebay-api-mcp-server-badge.png)](https://mseep.ai/app/yosefhayim-ebay-api-mcp-server)
 <a href="https://www.buymeacoffee.com/yosefhayim" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
-A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that gives AI assistants comprehensive access to eBay's Sell APIs — **332 tools** for inventory, order fulfillment, marketing, analytics, developer tools, and more.
+A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that gives AI assistants comprehensive access to eBay's Sell APIs — **322 tools** for inventory, order fulfillment, marketing, analytics, developer tools, and more.
 
 **API Coverage:** 100% (270 unique eBay API endpoints) · **Runs locally** — no cloud relay.
 
@@ -58,7 +58,7 @@ If I don't have eBay credentials yet, guide me through creating a developer acco
 
 ## Features
 
-- **332 eBay API Tools** — 100% coverage of eBay Sell APIs across inventory, orders, marketing, analytics, developer tools, and more
+- **322 eBay API Tools** — 100% coverage of eBay Sell APIs across inventory, orders, marketing, analytics, developer tools, and more
 - **9 AI Clients Supported** — auto-configuration for Claude Desktop, Cursor, Zed, Cline, Continue.dev, Windsurf, Roo Code, Claude Code CLI, and Amazon Q
 - **OAuth 2.0** — full user-token management with automatic refresh
 - **Type Safety** — TypeScript, Zod validation, and OpenAPI-generated types
@@ -174,7 +174,7 @@ Auto-configured by `npm run setup`. Requires Node.js ≥ 18 and MCP protocol 1.0
 
 ## Available Tools
 
-**332 tools**, 100% API coverage, organized by category:
+**322 tools**, 100% API coverage, organized by category:
 
 - **Account** — policies, programs, subscriptions, sales tax
 - **Inventory** — items, offers, locations, bulk operations, SKU location mapping

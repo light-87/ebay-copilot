@@ -740,229 +740,94 @@ export const marketingTools: ToolDefinition[] = [
   },
 
   // ========================================
-  // NEGATIVE KEYWORDS - CAMPAIGN LEVEL (8 tools)
+  // NEGATIVE KEYWORDS (6 tools)
   // ========================================
+  // eBay exposes a single flat negative-keyword resource: there is no
+  // campaign/ad-group path nesting and no delete endpoint. Campaign and ad-group
+  // association is carried in the request body (create) or the list filters
+  // (get). These tools are gated behind eBay's Promoted Listings priority
+  // strategy program (CPC funding model).
   {
-    name: 'ebay_create_campaign_negative_keyword',
+    name: 'ebay_get_negative_keywords',
     description:
-      'Create a campaign-level negative keyword. Prevents ads from showing for this keyword across entire campaign.',
+      'Get negative keywords for priority-strategy CPC campaigns, optionally filtered by campaign, ad group, or status. Requires eBay priority strategy program access.',
     inputSchema: {
-      campaignId: campaignIdSchema,
-      negativeKeyword: z
-        .object({
-          keywordText: z.string().describe('Negative keyword text'),
-          matchType: z.enum(['BROAD', 'PHRASE', 'EXACT']).describe('Match type'),
-        })
-        .describe('Negative keyword configuration'),
-    },
-  },
-  {
-    name: 'ebay_get_campaign_negative_keyword',
-    description: 'Get details of a specific campaign-level negative keyword.',
-    inputSchema: {
-      campaignId: campaignIdSchema,
-      negativeKeywordId: negativeKeywordIdSchema,
-    },
-  },
-  {
-    name: 'ebay_get_campaign_negative_keywords',
-    description: 'Get all campaign-level negative keywords.',
-    inputSchema: {
-      campaignId: campaignIdSchema,
+      campaignIds: z
+        .string()
+        .optional()
+        .describe('Filter by campaign ID (only one campaign ID is supported per request).'),
+      adGroupIds: z
+        .string()
+        .optional()
+        .describe('Comma-separated list of ad group IDs to filter by.'),
+      negativeKeywordStatus: z
+        .string()
+        .optional()
+        .describe('Comma-separated list of negative keyword statuses to filter by.'),
       limit: limitSchema,
       offset: offsetSchema,
     },
   },
   {
-    name: 'ebay_delete_campaign_negative_keyword',
-    description: 'Delete a campaign-level negative keyword.',
+    name: 'ebay_get_negative_keyword',
+    description: 'Get details of a specific negative keyword by its ID.',
     inputSchema: {
-      campaignId: campaignIdSchema,
       negativeKeywordId: negativeKeywordIdSchema,
     },
   },
   {
-    name: 'ebay_update_campaign_negative_keyword',
-    description: 'Update a campaign-level negative keyword.',
-    inputSchema: {
-      campaignId: campaignIdSchema,
-      negativeKeywordId: negativeKeywordIdSchema,
-      updateData: z
-        .object({
-          keywordText: z.string().optional().describe('New keyword text'),
-          matchType: z.enum(['BROAD', 'PHRASE', 'EXACT']).optional().describe('New match type'),
-        })
-        .describe('Negative keyword update data'),
-    },
-  },
-  {
-    name: 'ebay_bulk_create_campaign_negative_keywords',
-    description: 'Create multiple campaign-level negative keywords.',
-    inputSchema: {
-      campaignId: campaignIdSchema,
-      negativeKeywords: z
-        .object({
-          requests: z
-            .array(
-              z.object({
-                campaignId: z.string().describe('Campaign ID'),
-                keywordText: z.string().describe('Negative keyword text'),
-                matchType: z.enum(['BROAD', 'PHRASE', 'EXACT']).describe('Match type'),
-              })
-            )
-            .describe('Array of negative keyword creation requests'),
-        })
-        .describe('Bulk negative keyword creation request'),
-    },
-  },
-  {
-    name: 'ebay_bulk_update_campaign_negative_keywords',
-    description: 'Update multiple campaign-level negative keywords.',
-    inputSchema: {
-      campaignId: campaignIdSchema,
-      negativeKeywords: z
-        .object({
-          requests: z
-            .array(
-              z.object({
-                negativeKeywordId: z.string().describe('Negative keyword ID'),
-                keywordText: z.string().optional().describe('New keyword text'),
-                matchType: z
-                  .enum(['BROAD', 'PHRASE', 'EXACT'])
-                  .optional()
-                  .describe('New match type'),
-              })
-            )
-            .describe('Array of update requests'),
-        })
-        .describe('Bulk negative keyword update request'),
-    },
-  },
-  {
-    name: 'ebay_bulk_delete_campaign_negative_keywords',
-    description: 'Delete multiple campaign-level negative keywords.',
-    inputSchema: {
-      campaignId: campaignIdSchema,
-      negativeKeywords: z
-        .object({
-          negativeKeywordIds: z
-            .array(z.string())
-            .describe('Array of negative keyword IDs to delete'),
-        })
-        .describe('Bulk negative keyword deletion request'),
-    },
-  },
-
-  // ========================================
-  // NEGATIVE KEYWORDS - AD GROUP LEVEL (8 tools)
-  // ========================================
-  {
-    name: 'ebay_create_ad_group_negative_keyword',
+    name: 'ebay_create_negative_keyword',
     description:
-      'Create an ad group-level negative keyword. Prevents ads in this ad group from showing for this keyword.',
+      'Create a negative keyword in a priority-strategy CPC campaign. Provide campaignId and adGroupId to target a specific ad group.',
     inputSchema: {
-      adGroupId: adGroupIdSchema,
-      negativeKeyword: z
-        .object({
-          keywordText: z.string().describe('Negative keyword text'),
-          matchType: z.enum(['BROAD', 'PHRASE', 'EXACT']).describe('Match type'),
-        })
-        .describe('Negative keyword configuration'),
+      campaignId: campaignIdSchema.optional(),
+      adGroupId: adGroupIdSchema.optional(),
+      negativeKeywordText: z.string().describe('The negative keyword text.'),
+      negativeKeywordMatchType: z
+        .enum(['EXACT', 'PHRASE'])
+        .describe('Match type (broad matching is not supported for negative keywords).'),
     },
   },
   {
-    name: 'ebay_get_ad_group_negative_keyword',
-    description: 'Get details of a specific ad group-level negative keyword.',
+    name: 'ebay_update_negative_keyword',
+    description:
+      'Update the status of a negative keyword (e.g. ACTIVE or ARCHIVED). eBay has no delete endpoint; archiving via status is the removal mechanism.',
     inputSchema: {
-      adGroupId: adGroupIdSchema,
       negativeKeywordId: negativeKeywordIdSchema,
+      negativeKeywordStatus: z
+        .string()
+        .describe('New status for the negative keyword (e.g. ACTIVE, ARCHIVED).'),
     },
   },
   {
-    name: 'ebay_get_ad_group_negative_keywords',
-    description: 'Get all negative keywords for an ad group.',
+    name: 'ebay_bulk_create_negative_keywords',
+    description:
+      'Create multiple negative keywords in one request for priority-strategy CPC campaigns.',
     inputSchema: {
-      adGroupId: adGroupIdSchema,
-      limit: limitSchema,
-      offset: offsetSchema,
+      requests: z
+        .array(
+          z.object({
+            campaignId: z.string().optional().describe('Campaign the negative keyword belongs to.'),
+            adGroupId: z.string().optional().describe('Ad group the negative keyword is added to.'),
+            negativeKeywordText: z.string().describe('The negative keyword text.'),
+            negativeKeywordMatchType: z.enum(['EXACT', 'PHRASE']).describe('Match type.'),
+          })
+        )
+        .describe('Array of negative keywords to create.'),
     },
   },
   {
-    name: 'ebay_delete_ad_group_negative_keyword',
-    description: 'Delete an ad group-level negative keyword.',
+    name: 'ebay_bulk_update_negative_keywords',
+    description: 'Update the status of multiple negative keywords in one request.',
     inputSchema: {
-      adGroupId: adGroupIdSchema,
-      negativeKeywordId: negativeKeywordIdSchema,
-    },
-  },
-  {
-    name: 'ebay_update_ad_group_negative_keyword',
-    description: 'Update an ad group-level negative keyword.',
-    inputSchema: {
-      adGroupId: adGroupIdSchema,
-      negativeKeywordId: negativeKeywordIdSchema,
-      updateData: z
-        .object({
-          keywordText: z.string().optional().describe('New keyword text'),
-          matchType: z.enum(['BROAD', 'PHRASE', 'EXACT']).optional().describe('New match type'),
-        })
-        .describe('Negative keyword update data'),
-    },
-  },
-  {
-    name: 'ebay_bulk_create_ad_group_negative_keywords',
-    description: 'Create multiple ad group-level negative keywords.',
-    inputSchema: {
-      adGroupId: adGroupIdSchema,
-      negativeKeywords: z
-        .object({
-          requests: z
-            .array(
-              z.object({
-                keywordText: z.string().describe('Negative keyword text'),
-                matchType: z.enum(['BROAD', 'PHRASE', 'EXACT']).describe('Match type'),
-              })
-            )
-            .describe('Array of negative keyword creation requests'),
-        })
-        .describe('Bulk negative keyword creation request'),
-    },
-  },
-  {
-    name: 'ebay_bulk_update_ad_group_negative_keywords',
-    description: 'Update multiple ad group-level negative keywords.',
-    inputSchema: {
-      adGroupId: adGroupIdSchema,
-      negativeKeywords: z
-        .object({
-          requests: z
-            .array(
-              z.object({
-                negativeKeywordId: z.string().describe('Negative keyword ID'),
-                keywordText: z.string().optional().describe('New keyword text'),
-                matchType: z
-                  .enum(['BROAD', 'PHRASE', 'EXACT'])
-                  .optional()
-                  .describe('New match type'),
-              })
-            )
-            .describe('Array of update requests'),
-        })
-        .describe('Bulk negative keyword update request'),
-    },
-  },
-  {
-    name: 'ebay_bulk_delete_ad_group_negative_keywords',
-    description: 'Delete multiple ad group-level negative keywords.',
-    inputSchema: {
-      adGroupId: adGroupIdSchema,
-      negativeKeywords: z
-        .object({
-          negativeKeywordIds: z
-            .array(z.string())
-            .describe('Array of negative keyword IDs to delete'),
-        })
-        .describe('Bulk negative keyword deletion request'),
+      requests: z
+        .array(
+          z.object({
+            negativeKeywordId: z.string().describe('The negative keyword ID.'),
+            negativeKeywordStatus: z.string().describe('New status for the negative keyword.'),
+          })
+        )
+        .describe('Array of negative keyword status updates.'),
     },
   },
 

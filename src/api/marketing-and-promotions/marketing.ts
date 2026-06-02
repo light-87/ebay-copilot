@@ -80,8 +80,6 @@ type TargetingRequest = Record<string, unknown>;
 type TargetingResponse = Record<string, unknown>;
 type BulkDeleteKeywordsResponse = Record<string, unknown>;
 type CreateKeywordResponse = Record<string, unknown>;
-type BulkDeleteNegativeKeywordRequest = Record<string, unknown>;
-type BulkDeleteNegativeKeywordResponse = Record<string, unknown>;
 type Report = Record<string, unknown>;
 type BulkUpdateKeywordRequest = BulkUpdateKeywordBidsRequest;
 
@@ -926,243 +924,98 @@ export class MarketingApi {
   }
 
   /**
-   * Get negative keywords for a campaign
+   * Get negative keywords for priority-strategy CPC campaigns.
+   *
+   * Maps to `GET /negative_keyword`. Negative keywords are not nested under a
+   * campaign or ad group path — association is expressed through the optional
+   * `campaign_ids` / `ad_group_ids` filters (only one campaign ID is supported
+   * per request). Requires eBay priority strategy program access.
    */
   async getNegativeKeywords(
-    campaignId: string,
+    campaignIds?: string,
+    adGroupIds?: string,
+    negativeKeywordStatus?: string,
     limit?: number,
     offset?: number
   ): Promise<NegativeKeywordPagedCollection> {
     const params: Record<string, string | number> = {};
+    if (campaignIds) params.campaign_ids = campaignIds;
+    if (adGroupIds) params.ad_group_ids = adGroupIds;
+    if (negativeKeywordStatus) params.negative_keyword_status = negativeKeywordStatus;
     if (limit) params.limit = limit;
     if (offset) params.offset = offset;
     return await withApiError('Failed to get negative keywords', () =>
-      this.client.get<NegativeKeywordPagedCollection>(
-        `${this.basePath}/ad_campaign/${campaignId}/negative_keyword`,
-        params
-      )
+      this.client.get<NegativeKeywordPagedCollection>(`${this.basePath}/negative_keyword`, params)
     );
   }
 
   /**
-   * Create a negative keyword for a campaign
+   * Create a negative keyword in a priority-strategy CPC campaign.
+   *
+   * Maps to `POST /negative_keyword`. The target campaign and ad group are
+   * carried in the request body (`campaignId` / `adGroupId`), not the path.
    */
-  async createNegativeKeyword(
-    campaignId: string,
-    body: CreateNegativeKeywordRequest
-  ): Promise<BaseResponse> {
+  async createNegativeKeyword(body: CreateNegativeKeywordRequest): Promise<BaseResponse> {
     return await withApiError('Failed to create negative keyword', () =>
-      this.client.post<BaseResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/negative_keyword`,
-        body
-      )
+      this.client.post<BaseResponse>(`${this.basePath}/negative_keyword`, body)
     );
   }
 
   /**
-   * Bulk create negative keywords for a campaign
+   * Get a single negative keyword by its ID.
+   *
+   * Maps to `GET /negative_keyword/{negative_keyword_id}`.
    */
-  async bulkCreateNegativeKeywords(
-    campaignId: string,
-    body: BulkCreateNegativeKeywordRequest
-  ): Promise<BulkCreateNegativeKeywordResponse> {
-    return await withApiError('Failed to bulk create negative keywords', () =>
-      this.client.post<BulkCreateNegativeKeywordResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_create_negative_keywords`,
-        body
-      )
-    );
-  }
-
-  /**
-   * Bulk delete negative keywords for a campaign
-   */
-  async bulkDeleteNegativeKeywords(
-    campaignId: string,
-    body: BulkDeleteNegativeKeywordRequest
-  ): Promise<BulkDeleteNegativeKeywordResponse> {
-    return await withApiError('Failed to bulk delete negative keywords', () =>
-      this.client.post<BulkDeleteNegativeKeywordResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_delete_negative_keywords`,
-        body
-      )
-    );
-  }
-
-  /**
-   * Bulk update negative keywords for a campaign
-   */
-  async bulkUpdateNegativeKeywords(
-    campaignId: string,
-    body: BulkUpdateNegativeKeywordRequest
-  ): Promise<BulkUpdateNegativeKeywordResponse> {
-    return await withApiError('Failed to bulk update negative keywords', () =>
-      this.client.post<BulkUpdateNegativeKeywordResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_update_negative_keywords`,
-        body
-      )
-    );
-  }
-
-  /**
-   * Get a negative keyword for a campaign
-   */
-  async getNegativeKeyword(
-    campaignId: string,
-    negativeKeywordId: string
-  ): Promise<NegativeKeyword> {
+  async getNegativeKeyword(negativeKeywordId: string): Promise<NegativeKeyword> {
     return await withApiError('Failed to get negative keyword', () =>
-      this.client.get<NegativeKeyword>(
-        `${this.basePath}/ad_campaign/${campaignId}/negative_keyword/${negativeKeywordId}`
-      )
+      this.client.get<NegativeKeyword>(`${this.basePath}/negative_keyword/${negativeKeywordId}`)
     );
   }
 
   /**
-   * Delete a negative keyword for a campaign
-   */
-  async deleteNegativeKeyword(campaignId: string, negativeKeywordId: string): Promise<void> {
-    return await withApiError('Failed to delete negative keyword', () =>
-      this.client.delete<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/negative_keyword/${negativeKeywordId}`
-      )
-    );
-  }
-
-  /**
-   * Update a negative keyword for a campaign
+   * Update a negative keyword's status (for example, to archive it).
+   *
+   * Maps to `PUT /negative_keyword/{negative_keyword_id}`. eBay exposes no
+   * delete endpoint for negative keywords — a status change (such as `ARCHIVED`)
+   * is the removal mechanism.
    */
   async updateNegativeKeyword(
-    campaignId: string,
     negativeKeywordId: string,
     body: NegativeKeywordRequest
   ): Promise<BaseResponse> {
     return await withApiError('Failed to update negative keyword', () =>
-      this.client.put<BaseResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/negative_keyword/${negativeKeywordId}`,
-        body
-      )
+      this.client.put<BaseResponse>(`${this.basePath}/negative_keyword/${negativeKeywordId}`, body)
     );
   }
 
   /**
-   * Get negative keywords for an ad group
+   * Create multiple negative keywords in one request.
+   *
+   * Maps to `POST /bulk_create_negative_keyword`. Each entry in `requests`
+   * carries its own `campaignId` / `adGroupId`.
    */
-  async getNegativeKeywordsForAdGroup(
-    adGroupId: string,
-    limit?: number,
-    offset?: number
-  ): Promise<NegativeKeywordPagedCollection> {
-    const params: Record<string, string | number> = {};
-    if (limit) params.limit = limit;
-    if (offset) params.offset = offset;
-    return await withApiError('Failed to get negative keywords for ad group', () =>
-      this.client.get<NegativeKeywordPagedCollection>(
-        `${this.basePath}/ad_group/${adGroupId}/negative_keyword`,
-        params
-      )
-    );
-  }
-
-  /**
-   * Create a negative keyword for an ad group
-   */
-  async createNegativeKeywordForAdGroup(
-    adGroupId: string,
-    body: CreateNegativeKeywordRequest
-  ): Promise<BaseResponse> {
-    return await withApiError('Failed to create negative keyword for ad group', () =>
-      this.client.post<BaseResponse>(
-        `${this.basePath}/ad_group/${adGroupId}/negative_keyword`,
-        body
-      )
-    );
-  }
-
-  /**
-   * Bulk create negative keywords for an ad group
-   */
-  async bulkCreateNegativeKeywordsForAdGroup(
-    adGroupId: string,
+  async bulkCreateNegativeKeywords(
     body: BulkCreateNegativeKeywordRequest
   ): Promise<BulkCreateNegativeKeywordResponse> {
-    return await withApiError('Failed to bulk create negative keywords for ad group', () =>
+    return await withApiError('Failed to bulk create negative keywords', () =>
       this.client.post<BulkCreateNegativeKeywordResponse>(
-        `${this.basePath}/ad_group/${adGroupId}/bulk_create_negative_keywords`,
+        `${this.basePath}/bulk_create_negative_keyword`,
         body
       )
     );
   }
 
   /**
-   * Bulk delete negative keywords for an ad group
+   * Update the status of multiple negative keywords in one request.
+   *
+   * Maps to `POST /bulk_update_negative_keyword`.
    */
-  async bulkDeleteNegativeKeywordsForAdGroup(
-    adGroupId: string,
-    body: BulkDeleteNegativeKeywordRequest
-  ): Promise<BulkDeleteNegativeKeywordResponse> {
-    return await withApiError('Failed to bulk delete negative keywords for ad group', () =>
-      this.client.post<BulkDeleteNegativeKeywordResponse>(
-        `${this.basePath}/ad_group/${adGroupId}/bulk_delete_negative_keywords`,
-        body
-      )
-    );
-  }
-
-  /**
-   * Bulk update negative keywords for an ad group
-   */
-  async bulkUpdateNegativeKeywordsForAdGroup(
-    adGroupId: string,
+  async bulkUpdateNegativeKeywords(
     body: BulkUpdateNegativeKeywordRequest
   ): Promise<BulkUpdateNegativeKeywordResponse> {
-    return await withApiError('Failed to bulk update negative keywords for ad group', () =>
+    return await withApiError('Failed to bulk update negative keywords', () =>
       this.client.post<BulkUpdateNegativeKeywordResponse>(
-        `${this.basePath}/ad_group/${adGroupId}/bulk_update_negative_keywords`,
-        body
-      )
-    );
-  }
-
-  /**
-   * Get a negative keyword for an ad group
-   */
-  async getNegativeKeywordForAdGroup(
-    adGroupId: string,
-    negativeKeywordId: string
-  ): Promise<NegativeKeyword> {
-    return await withApiError('Failed to get negative keyword for ad group', () =>
-      this.client.get<NegativeKeyword>(
-        `${this.basePath}/ad_group/${adGroupId}/negative_keyword/${negativeKeywordId}`
-      )
-    );
-  }
-
-  /**
-   * Delete a negative keyword for an ad group
-   */
-  async deleteNegativeKeywordForAdGroup(
-    adGroupId: string,
-    negativeKeywordId: string
-  ): Promise<void> {
-    return await withApiError('Failed to delete negative keyword for ad group', () =>
-      this.client.delete<void>(
-        `${this.basePath}/ad_group/${adGroupId}/negative_keyword/${negativeKeywordId}`
-      )
-    );
-  }
-
-  /**
-   * Update a negative keyword for an ad group
-   */
-  async updateNegativeKeywordForAdGroup(
-    adGroupId: string,
-    negativeKeywordId: string,
-    body: NegativeKeywordRequest
-  ): Promise<BaseResponse> {
-    return await withApiError('Failed to update negative keyword for ad group', () =>
-      this.client.put<BaseResponse>(
-        `${this.basePath}/ad_group/${adGroupId}/negative_keyword/${negativeKeywordId}`,
+        `${this.basePath}/bulk_update_negative_keyword`,
         body
       )
     );

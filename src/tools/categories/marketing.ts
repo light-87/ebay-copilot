@@ -30,10 +30,10 @@ export const marketingEntries: ToolEntry[] = marketingTools.map((definition) => 
 }));
 
 /**
- * Marketing handlers that have no registered definition (e.g. the generic
- * `ebay_*_negative_keyword[s]` variants and `ebay_get_ad_report_metadata_for_report_type`).
- * They remain callable via `executeTool` but are not advertised to MCP clients,
- * preserving prior behavior where these handlers existed without a definition.
+ * Marketing handlers that have no registered definition (currently only
+ * `ebay_get_ad_report_metadata_for_report_type`). They remain callable via
+ * `executeTool` but are not advertised to MCP clients, preserving prior behavior
+ * where these handlers existed without a definition.
  */
 export const marketingHandlerOnlyEntries: ToolEntry[] = Object.entries(marketingHandlers)
   .filter(([name]) => !registeredMarketingNames.has(name))
