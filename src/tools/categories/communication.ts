@@ -3,12 +3,6 @@ import { rawTool } from '@/tools/define-tool.js';
 import type { OutputArgs } from '@/tools/definitions/types.js';
 import type { ToolEntry } from '@/tools/registry.js';
 import {
-  feedbackDataSchema,
-  notificationConfigSchema,
-  notificationDestinationSchema,
-  offerToBuyersSchema,
-} from '../schemas.js';
-import {
   getAwaitingFeedbackSchema,
   getFeedbackRatingSummarySchema,
   getFeedbackSchema,
@@ -55,20 +49,16 @@ import {
  *
  * These tools use {@link rawTool} rather than `defineTool`: each handler validates
  * its arguments against a dedicated `@/utils/communication` schema (the real call
- * contract), and several advertised input schemas intentionally differ from that
- * internal schema. Re-parsing against the advertised schema would strip or reject
- * fields the handler's own schema needs, so arguments reach the handler unmodified.
+ * contract). The advertised input schema is taken from that same schema's `.shape`,
+ * so MCP clients see exactly the fields the handler accepts — no re-parsing against
+ * a divergent advertised schema, and no field-name drift between the two.
  */
 export const communicationEntries: ToolEntry[] = [
   // Negotiation API
   rawTool({
     name: 'ebay_get_offers_to_buyers',
     description: 'Get offers to buyers (Best Offers) for the seller',
-    inputSchema: {
-      filter: z.string().optional().describe('Filter criteria for offers'),
-      limit: z.number().optional().describe('Number of offers to return'),
-      offset: z.number().optional().describe('Number of offers to skip'),
-    },
+    inputSchema: getOffersToBuyersSchema.shape,
     handler: (api, args) => {
       const validated = getOffersToBuyersSchema.parse(args);
       return api.negotiation.getOffersToBuyers(
@@ -81,10 +71,7 @@ export const communicationEntries: ToolEntry[] = [
   rawTool({
     name: 'ebay_send_offer_to_interested_buyers',
     description: 'Send offer to interested buyers',
-    inputSchema: {
-      offerId: z.string().describe('The offer ID'),
-      offerData: offerToBuyersSchema.describe('Offer details to send to buyers'),
-    },
+    inputSchema: sendOfferToInterestedBuyersSchema.shape,
     handler: (api, args) => {
       const validated = sendOfferToInterestedBuyersSchema.parse(args);
       return api.negotiation.sendOfferToInterestedBuyers(validated);
@@ -94,11 +81,7 @@ export const communicationEntries: ToolEntry[] = [
   rawTool({
     name: 'ebay_search_messages',
     description: 'Search for buyer-seller messages',
-    inputSchema: {
-      filter: z.string().optional().describe('Filter criteria for messages'),
-      limit: z.number().optional().describe('Number of messages to return'),
-      offset: z.number().optional().describe('Number of messages to skip'),
-    },
+    inputSchema: getConversationsSchema.shape,
     handler: (api, args) => {
       const validated = getConversationsSchema.parse(args);
       return api.message.searchMessages(
@@ -111,9 +94,7 @@ export const communicationEntries: ToolEntry[] = [
   rawTool({
     name: 'ebay_get_message',
     description: 'Get a specific message by ID',
-    inputSchema: {
-      messageId: z.string().describe('The message ID'),
-    },
+    inputSchema: getConversationSchema.shape,
     handler: (api, args) => {
       const validated = getConversationSchema.parse(args);
       return api.message.getMessage(validated.conversation_id);
@@ -122,63 +103,8 @@ export const communicationEntries: ToolEntry[] = [
   rawTool({
     name: 'ebay_send_message',
     description:
-      'Send a direct message to a buyer regarding a specific transaction or inquiry. Use this to communicate about orders, answer questions, resolve issues, or provide updates.',
-    inputSchema: {
-      messageData: z
-        .object({
-          conversationId: z
-            .string()
-            .optional()
-            .describe(
-              'Optional conversation ID to reply to an existing thread. Use getConversations to retrieve conversation IDs. Required if replying to existing conversation.'
-            ),
-          messageText: z
-            .string()
-            .describe('REQUIRED. The text of the message to send (max 2000 characters).'),
-          otherPartyUsername: z
-            .string()
-            .optional()
-            .describe(
-              'eBay username of the other party (buyer or seller). Required when starting a new conversation.'
-            ),
-          emailCopyToSender: z
-            .boolean()
-            .optional()
-            .describe('If true, a copy of the message will be emailed to the sender.'),
-          reference: z
-            .object({
-              referenceId: z
-                .string()
-                .optional()
-                .describe(
-                  'The ID of the listing or order to reference (e.g., item ID or order ID)'
-                ),
-              referenceType: z
-                .string()
-                .optional()
-                .describe(
-                  'Type of reference. Valid values: "LISTING" (for item listings) or "ORDER" (for orders)'
-                ),
-            })
-            .optional()
-            .describe('Optional reference to associate message with a listing or order.'),
-          messageMedia: z
-            .array(
-              z.object({
-                mediaUrl: z.string().optional().describe('URL of the media to attach'),
-                mediaType: z
-                  .string()
-                  .optional()
-                  .describe('MIME type of the media (e.g., "image/jpeg")'),
-              })
-            )
-            .optional()
-            .describe('Optional array of media attachments (max 5 per message)'),
-        })
-        .describe(
-          'Message details including recipient and content. Must include messageText (required), and either conversationId (for replies) OR otherPartyUsername (for new messages).'
-        ),
-    },
+      'Send a direct message to a buyer regarding a specific transaction or inquiry. Use this to communicate about orders, answer questions, resolve issues, or provide updates. Provide message_text plus either conversation_id (to reply) or other_party_username (to start a new thread).',
+    inputSchema: sendMessageSchema.shape,
     handler: (api, args) => {
       const validated = sendMessageSchema.parse(args);
       return api.message.sendMessage(validated);
@@ -211,9 +137,7 @@ export const communicationEntries: ToolEntry[] = [
   rawTool({
     name: 'ebay_update_notification_config',
     description: 'Update notification configuration',
-    inputSchema: {
-      config: notificationConfigSchema.describe('Notification configuration settings'),
-    },
+    inputSchema: updateConfigSchema.shape,
     handler: (api, args) => {
       const validated = updateConfigSchema.parse(args);
       return api.notification.updateConfig(validated);
@@ -234,9 +158,7 @@ export const communicationEntries: ToolEntry[] = [
   rawTool({
     name: 'ebay_create_notification_destination',
     description: 'Create a notification destination',
-    inputSchema: {
-      destination: notificationDestinationSchema.describe('Destination configuration'),
-    },
+    inputSchema: createDestinationSchema.shape,
     handler: (api, args) => {
       const validated = createDestinationSchema.parse(args);
       return api.notification.createDestination(validated);
@@ -487,11 +409,7 @@ export const communicationEntries: ToolEntry[] = [
   rawTool({
     name: 'ebay_get_conversations',
     description: 'Get all buyer-seller conversations (paginated)',
-    inputSchema: {
-      filter: z.string().optional().describe('Filter criteria for conversations'),
-      limit: z.number().optional().describe('Number of conversations to return'),
-      offset: z.number().optional().describe('Number of conversations to skip'),
-    },
+    inputSchema: getConversationsSchema.shape,
     handler: (api, args) => {
       const validated = getConversationsSchema.parse(args);
       return api.message.getConversations(
@@ -504,9 +422,7 @@ export const communicationEntries: ToolEntry[] = [
   rawTool({
     name: 'ebay_get_conversation',
     description: 'Get a specific conversation by ID',
-    inputSchema: {
-      conversation_id: z.string().describe('The unique identifier for the conversation'),
-    },
+    inputSchema: getConversationSchema.shape,
     handler: (api, args) => {
       const validated = getConversationSchema.parse(args);
       return api.message.getConversation(validated.conversation_id);
@@ -514,18 +430,9 @@ export const communicationEntries: ToolEntry[] = [
   }),
   rawTool({
     name: 'ebay_bulk_update_conversation',
-    description: 'Bulk update multiple conversations (read status, flagged, etc.)',
-    inputSchema: {
-      conversations: z
-        .array(
-          z.object({
-            conversation_id: z.string().describe('The conversation ID'),
-            read: z.boolean().optional().describe('Mark as read/unread'),
-            flagged: z.boolean().optional().describe('Mark as flagged/unflagged'),
-          })
-        )
-        .describe('Array of conversations to update'),
-    },
+    description:
+      'Bulk update multiple conversations. Each entry sets conversation_status (ACTIVE, ARCHIVE, DELETE, READ, UNREAD) for a conversation_id.',
+    inputSchema: bulkUpdateConversationSchema.shape,
     handler: (api, args) => {
       const validated = bulkUpdateConversationSchema.parse(args);
       return api.message.bulkUpdateConversation(validated);
@@ -533,12 +440,9 @@ export const communicationEntries: ToolEntry[] = [
   }),
   rawTool({
     name: 'ebay_update_conversation',
-    description: 'Update a single conversation (read status, flagged, etc.)',
-    inputSchema: {
-      conversation_id: z.string().describe('The conversation ID'),
-      read: z.boolean().optional().describe('Mark as read/unread'),
-      flagged: z.boolean().optional().describe('Mark as flagged/unflagged'),
-    },
+    description:
+      'Update a single conversation (conversation_status: ACTIVE, ARCHIVE, DELETE; or read flag).',
+    inputSchema: updateConversationSchema.shape,
     handler: (api, args) => {
       const validated = updateConversationSchema.parse(args);
       return api.message.updateConversation(validated);
@@ -567,10 +471,9 @@ export const communicationEntries: ToolEntry[] = [
   }),
   rawTool({
     name: 'ebay_leave_feedback_for_buyer',
-    description: 'Leave feedback for a buyer',
-    inputSchema: {
-      feedbackData: feedbackDataSchema.describe('Feedback details including rating and comment'),
-    },
+    description:
+      'Leave feedback for a buyer. Provide order_line_item_id, comment_type (POSITIVE/NEUTRAL/NEGATIVE), and comment_text.',
+    inputSchema: leaveFeedbackForBuyerSchema.shape,
     handler: (api, args) => {
       const validated = leaveFeedbackForBuyerSchema.parse(args);
       return api.feedback.leaveFeedbackForBuyer(validated);

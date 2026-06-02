@@ -383,7 +383,7 @@ export const accountEntries: ToolEntry[] = [
     name: 'ebay_bulk_create_or_replace_sales_tax',
     description: 'Bulk create or replace sales tax tables',
     inputSchema: {
-      requests: bulkSalesTaxRequestSchema.describe('Array of sales tax requests'),
+      requests: bulkSalesTaxRequestSchema.shape.requests.describe('Array of sales tax requests'),
     },
     handler: (api, args) => api.account.bulkCreateOrReplaceSalesTax(args.requests),
   }),

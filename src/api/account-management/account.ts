@@ -386,7 +386,7 @@ export class AccountApi {
   /**
    * Bulk create or replace sales tax tables
    */
-  async bulkCreateOrReplaceSalesTax(requests: Record<string, unknown>): Promise<void> {
+  async bulkCreateOrReplaceSalesTax(requests: Record<string, unknown>[]): Promise<void> {
     return await withApiError('Failed to bulk create or replace sales tax', () =>
       this.client.post(`${this.basePath}/sales_tax/bulk_create_or_replace`, {
         requests,

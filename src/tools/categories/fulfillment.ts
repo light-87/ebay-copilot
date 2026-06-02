@@ -258,7 +258,10 @@ export const fulfillmentEntries: ToolEntry[] = [
       description: 'Empty response on successful acceptance (HTTP 204)',
     } as OutputArgs,
     handler: (api, args) =>
-      api.dispute.acceptPaymentDispute(args.paymentDisputeId, args.returnAddress),
+      api.dispute.acceptPaymentDispute(args.paymentDisputeId, {
+        returnAddress: args.returnAddress,
+        revision: args.revisionNumber,
+      }),
   }),
   defineTool({
     name: 'ebay_contest_payment_dispute',
@@ -285,7 +288,10 @@ export const fulfillmentEntries: ToolEntry[] = [
       description: 'Empty response on successful contest (HTTP 204)',
     } as OutputArgs,
     handler: (api, args) =>
-      api.dispute.contestPaymentDispute(args.paymentDisputeId, args.returnAddress),
+      api.dispute.contestPaymentDispute(args.paymentDisputeId, {
+        returnAddress: args.returnAddress,
+        revision: args.revisionNumber,
+      }),
   }),
   defineTool({
     name: 'ebay_add_payment_dispute_evidence',

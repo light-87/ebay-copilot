@@ -1385,6 +1385,20 @@ describe('MarketingApi', () => {
       });
     });
 
+    it('should get promotions filtered by status, type, and offset', async () => {
+      vi.spyOn(mockClient, 'get').mockResolvedValue({ total: 0, promotions: [] });
+
+      await marketingApi.getPromotions('EBAY_US', 10, 20, 'RUNNING', 'ORDER_DISCOUNT');
+
+      expect(mockClient.get).toHaveBeenCalledWith('/sell/marketing/v1/promotion', {
+        marketplace_id: 'EBAY_US',
+        limit: 10,
+        offset: 20,
+        promotion_status: 'RUNNING',
+        promotion_type: 'ORDER_DISCOUNT',
+      });
+    });
+
     it('should create a promotion', async () => {
       const promotionRequest: ItemPromotion = {
         name: 'Test Promotion',

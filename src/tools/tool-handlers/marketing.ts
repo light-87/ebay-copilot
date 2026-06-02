@@ -589,7 +589,13 @@ export const marketingHandlers: ToolHandlerMap = {
   },
 
   ebay_get_promotions: async (api, args) => {
-    return await api.marketing.getPromotions(args.marketplaceId as string, args.limit as number);
+    return await api.marketing.getPromotions(
+      args.marketplaceId as string,
+      args.limit as number,
+      args.offset as number,
+      args.promotionStatus as string,
+      args.promotionType as string
+    );
   },
 
   ebay_get_item_promotion: async (api, args) => {

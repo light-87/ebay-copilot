@@ -130,15 +130,26 @@ export class MarketingApi {
   }
 
   /**
-   * Get promotions
+   * Get promotions (discounts), optionally filtered by status and type.
+   *
+   * Mirrors eBay's `getPromotions` query parameters: `marketplace_id` selects the
+   * site, `promotion_status` (DRAFT, SCHEDULED, RUNNING, PAUSED, ENDED) and
+   * `promotion_type` (e.g. ORDER_DISCOUNT, MARKDOWN_SALE) narrow the result set,
+   * and `limit`/`offset` page through it.
    */
   async getPromotions(
     marketplaceId?: string,
-    limit?: number
+    limit?: number,
+    offset?: number,
+    promotionStatus?: string,
+    promotionType?: string
   ): Promise<ItemPromotionsPagedCollection> {
     const params: Record<string, string | number> = {};
     if (marketplaceId) params.marketplace_id = marketplaceId;
     if (limit) params.limit = limit;
+    if (offset) params.offset = offset;
+    if (promotionStatus) params.promotion_status = promotionStatus;
+    if (promotionType) params.promotion_type = promotionType;
     return await withApiError('Failed to get promotions', () =>
       this.client.get<ItemPromotionsPagedCollection>(`${this.basePath}/promotion`, params)
     );
