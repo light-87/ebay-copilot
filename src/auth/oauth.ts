@@ -172,7 +172,7 @@ export class EbayOAuthClient {
       return this.appAccessToken;
     }
 
-    const authUrl = `${getBaseUrl(this.config.environment)}/identity/v1/oauth2/token`;
+    const authUrl = `${getBaseUrl(this.config.environment, this.config.apiBaseUrl)}/identity/v1/oauth2/token`;
     const credentials = Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString(
       'base64'
     );
@@ -221,7 +221,7 @@ export class EbayOAuthClient {
       throw new Error('Redirect URI is required for authorization code exchange');
     }
 
-    const tokenUrl = `${getBaseUrl(this.config.environment)}/identity/v1/oauth2/token`;
+    const tokenUrl = `${getBaseUrl(this.config.environment, this.config.apiBaseUrl)}/identity/v1/oauth2/token`;
     const credentials = Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString(
       'base64'
     );
@@ -273,7 +273,7 @@ export class EbayOAuthClient {
     }
 
     // Use the token endpoint, not the authorization endpoint
-    const authUrl = `${getBaseUrl(this.config.environment)}/identity/v1/oauth2/token`;
+    const authUrl = `${getBaseUrl(this.config.environment, this.config.apiBaseUrl)}/identity/v1/oauth2/token`;
     const credentials = Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString(
       'base64'
     );

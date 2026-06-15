@@ -89,7 +89,7 @@ export class EbayApiClient {
   constructor(config: EbayConfig) {
     this.config = config;
     this.authClient = new EbayOAuthClient(config);
-    this.baseUrl = getBaseUrl(config.environment);
+    this.baseUrl = getBaseUrl(config.environment, config.apiBaseUrl);
     this.rateLimitTracker = new RateLimitTracker();
   }
 
@@ -140,7 +140,11 @@ export class EbayApiClient {
       absolute?: boolean;
     }
   ): Promise<T> {
-    this.validateAccessToken();
+    // In proxy auth mode the upstream proxy supplies credentials, so the server
+    // neither requires nor validates its own. See EBAY_MCP_DISABLE_AUTH_HEADER.
+    if (!this.config.disableAuthHeader) {
+      this.validateAccessToken();
+    }
 
     const url = options.absolute ? endpoint : `${this.baseUrl}${endpoint}`;
     let authRetried = false;
@@ -165,17 +169,22 @@ export class EbayApiClient {
         );
       }
 
-      const token = await this.authClient.getAccessToken();
-      if (!token) {
-        throw new Error(
-          'Access token is missing. Provide EBAY_USER_REFRESH_TOKEN or valid app credentials, then retry.'
-        );
-      }
-      const headers = {
+      const headers: Record<string, string> = {
         ...this.getDefaultHeaders(),
         ...options.headers,
-        Authorization: `Bearer ${token}`,
       };
+
+      // Proxy auth mode: attach no Authorization header and acquire no token —
+      // the upstream proxy injects whatever credentials eBay requires.
+      if (!this.config.disableAuthHeader) {
+        const token = await this.authClient.getAccessToken();
+        if (!token) {
+          throw new Error(
+            'Access token is missing. Provide EBAY_USER_REFRESH_TOKEN or valid app credentials, then retry.'
+          );
+        }
+        headers.Authorization = `Bearer ${token}`;
+      }
 
       this.rateLimitTracker.recordRequest();
       logRequest(method, url, options.params, options.data);
@@ -210,8 +219,10 @@ export class EbayApiClient {
           apiLogger.error('No response received from server', { url });
         }
 
-        // 401 — refresh the token once, then retry the request.
-        if (error.status === 401) {
+        // 401 — refresh the token once, then retry the request. Skipped in proxy
+        // auth mode: the server holds no token to refresh, so a 401 (the proxy's
+        // own auth failing) is surfaced directly rather than retried.
+        if (error.status === 401 && !this.config.disableAuthHeader) {
           if (!authRetried) {
             authRetried = true;
             apiLogger.warn('Authentication error (401). Attempting to refresh user token...');

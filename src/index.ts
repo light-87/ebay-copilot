@@ -53,6 +53,11 @@ class EbayMcpServer {
     // Validate environment configuration
     const validation = validateEnvironmentConfig();
 
+    // Log informational notices (e.g. proxy auth mode)
+    validation.infos.forEach((info) => {
+      serverLogger.info(info);
+    });
+
     // Log warnings
     if (validation.warnings.length > 0) {
       validation.warnings.forEach((warning) => {

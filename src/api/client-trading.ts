@@ -1,5 +1,6 @@
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import type { EbayApiClient } from '@/api/client.js';
+import { getBaseUrl } from '@/config/environment.js';
 import { httpRequest } from '@/utils/http.js';
 import { apiLogger } from '@/utils/logger.js';
 import { isRecord } from '@/utils/type-guards.js';
@@ -18,8 +19,8 @@ export class TradingApiClient {
 
   constructor(restClient: EbayApiClient) {
     this.restClient = restClient;
-    const env = restClient.getConfig().environment;
-    this.baseUrl = env === 'sandbox' ? 'https://api.sandbox.ebay.com' : 'https://api.ebay.com';
+    const config = restClient.getConfig();
+    this.baseUrl = getBaseUrl(config.environment, config.apiBaseUrl);
 
     this.parser = new XMLParser({
       ignoreAttributes: false,
@@ -64,8 +65,6 @@ export class TradingApiClient {
     callName: string,
     params: Record<string, unknown>
   ): Promise<Record<string, unknown>> {
-    const token = await this.restClient.getOAuthClient().getAccessToken();
-
     const requestTag = `${callName}Request`;
     const responseTag = `${callName}Response`;
 
@@ -79,18 +78,25 @@ export class TradingApiClient {
 
     apiLogger.debug(`Trading API ${callName}`, { xmlBody });
 
+    const headers: Record<string, string> = {
+      'X-EBAY-API-SITEID': SITE_ID,
+      'X-EBAY-API-COMPATIBILITY-LEVEL': COMPAT_LEVEL,
+      'X-EBAY-API-CALL-NAME': callName,
+      'Content-Type': 'text/xml',
+    };
+
+    // Proxy auth mode: omit the IAF token and skip token acquisition — the proxy
+    // injects the credential the Trading API requires.
+    if (!this.restClient.getConfig().disableAuthHeader) {
+      headers['X-EBAY-API-IAF-TOKEN'] = await this.restClient.getOAuthClient().getAccessToken();
+    }
+
     let responseXml: string;
     try {
       const response = await httpRequest<string>({
         method: 'POST',
         url: `${this.baseUrl}/ws/api.dll`,
-        headers: {
-          'X-EBAY-API-SITEID': SITE_ID,
-          'X-EBAY-API-COMPATIBILITY-LEVEL': COMPAT_LEVEL,
-          'X-EBAY-API-CALL-NAME': callName,
-          'X-EBAY-API-IAF-TOKEN': token,
-          'Content-Type': 'text/xml',
-        },
+        headers,
         body: xmlBody,
         timeoutMs: 30000,
         responseType: 'text',
