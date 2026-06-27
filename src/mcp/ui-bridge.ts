@@ -46,7 +46,7 @@ type ClientUiCapabilities = Parameters<typeof getUiCapability>[0];
  */
 export function resolveUiEnabled(
   capabilities: ClientUiCapabilities,
-  env: NodeJS.ProcessEnv = process.env
+  env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   if (env.EBAY_MCP_UI === 'off') {
     return false;

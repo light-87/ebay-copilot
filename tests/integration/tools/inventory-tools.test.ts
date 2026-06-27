@@ -90,7 +90,7 @@ describe('Inventory Tools Integration Tests', () => {
         '/sell/inventory/v1/inventory_item?limit=25&offset=0',
         'get',
         'sandbox',
-        mockResponse
+        mockResponse,
       );
 
       const result = await executeTool(api, 'ebay_get_inventory_items', {
@@ -114,7 +114,7 @@ describe('Inventory Tools Integration Tests', () => {
         '/sell/inventory/v1/inventory_item?limit=10&offset=20',
         'get',
         'sandbox',
-        mockResponse
+        mockResponse,
       );
 
       const result = await executeTool(api, 'ebay_get_inventory_items', {
@@ -152,7 +152,7 @@ describe('Inventory Tools Integration Tests', () => {
         '/sell/inventory/v1/inventory_item/TEST-SKU-001',
         'get',
         'sandbox',
-        mockItem
+        mockItem,
       );
 
       const result = await executeTool(api, 'ebay_get_inventory_item', {
@@ -169,11 +169,11 @@ describe('Inventory Tools Integration Tests', () => {
         'get',
         'sandbox',
         'Inventory item not found',
-        404
+        404,
       );
 
       await expect(
-        executeTool(api, 'ebay_get_inventory_item', { sku: 'INVALID-SKU' })
+        executeTool(api, 'ebay_get_inventory_item', { sku: 'INVALID-SKU' }),
       ).rejects.toThrow();
     });
   });
@@ -202,7 +202,7 @@ describe('Inventory Tools Integration Tests', () => {
         'put',
         'sandbox',
         undefined,
-        204
+        204,
       );
 
       await executeTool(api, 'ebay_create_inventory_item', {
@@ -225,14 +225,14 @@ describe('Inventory Tools Integration Tests', () => {
         'put',
         'sandbox',
         'Missing required field: availability',
-        400
+        400,
       );
 
       await expect(
         executeTool(api, 'ebay_create_inventory_item', {
           sku: 'NEW-SKU-001',
           inventoryItem: invalidItem,
-        })
+        }),
       ).rejects.toThrow();
     });
   });
@@ -276,7 +276,7 @@ describe('Inventory Tools Integration Tests', () => {
         '/sell/inventory/v1/offer?marketplace_id=EBAY_US',
         'get',
         'sandbox',
-        mockResponse
+        mockResponse,
       );
 
       const result = await executeTool(api, 'ebay_get_offers', {
@@ -329,7 +329,7 @@ describe('Inventory Tools Integration Tests', () => {
         '/sell/inventory/v1/offer/1234567890/publish',
         'post',
         'sandbox',
-        mockResponse
+        mockResponse,
       );
 
       const result = await executeTool(api, 'ebay_publish_offer', {
@@ -346,11 +346,11 @@ describe('Inventory Tools Integration Tests', () => {
         'post',
         'sandbox',
         'Offer not found',
-        404
+        404,
       );
 
       await expect(
-        executeTool(api, 'ebay_publish_offer', { offerId: 'INVALID-OFFER' })
+        executeTool(api, 'ebay_publish_offer', { offerId: 'INVALID-OFFER' }),
       ).rejects.toThrow();
     });
   });
@@ -408,7 +408,7 @@ describe('Inventory Tools Integration Tests', () => {
         'post',
         'sandbox',
         undefined,
-        204
+        204,
       );
 
       await executeTool(api, 'ebay_create_or_replace_inventory_location', {

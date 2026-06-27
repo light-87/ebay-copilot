@@ -10,11 +10,7 @@ import {
   summarizeView,
 } from '@/mcp/ui-bridge.js';
 import type { ResolvedToolUi } from '@/tools/registry.js';
-import type {
-  CardViewModel,
-  ChartViewModel,
-  TableViewModel,
-} from '@/tools/ui/view-models.js';
+import type { CardViewModel, ChartViewModel, TableViewModel } from '@/tools/ui/view-models.js';
 
 /** Client capabilities advertising MCP Apps support for the given MIME types. */
 function uiCapabilities(mimeTypes: string[]): Record<string, unknown> {
@@ -33,7 +29,7 @@ describe('resolveUiEnabled', () => {
 
   it('is force-disabled by the EBAY_MCP_UI=off kill-switch even when supported', () => {
     expect(resolveUiEnabled(uiCapabilities([RESOURCE_MIME_TYPE]), { EBAY_MCP_UI: 'off' })).toBe(
-      false
+      false,
     );
   });
 });
@@ -51,7 +47,7 @@ describe('summarizeView', () => {
       footnote: 'Showing 2 of 240',
     };
     expect(summarizeView(view)).toBe(
-      'Orders: 2 rows — Showing 2 of 240. Rendered as an interactive table.'
+      'Orders: 2 rows — Showing 2 of 240. Rendered as an interactive table.',
     );
   });
 
@@ -63,7 +59,7 @@ describe('summarizeView', () => {
       sections: [{ heading: 'Summary', fields: [{ label: 'Total', value: '1.00 USD' }] }],
     };
     expect(summarizeView(view)).toBe(
-      'Order 1 — Buyer: buyer1: 1 field. Rendered as an interactive detail card.'
+      'Order 1 — Buyer: buyer1: 1 field. Rendered as an interactive detail card.',
     );
   });
 
@@ -72,10 +68,18 @@ describe('summarizeView', () => {
       archetype: 'chart',
       title: 'Traffic report',
       kind: 'line',
-      series: [{ name: 'Views', points: [{ x: 'd1', y: 1 }, { x: 'd2', y: 2 }] }],
+      series: [
+        {
+          name: 'Views',
+          points: [
+            { x: 'd1', y: 1 },
+            { x: 'd2', y: 2 },
+          ],
+        },
+      ],
     };
     expect(summarizeView(view)).toBe(
-      'Traffic report (line): 1 series, 2 points. Rendered as an interactive chart.'
+      'Traffic report (line): 1 series, 2 points. Rendered as an interactive chart.',
     );
   });
 });

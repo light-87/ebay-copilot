@@ -27,7 +27,7 @@ export class MessageApi {
     }
 
     return await withApiError('Failed to bulk update conversation', () =>
-      this.client.post(`${this.basePath}/bulk_update_conversation`, updateData)
+      this.client.post(`${this.basePath}/bulk_update_conversation`, updateData),
     );
   }
 
@@ -46,7 +46,7 @@ export class MessageApi {
       this.client,
       conversationPath,
       queryParams,
-      'Failed to get conversations'
+      'Failed to get conversations',
     );
   }
 
@@ -61,7 +61,7 @@ export class MessageApi {
   private buildConversationQueryParams(
     filter?: string,
     limit?: number,
-    offset?: number
+    offset?: number,
   ): Record<string, string | number> {
     return buildPaginatedQueryParams(filter, limit, offset);
   }
@@ -77,7 +77,7 @@ export class MessageApi {
     return await getPathWithContextError(
       this.client,
       `${this.basePath}/conversation/${conversationId}`,
-      'Failed to get conversation'
+      'Failed to get conversation',
     );
   }
 
@@ -92,7 +92,7 @@ export class MessageApi {
     }
 
     return await withApiError('Failed to send message', () =>
-      this.client.post(`${this.basePath}/send_message`, messageData)
+      this.client.post(`${this.basePath}/send_message`, messageData),
     );
   }
 
@@ -107,7 +107,7 @@ export class MessageApi {
     }
 
     return await withApiError('Failed to update conversation', () =>
-      this.client.post(`${this.basePath}/update_conversation`, updateData)
+      this.client.post(`${this.basePath}/update_conversation`, updateData),
     );
   }
 

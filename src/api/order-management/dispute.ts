@@ -25,7 +25,7 @@ export class DisputeApi {
    */
   async getPaymentDispute(paymentDisputeId: string): Promise<PaymentDispute> {
     return await withApiError('Failed to get payment dispute', () =>
-      this.client.get<PaymentDispute>(`${this.basePath}/payment_dispute/${paymentDisputeId}`)
+      this.client.get<PaymentDispute>(`${this.basePath}/payment_dispute/${paymentDisputeId}`),
     );
   }
 
@@ -35,7 +35,7 @@ export class DisputeApi {
   async fetchEvidenceContent(
     paymentDisputeId: string,
     evidenceId: string,
-    fileId: string
+    fileId: string,
   ): Promise<ArrayBuffer> {
     const params: Record<string, string> = {
       evidence_id: evidenceId,
@@ -44,8 +44,8 @@ export class DisputeApi {
     return await withApiError('Failed to fetch evidence content', () =>
       this.client.get<ArrayBuffer>(
         `${this.basePath}/payment_dispute/${paymentDisputeId}/fetch_evidence_content`,
-        params
-      )
+        params,
+      ),
     );
   }
 
@@ -55,8 +55,8 @@ export class DisputeApi {
   async getActivities(paymentDisputeId: string): Promise<PaymentDisputeActivityHistory> {
     return await withApiError('Failed to get activities', () =>
       this.client.get<PaymentDisputeActivityHistory>(
-        `${this.basePath}/payment_dispute/${paymentDisputeId}/activity`
-      )
+        `${this.basePath}/payment_dispute/${paymentDisputeId}/activity`,
+      ),
     );
   }
 
@@ -73,7 +73,7 @@ export class DisputeApi {
     offset?: number;
   }): Promise<DisputeSummaryResponse> {
     return await withApiError('Failed to get payment dispute summaries', () =>
-      this.client.get<DisputeSummaryResponse>(`${this.basePath}/payment_dispute_summary`, params)
+      this.client.get<DisputeSummaryResponse>(`${this.basePath}/payment_dispute_summary`, params),
     );
   }
 
@@ -82,10 +82,10 @@ export class DisputeApi {
    */
   async contestPaymentDispute(
     paymentDisputeId: string,
-    body?: Record<string, unknown>
+    body?: Record<string, unknown>,
   ): Promise<void> {
     return await withApiError('Failed to contest payment dispute', () =>
-      this.client.post<void>(`${this.basePath}/payment_dispute/${paymentDisputeId}/contest`, body)
+      this.client.post<void>(`${this.basePath}/payment_dispute/${paymentDisputeId}/contest`, body),
     );
   }
 
@@ -94,10 +94,10 @@ export class DisputeApi {
    */
   async acceptPaymentDispute(
     paymentDisputeId: string,
-    body?: Record<string, unknown>
+    body?: Record<string, unknown>,
   ): Promise<void> {
     return await withApiError('Failed to accept payment dispute', () =>
-      this.client.post<void>(`${this.basePath}/payment_dispute/${paymentDisputeId}/accept`, body)
+      this.client.post<void>(`${this.basePath}/payment_dispute/${paymentDisputeId}/accept`, body),
     );
   }
 
@@ -106,14 +106,14 @@ export class DisputeApi {
    */
   async uploadEvidenceFile(
     paymentDisputeId: string,
-    body: ArrayBuffer | Record<string, unknown>
+    body: ArrayBuffer | Record<string, unknown>,
   ): Promise<FileEvidence> {
     return await withApiError('Failed to upload evidence file', () =>
       this.client.post<FileEvidence>(
         `${this.basePath}/payment_dispute/${paymentDisputeId}/upload_evidence_file`,
         body,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
-      )
+        { headers: { 'Content-Type': 'multipart/form-data' } },
+      ),
     );
   }
 
@@ -122,13 +122,13 @@ export class DisputeApi {
    */
   async addEvidence(
     paymentDisputeId: string,
-    body: AddEvidencePaymentDisputeRequest
+    body: AddEvidencePaymentDisputeRequest,
   ): Promise<AddEvidencePaymentDisputeResponse> {
     return await withApiError('Failed to add evidence', () =>
       this.client.post<AddEvidencePaymentDisputeResponse>(
         `${this.basePath}/payment_dispute/${paymentDisputeId}/add_evidence`,
-        body
-      )
+        body,
+      ),
     );
   }
 
@@ -137,13 +137,13 @@ export class DisputeApi {
    */
   async updateEvidence(
     paymentDisputeId: string,
-    body: UpdateEvidencePaymentDisputeRequest
+    body: UpdateEvidencePaymentDisputeRequest,
   ): Promise<void> {
     return await withApiError('Failed to update evidence', () =>
       this.client.post<void>(
         `${this.basePath}/payment_dispute/${paymentDisputeId}/update_evidence`,
-        body
-      )
+        body,
+      ),
     );
   }
 }

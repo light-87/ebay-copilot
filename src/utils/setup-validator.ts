@@ -312,7 +312,7 @@ function printResult(result: ValidationResult): void {
  */
 export function displayRecommendations(summary: ValidationSummary): void {
   const hasUserTokens = summary.results.some(
-    (r) => r.test === 'User Tokens' && r.passed && !r.error
+    (r) => r.test === 'User Tokens' && r.passed && !r.error,
   );
 
   console.log(chalk.bold.cyan('💡 Recommendations:\n'));
@@ -322,7 +322,7 @@ export function displayRecommendations(summary: ValidationSummary): void {
     console.log(chalk.gray('     • You can only use app token for limited API access'));
     console.log(chalk.gray('     • To enable full API access, use the ebay_get_oauth_url tool'));
     console.log(
-      chalk.gray('     • Then save your refresh token to EBAY_USER_REFRESH_TOKEN in .env\n')
+      chalk.gray('     • Then save your refresh token to EBAY_USER_REFRESH_TOKEN in .env\n'),
     );
   }
 

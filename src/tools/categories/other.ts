@@ -47,7 +47,7 @@ export const otherEntries: ToolEntry[] = [
       'Create a VERO report to report intellectual property infringement. This endpoint is part of the Verified Rights Owner (VeRO) Program and allows rights owners to report listings that infringe on their intellectual property.',
     inputSchema: {
       reportData: veroReportDataSchema.describe(
-        'VERO report data containing item details and intellectual property violation information'
+        'VERO report data containing item details and intellectual property violation information',
       ),
     },
     handler: (api, args) => api.vero.createVeroReport(args.reportData),

@@ -29,7 +29,10 @@ import {
  * string — the gotcha `toNumber`/`toLabel` exist to absorb. The documented
  * `unknown` hop keeps the fixture honest about the real wire shape.
  */
-function reportValue(value: string | number): { value: Record<string, never>; applicable: boolean } {
+function reportValue(value: string | number): {
+  value: Record<string, never>;
+  applicable: boolean;
+} {
   return { value: value as unknown as Record<string, never>, applicable: true };
 }
 

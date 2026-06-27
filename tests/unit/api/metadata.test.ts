@@ -35,7 +35,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_automotive_parts_compatibility_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -49,25 +49,25 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_automotive_parts_compatibility_policies',
-          { filter: 'categoryIds:{12345}' }
+          { filter: 'categoryIds:{12345}' },
         );
       });
 
       it('should throw error when marketplaceId is missing', async () => {
         await expect(
-          metadataApi.getAutomotivePartsCompatibilityPolicies('' as any)
+          metadataApi.getAutomotivePartsCompatibilityPolicies('' as any),
         ).rejects.toThrow('marketplaceId is required and must be a string');
       });
 
       it('should throw error when marketplaceId is not a string', async () => {
         await expect(
-          metadataApi.getAutomotivePartsCompatibilityPolicies(123 as any)
+          metadataApi.getAutomotivePartsCompatibilityPolicies(123 as any),
         ).rejects.toThrow('marketplaceId is required and must be a string');
       });
 
       it('should throw error when filter is not a string', async () => {
         await expect(
-          metadataApi.getAutomotivePartsCompatibilityPolicies('EBAY_US', 123 as any)
+          metadataApi.getAutomotivePartsCompatibilityPolicies('EBAY_US', 123 as any),
         ).rejects.toThrow('filter must be a string when provided');
       });
     });
@@ -84,7 +84,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_category_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -98,13 +98,13 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_category_policies',
-          { filter: 'categoryIds:{12345}' }
+          { filter: 'categoryIds:{12345}' },
         );
       });
 
       it('should throw error when marketplaceId is missing', async () => {
         await expect(metadataApi.getCategoryPolicies('' as any)).rejects.toThrow(
-          'marketplaceId is required and must be a string'
+          'marketplaceId is required and must be a string',
         );
       });
     });
@@ -121,7 +121,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_DE/get_extended_producer_responsibility_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -133,12 +133,12 @@ describe('MetadataApi', () => {
 
         await metadataApi.getExtendedProducerResponsibilityPolicies(
           'EBAY_DE',
-          'categoryIds:{12345}'
+          'categoryIds:{12345}',
         );
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_DE/get_extended_producer_responsibility_policies',
-          { filter: 'categoryIds:{12345}' }
+          { filter: 'categoryIds:{12345}' },
         );
       });
     });
@@ -154,14 +154,14 @@ describe('MetadataApi', () => {
         const result = await metadataApi.getHazardousMaterialsLabels('EBAY_US');
 
         expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_hazardous_materials_labels'
+          '/sell/metadata/v1/marketplace/EBAY_US/get_hazardous_materials_labels',
         );
         expect(result).toEqual(mockResponse);
       });
 
       it('should throw error when marketplaceId is missing', async () => {
         await expect(metadataApi.getHazardousMaterialsLabels('' as any)).rejects.toThrow(
-          'marketplaceId is required and must be a string'
+          'marketplaceId is required and must be a string',
         );
       });
     });
@@ -178,7 +178,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_item_condition_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -192,7 +192,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_item_condition_policies',
-          { filter: 'categoryIds:{12345}' }
+          { filter: 'categoryIds:{12345}' },
         );
       });
     });
@@ -209,7 +209,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_UK/get_listing_structure_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -227,7 +227,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_negotiated_price_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -244,7 +244,7 @@ describe('MetadataApi', () => {
         const result = await metadataApi.getProductSafetyLabels('EBAY_DE');
 
         expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_DE/get_product_safety_labels'
+          '/sell/metadata/v1/marketplace/EBAY_DE/get_product_safety_labels',
         );
         expect(result).toEqual(mockResponse);
       });
@@ -262,7 +262,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_regulatory_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -280,7 +280,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_return_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -298,7 +298,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_shipping_cost_type_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -316,7 +316,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_MOTORS/get_classified_ad_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -336,7 +336,7 @@ describe('MetadataApi', () => {
         const result = await metadataApi.getCurrencies('EBAY_US');
 
         expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_currencies'
+          '/sell/metadata/v1/marketplace/EBAY_US/get_currencies',
         );
         expect(result).toEqual(mockResponse);
       });
@@ -354,7 +354,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_listing_type_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -372,7 +372,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_MOTORS/get_motors_listing_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -390,7 +390,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_shipping_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -408,7 +408,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.get).toHaveBeenCalledWith(
           '/sell/metadata/v1/marketplace/EBAY_US/get_site_visibility_policies',
-          {}
+          {},
         );
         expect(result).toEqual(mockResponse);
       });
@@ -435,20 +435,20 @@ describe('MetadataApi', () => {
 
         expect(mockClient.post).toHaveBeenCalledWith(
           '/sell/metadata/v1/compatibilities/get_compatibilities_by_specification',
-          specification
+          specification,
         );
         expect(result).toEqual(mockResponse);
       });
 
       it('should throw error when specification is missing', async () => {
         await expect(metadataApi.getCompatibilitiesBySpecification(null as any)).rejects.toThrow(
-          'specification is required and must be an object'
+          'specification is required and must be an object',
         );
       });
 
       it('should throw error when specification is not an object', async () => {
         await expect(
-          metadataApi.getCompatibilitiesBySpecification('invalid' as any)
+          metadataApi.getCompatibilitiesBySpecification('invalid' as any),
         ).rejects.toThrow('specification is required and must be an object');
       });
     });
@@ -470,14 +470,14 @@ describe('MetadataApi', () => {
 
         expect(mockClient.post).toHaveBeenCalledWith(
           '/sell/metadata/v1/compatibilities/get_compatibility_property_names',
-          data
+          data,
         );
         expect(result).toEqual(mockResponse);
       });
 
       it('should throw error when data is missing', async () => {
         await expect(metadataApi.getCompatibilityPropertyNames(null as any)).rejects.toThrow(
-          'data is required and must be an object'
+          'data is required and must be an object',
         );
       });
     });
@@ -500,7 +500,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.post).toHaveBeenCalledWith(
           '/sell/metadata/v1/compatibilities/get_compatibility_property_values',
-          data
+          data,
         );
         expect(result).toEqual(mockResponse);
       });
@@ -524,7 +524,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.post).toHaveBeenCalledWith(
           '/sell/metadata/v1/compatibilities/get_multi_compatibility_property_values',
-          data
+          data,
         );
         expect(result).toEqual(mockResponse);
       });
@@ -554,7 +554,7 @@ describe('MetadataApi', () => {
 
         expect(mockClient.post).toHaveBeenCalledWith(
           '/sell/metadata/v1/compatibilities/get_product_compatibilities',
-          data
+          data,
         );
         expect(result).toEqual(mockResponse);
       });
@@ -582,20 +582,20 @@ describe('MetadataApi', () => {
         const result = await metadataApi.getSalesTaxJurisdictions('US');
 
         expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/country/US/sales_tax_jurisdiction'
+          '/sell/metadata/v1/country/US/sales_tax_jurisdiction',
         );
         expect(result).toEqual(mockResponse);
       });
 
       it('should throw error when countryCode is missing', async () => {
         await expect(metadataApi.getSalesTaxJurisdictions('' as any)).rejects.toThrow(
-          'countryCode is required and must be a string'
+          'countryCode is required and must be a string',
         );
       });
 
       it('should throw error when countryCode is not a string', async () => {
         await expect(metadataApi.getSalesTaxJurisdictions(123 as any)).rejects.toThrow(
-          'countryCode is required and must be a string'
+          'countryCode is required and must be a string',
         );
       });
     });
@@ -607,7 +607,7 @@ describe('MetadataApi', () => {
       vi.spyOn(mockClient, 'get').mockRejectedValue(error);
 
       await expect(metadataApi.getCategoryPolicies('EBAY_US')).rejects.toThrow(
-        'Failed to get category policies: Network error'
+        'Failed to get category policies: Network error',
       );
     });
 
@@ -616,7 +616,7 @@ describe('MetadataApi', () => {
       vi.spyOn(mockClient, 'post').mockRejectedValue(error);
 
       await expect(metadataApi.getCompatibilitiesBySpecification({ test: 'data' })).rejects.toThrow(
-        'Failed to get compatibilities by specification: Invalid data'
+        'Failed to get compatibilities by specification: Invalid data',
       );
     });
 
@@ -624,7 +624,7 @@ describe('MetadataApi', () => {
       vi.spyOn(mockClient, 'get').mockRejectedValue('string error');
 
       await expect(metadataApi.getHazardousMaterialsLabels('EBAY_US')).rejects.toThrow(
-        'Failed to get hazardous materials labels: Unknown error'
+        'Failed to get hazardous materials labels: Unknown error',
       );
     });
   });

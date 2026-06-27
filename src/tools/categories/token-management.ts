@@ -41,13 +41,13 @@ export const tokenManagementEntries: ToolEntry[] = [
         .string()
         .optional()
         .describe(
-          'Optional redirect URI registered with your eBay application (RuName). If not provided, will use EBAY_REDIRECT_URI from .env file.'
+          'Optional redirect URI registered with your eBay application (RuName). If not provided, will use EBAY_REDIRECT_URI from .env file.',
         ),
       scopes: z
         .array(z.string())
         .optional()
         .describe(
-          'Optional array of OAuth scopes. If not provided, uses environment-specific default scopes (production or sandbox based on EBAY_ENVIRONMENT). Custom scopes will be validated against the environment.'
+          'Optional array of OAuth scopes. If not provided, uses environment-specific default scopes (production or sandbox based on EBAY_ENVIRONMENT). Custom scopes will be validated against the environment.',
         ),
       state: z.string().optional().describe('Optional state parameter for CSRF protection'),
     },
@@ -66,7 +66,7 @@ export const tokenManagementEntries: ToolEntry[] = [
 
       if (!redirectUri) {
         throw new Error(
-          'Redirect URI is required. Either provide it as a parameter or set EBAY_REDIRECT_URI in your .env file.'
+          'Redirect URI is required. Either provide it as a parameter or set EBAY_REDIRECT_URI in your .env file.',
         );
       }
 
@@ -84,7 +84,7 @@ export const tokenManagementEntries: ToolEntry[] = [
         redirectUri,
         environment,
         validatedScopes,
-        state
+        state,
       );
 
       const result: Record<string, unknown> = {
@@ -139,20 +139,20 @@ export const tokenManagementEntries: ToolEntry[] = [
         .union([z.string(), z.number()])
         .optional()
         .describe(
-          'Optional: Access token expiry time. If not provided, defaults to 2 hours from now. Can be ISO date string, Unix timestamp, or relative time (e.g., "in 7200 seconds")'
+          'Optional: Access token expiry time. If not provided, defaults to 2 hours from now. Can be ISO date string, Unix timestamp, or relative time (e.g., "in 7200 seconds")',
         ),
       refreshTokenExpiry: z
         .union([z.string(), z.number()])
         .optional()
         .describe(
-          'Optional: Refresh token expiry time. If not provided, defaults to 18 months from now. Can be ISO date string, Unix timestamp, or relative time'
+          'Optional: Refresh token expiry time. If not provided, defaults to 18 months from now. Can be ISO date string, Unix timestamp, or relative time',
         ),
       autoRefresh: z
         .boolean()
         .optional()
         .default(true)
         .describe(
-          'If true and access token is expired but refresh token is valid, automatically refresh the access token. Default: true'
+          'If true and access token is expired but refresh token is valid, automatically refresh the access token. Default: true',
         ),
     },
     handler: async (api, args) => {
@@ -262,12 +262,12 @@ export const tokenManagementEntries: ToolEntry[] = [
       accessTokenExpiry: z
         .union([z.string(), z.number()])
         .describe(
-          'Access token expiry time. Can be ISO date string, Unix timestamp (seconds or milliseconds), or relative time'
+          'Access token expiry time. Can be ISO date string, Unix timestamp (seconds or milliseconds), or relative time',
         ),
       refreshTokenExpiry: z
         .union([z.string(), z.number()])
         .describe(
-          'Refresh token expiry time. Can be ISO date string, Unix timestamp (seconds or milliseconds), or relative time'
+          'Refresh token expiry time. Can be ISO date string, Unix timestamp (seconds or milliseconds), or relative time',
         ),
     },
     handler: (_api, args) => {
@@ -286,7 +286,7 @@ export const tokenManagementEntries: ToolEntry[] = [
         };
       } catch (error) {
         throw new Error(
-          `Failed to validate token expiry: ${getErrorMessage(error, String(error))}`
+          `Failed to validate token expiry: ${getErrorMessage(error, String(error))}`,
         );
       }
     },
@@ -299,7 +299,7 @@ export const tokenManagementEntries: ToolEntry[] = [
       dateInput: z
         .union([z.string(), z.number()])
         .describe(
-          'Date to convert. Supports ISO 8601 strings (e.g., "2025-01-15T10:30:00Z"), Unix timestamps (seconds or milliseconds), or relative time (e.g., "in 2 hours")'
+          'Date to convert. Supports ISO 8601 strings (e.g., "2025-01-15T10:30:00Z"), Unix timestamps (seconds or milliseconds), or relative time (e.g., "in 2 hours")',
         ),
     },
     handler: (_api, args) => {
@@ -354,7 +354,7 @@ export const tokenManagementEntries: ToolEntry[] = [
 
       if (!api.hasUserTokens()) {
         throw new Error(
-          'No user tokens available. Please set user tokens first using ebay_set_user_tokens_with_expiry or add EBAY_USER_REFRESH_TOKEN to your .env file.'
+          'No user tokens available. Please set user tokens first using ebay_set_user_tokens_with_expiry or add EBAY_USER_REFRESH_TOKEN to your .env file.',
         );
       }
 
@@ -374,7 +374,7 @@ export const tokenManagementEntries: ToolEntry[] = [
                 timestamp: internalTokens.userAccessTokenExpiry,
                 date: new Date(internalTokens.userAccessTokenExpiry).toISOString(),
                 expiresInSeconds: Math.floor(
-                  (internalTokens.userAccessTokenExpiry - Date.now()) / 1000
+                  (internalTokens.userAccessTokenExpiry - Date.now()) / 1000,
                 ),
               }
             : 'Not available',
@@ -404,7 +404,7 @@ export const tokenManagementEntries: ToolEntry[] = [
         .string()
         .min(1)
         .describe(
-          'The authorization code received from eBay after user authorization. This is the "code" parameter in the redirect URL.'
+          'The authorization code received from eBay after user authorization. This is the "code" parameter in the redirect URL.',
         ),
     },
     outputSchema: {
@@ -443,7 +443,7 @@ export const tokenManagementEntries: ToolEntry[] = [
         };
       } catch (error) {
         throw new Error(
-          `Failed to exchange authorization code: ${getErrorMessage(error, String(error))}`
+          `Failed to exchange authorization code: ${getErrorMessage(error, String(error))}`,
         );
       }
     },

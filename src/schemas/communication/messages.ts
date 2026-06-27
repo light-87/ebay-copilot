@@ -26,7 +26,7 @@ const errorSchema = z.object({
       z.object({
         name: z.string().optional(),
         value: z.string().optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -115,7 +115,7 @@ export const getConversationsOutputSchema = z.object({
         otherPartyUsername: z.string().optional(),
         unreadMessageCount: z.number().optional(),
         status: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   href: z.string().optional(),
@@ -231,7 +231,7 @@ export const getAwaitingFeedbackOutputSchema = z.object({
         buyer: z.string().optional(),
         transactionDate: z.string().optional(),
         transactionPrice: amountSchema.optional(),
-      })
+      }),
     )
     .optional(),
   href: z.string().optional(),
@@ -304,7 +304,7 @@ export const getNotificationDestinationsOutputSchema = z.object({
         name: z.string().optional(),
         endpoint: z.string().optional(),
         status: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   limit: z.number().optional(),
@@ -350,7 +350,7 @@ export const getNotificationSubscriptionsOutputSchema = z.object({
         destinationId: z.string().optional(),
         status: z.string().optional(),
         enabled: z.boolean().optional(),
-      })
+      }),
     )
     .optional(),
   limit: z.number().optional(),
@@ -369,7 +369,7 @@ export const getNotificationTopicsOutputSchema = z.object({
         topicId: z.string().optional(),
         description: z.string().optional(),
         category: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   warnings: z.array(errorSchema).optional(),
@@ -391,7 +391,7 @@ export const sendOfferToInterestedBuyersInputSchema = z.object({
         offerId: z.string().optional(),
         availableQuantity: z.number().optional(),
         price: amountSchema.optional(),
-      })
+      }),
     )
     .optional()
     .describe('Items to include in the offer'),
@@ -428,12 +428,12 @@ export const getOffersToBuyersOutputSchema = z.object({
               offerId: z.string().optional(),
               price: amountSchema.optional(),
               quantity: z.number().optional(),
-            })
+            }),
           )
           .optional(),
         creationDate: z.string().optional(),
         status: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   href: z.string().optional(),
@@ -469,73 +469,73 @@ export function getCommunicationJsonSchemas() {
     getFeedbackOutput: zodToJsonSchema(getFeedbackOutputSchema, 'getFeedbackOutput'),
     getFeedbackSummaryOutput: zodToJsonSchema(
       getFeedbackSummaryOutputSchema,
-      'getFeedbackSummaryOutput'
+      'getFeedbackSummaryOutput',
     ),
     getAwaitingFeedbackInput: zodToJsonSchema(
       getAwaitingFeedbackInputSchema,
-      'getAwaitingFeedbackInput'
+      'getAwaitingFeedbackInput',
     ),
     getAwaitingFeedbackOutput: zodToJsonSchema(
       getAwaitingFeedbackOutputSchema,
-      'getAwaitingFeedbackOutput'
+      'getAwaitingFeedbackOutput',
     ),
     respondToFeedbackInput: zodToJsonSchema(respondToFeedbackInputSchema, 'respondToFeedbackInput'),
     respondToFeedbackOutput: zodToJsonSchema(
       respondToFeedbackOutputSchema,
-      'respondToFeedbackOutput'
+      'respondToFeedbackOutput',
     ),
 
     // Notification API
     createNotificationDestinationInput: zodToJsonSchema(
       createNotificationDestinationInputSchema,
-      'createNotificationDestinationInput'
+      'createNotificationDestinationInput',
     ),
     createNotificationDestinationOutput: zodToJsonSchema(
       createNotificationDestinationOutputSchema,
-      'createNotificationDestinationOutput'
+      'createNotificationDestinationOutput',
     ),
     getNotificationDestinationsInput: zodToJsonSchema(
       getNotificationDestinationsInputSchema,
-      'getNotificationDestinationsInput'
+      'getNotificationDestinationsInput',
     ),
     getNotificationDestinationsOutput: zodToJsonSchema(
       getNotificationDestinationsOutputSchema,
-      'getNotificationDestinationsOutput'
+      'getNotificationDestinationsOutput',
     ),
     createNotificationSubscriptionInput: zodToJsonSchema(
       createNotificationSubscriptionInputSchema,
-      'createNotificationSubscriptionInput'
+      'createNotificationSubscriptionInput',
     ),
     createNotificationSubscriptionOutput: zodToJsonSchema(
       createNotificationSubscriptionOutputSchema,
-      'createNotificationSubscriptionOutput'
+      'createNotificationSubscriptionOutput',
     ),
     getNotificationSubscriptionsInput: zodToJsonSchema(
       getNotificationSubscriptionsInputSchema,
-      'getNotificationSubscriptionsInput'
+      'getNotificationSubscriptionsInput',
     ),
     getNotificationSubscriptionsOutput: zodToJsonSchema(
       getNotificationSubscriptionsOutputSchema,
-      'getNotificationSubscriptionsOutput'
+      'getNotificationSubscriptionsOutput',
     ),
     getNotificationTopicsOutput: zodToJsonSchema(
       getNotificationTopicsOutputSchema,
-      'getNotificationTopicsOutput'
+      'getNotificationTopicsOutput',
     ),
 
     // Negotiation API
     sendOfferToInterestedBuyersInput: zodToJsonSchema(
       sendOfferToInterestedBuyersInputSchema,
-      'sendOfferToInterestedBuyersInput'
+      'sendOfferToInterestedBuyersInput',
     ),
     sendOfferToInterestedBuyersOutput: zodToJsonSchema(
       sendOfferToInterestedBuyersOutputSchema,
-      'sendOfferToInterestedBuyersOutput'
+      'sendOfferToInterestedBuyersOutput',
     ),
     getOffersToBuyersInput: zodToJsonSchema(getOffersToBuyersInputSchema, 'getOffersToBuyersInput'),
     getOffersToBuyersOutput: zodToJsonSchema(
       getOffersToBuyersOutputSchema,
-      'getOffersToBuyersOutput'
+      'getOffersToBuyersOutput',
     ),
   };
 }

@@ -105,13 +105,13 @@ export class EbaySellerApi {
     accessToken: string,
     refreshToken: string,
     accessTokenExpiry?: number,
-    refreshTokenExpiry?: number
+    refreshTokenExpiry?: number,
   ): Promise<void> {
     await this.client.setUserTokens(
       accessToken,
       refreshToken,
       accessTokenExpiry,
-      refreshTokenExpiry
+      refreshTokenExpiry,
     );
   }
 

@@ -67,7 +67,9 @@ describe('getCachedUpdateNotice', () => {
 
     const notice = getCachedUpdateNotice();
 
-    expect(notice).toBe(`Update available ${CURRENT} → 99.0.0 — run \`npm i -g ebay-mcp\` to update`);
+    expect(notice).toBe(
+      `Update available ${CURRENT} → 99.0.0 — run \`npm i -g ebay-mcp\` to update`,
+    );
   });
 
   it('returns undefined before the cache is populated (first run)', () => {

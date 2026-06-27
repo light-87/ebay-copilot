@@ -34,7 +34,7 @@ const errorSchema = z.object({
       z.object({
         name: z.string().optional(),
         value: z.string().optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -63,7 +63,7 @@ const availabilitySchema = z.object({
               .optional(),
             merchantLocationKey: z.string().optional(),
             quantity: z.number().optional(),
-          })
+          }),
         )
         .optional(),
     })
@@ -121,7 +121,7 @@ export const inventoryItemSchema = z.object({
       z.object({
         name: z.string().optional(),
         values: z.array(z.string()).optional(),
-      })
+      }),
     )
     .optional(),
   packageWeightAndSize: packageWeightAndSizeSchema.optional(),
@@ -151,7 +151,7 @@ export const getInventoryItemsOutputSchema = z.object({
         conditionDescription: z.string().optional(),
         packageWeightAndSize: packageWeightAndSizeSchema.optional(),
         product: productSchema.optional(),
-      })
+      }),
     )
     .optional(),
   href: z.string().optional(),
@@ -347,7 +347,7 @@ const operatingHoursSchema = z.object({
       z.object({
         open: z.string().optional(),
         close: z.string().optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -359,7 +359,7 @@ const specialHoursSchema = z.object({
       z.object({
         open: z.string().optional(),
         close: z.string().optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -415,7 +415,7 @@ export const getInventoryLocationsOutputSchema = z.object({
     .array(
       locationSchema.extend({
         merchantLocationKey: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   href: z.string().optional(),
@@ -540,7 +540,7 @@ export const bulkInventoryItemRequestSchema = z.object({
       availability: availabilitySchema.optional(),
       condition: z.nativeEnum(Condition).optional(),
       conditionDescription: z.string().optional(),
-    })
+    }),
   ),
 });
 
@@ -555,7 +555,7 @@ export const bulkInventoryItemResponseSchema = z.object({
         statusCode: z.number().optional(),
         errors: z.array(errorSchema).optional(),
         warnings: z.array(errorSchema).optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -578,7 +578,7 @@ export const bulkOfferResponseSchema = z.object({
         statusCode: z.number().optional(),
         errors: z.array(errorSchema).optional(),
         warnings: z.array(errorSchema).optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -590,7 +590,7 @@ export const bulkPublishRequestSchema = z.object({
   requests: z.array(
     z.object({
       offerId: z.string(),
-    })
+    }),
   ),
 });
 
@@ -606,7 +606,7 @@ export const bulkPublishResponseSchema = z.object({
         statusCode: z.number().optional(),
         errors: z.array(errorSchema).optional(),
         warnings: z.array(errorSchema).optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -624,17 +624,17 @@ export function getInventoryManagementJsonSchemas() {
     getInventoryItemsInput: zodToJsonSchema(getInventoryItemsInputSchema, 'getInventoryItemsInput'),
     getInventoryItemsOutput: zodToJsonSchema(
       getInventoryItemsOutputSchema,
-      'getInventoryItemsOutput'
+      'getInventoryItemsOutput',
     ),
     getInventoryItemInput: zodToJsonSchema(getInventoryItemInputSchema, 'getInventoryItemInput'),
     getInventoryItemOutput: zodToJsonSchema(getInventoryItemOutputSchema, 'getInventoryItemOutput'),
     createInventoryItemInput: zodToJsonSchema(
       createInventoryItemInputSchema,
-      'createInventoryItemInput'
+      'createInventoryItemInput',
     ),
     createInventoryItemOutput: zodToJsonSchema(
       createInventoryItemOutputSchema,
-      'createInventoryItemOutput'
+      'createInventoryItemOutput',
     ),
 
     // Offers
@@ -649,50 +649,50 @@ export function getInventoryManagementJsonSchemas() {
     // Inventory Locations
     getInventoryLocationsInput: zodToJsonSchema(
       getInventoryLocationsInputSchema,
-      'getInventoryLocationsInput'
+      'getInventoryLocationsInput',
     ),
     getInventoryLocationsOutput: zodToJsonSchema(
       getInventoryLocationsOutputSchema,
-      'getInventoryLocationsOutput'
+      'getInventoryLocationsOutput',
     ),
     createInventoryLocationInput: zodToJsonSchema(
       createInventoryLocationInputSchema,
-      'createInventoryLocationInput'
+      'createInventoryLocationInput',
     ),
     createInventoryLocationOutput: zodToJsonSchema(
       createInventoryLocationOutputSchema,
-      'createInventoryLocationOutput'
+      'createInventoryLocationOutput',
     ),
 
     // Product Compatibility
     getProductCompatibilityInput: zodToJsonSchema(
       getProductCompatibilityInputSchema,
-      'getProductCompatibilityInput'
+      'getProductCompatibilityInput',
     ),
     getProductCompatibilityOutput: zodToJsonSchema(
       getProductCompatibilityOutputSchema,
-      'getProductCompatibilityOutput'
+      'getProductCompatibilityOutput',
     ),
 
     // Inventory Item Groups
     getInventoryItemGroupInput: zodToJsonSchema(
       getInventoryItemGroupInputSchema,
-      'getInventoryItemGroupInput'
+      'getInventoryItemGroupInput',
     ),
     getInventoryItemGroupOutput: zodToJsonSchema(
       getInventoryItemGroupOutputSchema,
-      'getInventoryItemGroupOutput'
+      'getInventoryItemGroupOutput',
     ),
     inventoryItemGroup: zodToJsonSchema(inventoryItemGroupSchema, 'inventoryItemGroup'),
 
     // Bulk Operations
     bulkInventoryItemRequest: zodToJsonSchema(
       bulkInventoryItemRequestSchema,
-      'bulkInventoryItemRequest'
+      'bulkInventoryItemRequest',
     ),
     bulkInventoryItemResponse: zodToJsonSchema(
       bulkInventoryItemResponseSchema,
-      'bulkInventoryItemResponse'
+      'bulkInventoryItemResponse',
     ),
     bulkOfferRequest: zodToJsonSchema(bulkOfferRequestSchema, 'bulkOfferRequest'),
     bulkOfferResponse: zodToJsonSchema(bulkOfferResponseSchema, 'bulkOfferResponse'),

@@ -308,7 +308,7 @@ export const addEvidenceSchema = z.object({
       {
         invalid_type_error: 'files must be an array',
         description: 'Array of evidence files',
-      }
+      },
     )
     .optional(),
   line_items: z
@@ -330,7 +330,7 @@ export const addEvidenceSchema = z.object({
       {
         invalid_type_error: 'line_items must be an array',
         description: 'Array of order line items',
-      }
+      },
     )
     .optional(),
 });
@@ -368,7 +368,7 @@ export const updateEvidenceSchema = z.object({
       {
         invalid_type_error: 'files must be an array',
         description: 'Array of evidence files',
-      }
+      },
     )
     .optional(),
   line_items: z
@@ -390,7 +390,7 @@ export const updateEvidenceSchema = z.object({
       {
         invalid_type_error: 'line_items must be an array',
         description: 'Array of order line items',
-      }
+      },
     )
     .optional(),
 });

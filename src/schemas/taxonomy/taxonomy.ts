@@ -616,13 +616,13 @@ export function getTaxonomyJsonSchemas() {
     // Category Policies
     getCategoryPoliciesOutput: zodToJsonSchema(
       categoryPolicyResponseSchema,
-      'getCategoryPoliciesOutput'
+      'getCategoryPoliciesOutput',
     ),
 
     // Item Condition Policies
     getItemConditionPoliciesOutput: zodToJsonSchema(
       itemConditionPolicyResponseSchema,
-      'getItemConditionPoliciesOutput'
+      'getItemConditionPoliciesOutput',
     ),
 
     // Return Policies
@@ -631,43 +631,43 @@ export function getTaxonomyJsonSchemas() {
     // Listing Structure Policies
     getListingStructurePoliciesOutput: zodToJsonSchema(
       listingStructurePolicyResponseSchema,
-      'getListingStructurePoliciesOutput'
+      'getListingStructurePoliciesOutput',
     ),
 
     // Listing Type Policies
     getListingTypePoliciesOutput: zodToJsonSchema(
       listingTypePoliciesResponseSchema,
-      'getListingTypePoliciesOutput'
+      'getListingTypePoliciesOutput',
     ),
 
     // Negotiated Price Policies
     getNegotiatedPricePoliciesOutput: zodToJsonSchema(
       negotiatedPricePolicyResponseSchema,
-      'getNegotiatedPricePoliciesOutput'
+      'getNegotiatedPricePoliciesOutput',
     ),
 
     // Shipping Policies
     getShippingPoliciesOutput: zodToJsonSchema(
       shippingPoliciesResponseSchema,
-      'getShippingPoliciesOutput'
+      'getShippingPoliciesOutput',
     ),
 
     // Automotive Parts Compatibility Policies
     getAutomotivePartsCompatibilityPoliciesOutput: zodToJsonSchema(
       automotivePartsCompatibilityPolicyResponseSchema,
-      'getAutomotivePartsCompatibilityPoliciesOutput'
+      'getAutomotivePartsCompatibilityPoliciesOutput',
     ),
 
     // Classified Ad Policies
     getClassifiedAdPoliciesOutput: zodToJsonSchema(
       classifiedAdPolicyResponseSchema,
-      'getClassifiedAdPoliciesOutput'
+      'getClassifiedAdPoliciesOutput',
     ),
 
     // Motors Listing Policies
     getMotorsListingPoliciesOutput: zodToJsonSchema(
       motorsListingPoliciesResponseSchema,
-      'getMotorsListingPoliciesOutput'
+      'getMotorsListingPoliciesOutput',
     ),
 
     // Currencies
@@ -676,73 +676,73 @@ export function getTaxonomyJsonSchemas() {
     // Extended Producer Responsibility
     getExtendedProducerResponsibilityPoliciesOutput: zodToJsonSchema(
       extendedProducerResponsibilityPolicyResponseSchema,
-      'getExtendedProducerResponsibilityPoliciesOutput'
+      'getExtendedProducerResponsibilityPoliciesOutput',
     ),
 
     // Hazardous Materials Labels
     getHazardousMaterialsLabelsOutput: zodToJsonSchema(
       hazardousMaterialDetailsResponseSchema,
-      'getHazardousMaterialsLabelsOutput'
+      'getHazardousMaterialsLabelsOutput',
     ),
 
     // Product Safety Labels
     getProductSafetyLabelsOutput: zodToJsonSchema(
       productSafetyLabelsResponseSchema,
-      'getProductSafetyLabelsOutput'
+      'getProductSafetyLabelsOutput',
     ),
 
     // Regulatory Policies
     getRegulatoryPoliciesOutput: zodToJsonSchema(
       regulatoryPolicyResponseSchema,
-      'getRegulatoryPoliciesOutput'
+      'getRegulatoryPoliciesOutput',
     ),
 
     // Site Visibility Policies
     getSiteVisibilityPoliciesOutput: zodToJsonSchema(
       siteVisibilityPoliciesResponseSchema,
-      'getSiteVisibilityPoliciesOutput'
+      'getSiteVisibilityPoliciesOutput',
     ),
 
     // Compatibility Methods
     getCompatibilityPropertyNamesInput: zodToJsonSchema(
       propertyNamesRequestSchema,
-      'getCompatibilityPropertyNamesInput'
+      'getCompatibilityPropertyNamesInput',
     ),
     getCompatibilityPropertyNamesOutput: zodToJsonSchema(
       propertyNamesResponseSchema,
-      'getCompatibilityPropertyNamesOutput'
+      'getCompatibilityPropertyNamesOutput',
     ),
     getCompatibilityPropertyValuesInput: zodToJsonSchema(
       propertyValuesRequestSchema,
-      'getCompatibilityPropertyValuesInput'
+      'getCompatibilityPropertyValuesInput',
     ),
     getCompatibilityPropertyValuesOutput: zodToJsonSchema(
       propertyValuesResponseSchema,
-      'getCompatibilityPropertyValuesOutput'
+      'getCompatibilityPropertyValuesOutput',
     ),
     getMultiCompatibilityPropertyValuesInput: zodToJsonSchema(
       multiCompatibilityPropertyValuesRequestSchema,
-      'getMultiCompatibilityPropertyValuesInput'
+      'getMultiCompatibilityPropertyValuesInput',
     ),
     getMultiCompatibilityPropertyValuesOutput: zodToJsonSchema(
       multiCompatibilityPropertyValuesResponseSchema,
-      'getMultiCompatibilityPropertyValuesOutput'
+      'getMultiCompatibilityPropertyValuesOutput',
     ),
     getProductCompatibilitiesInput: zodToJsonSchema(
       productRequestSchema,
-      'getProductCompatibilitiesInput'
+      'getProductCompatibilitiesInput',
     ),
     getProductCompatibilitiesOutput: zodToJsonSchema(
       productResponseSchema,
-      'getProductCompatibilitiesOutput'
+      'getProductCompatibilitiesOutput',
     ),
     getCompatibilitiesBySpecificationInput: zodToJsonSchema(
       specificationRequestSchema,
-      'getCompatibilitiesBySpecificationInput'
+      'getCompatibilitiesBySpecificationInput',
     ),
     getCompatibilitiesBySpecificationOutput: zodToJsonSchema(
       specificationResponseSchema,
-      'getCompatibilitiesBySpecificationOutput'
+      'getCompatibilitiesBySpecificationOutput',
     ),
 
     // Common Types

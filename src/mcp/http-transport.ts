@@ -49,7 +49,7 @@ function getProjectRoot(): string {
  * Build HTTP transport configuration from process environment variables.
  */
 export function createHttpTransportConfigFromEnv(
-  env: NodeJS.ProcessEnv = process.env
+  env: NodeJS.ProcessEnv = process.env,
 ): HttpTransportConfig {
   return {
     host: env.MCP_HOST || 'localhost',
@@ -123,7 +123,7 @@ async function createMcpServer(serverUrl: string): Promise<McpServer> {
 
 async function createAuthMiddleware(
   config: HttpTransportConfig,
-  serverUrl: string
+  serverUrl: string,
 ): Promise<RequestHandler | undefined> {
   if (!config.authEnabled) {
     console.error('OAuth is disabled. Server running in unauthenticated mode.');
@@ -186,7 +186,7 @@ export async function createHttpMcpApp(config: HttpTransportConfig): Promise<exp
     cors({
       origin: '*',
       exposedHeaders: ['Mcp-Session-Id'],
-    })
+    }),
   );
   app.use(express.json());
   app.use(helmet({ xPoweredBy: false }));
@@ -202,7 +202,7 @@ export async function createHttpMcpApp(config: HttpTransportConfig): Promise<exp
       resourceName: 'eBay API MCP Server',
       ebayEnvironment: ebayConfig.environment,
       ebayScopes: getDefaultScopes(ebayConfig.environment),
-    })
+    }),
   );
 
   app.get('/health', (_req, res) => {

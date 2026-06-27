@@ -18,7 +18,7 @@ export class MetadataApi {
   private async getMarketplacePolicy(
     endpoint: string,
     marketplaceId: string,
-    failureMessage: string
+    failureMessage: string,
   ): Promise<unknown> {
     requireString(marketplaceId, 'marketplaceId');
     const path = `${this.basePath}/marketplace/${marketplaceId}/${endpoint}`;
@@ -30,7 +30,7 @@ export class MetadataApi {
     endpoint: string,
     marketplaceId: string,
     failureMessage: string,
-    filter?: string
+    filter?: string,
   ): Promise<unknown> {
     requireString(marketplaceId, 'marketplaceId');
     const params = buildOptionalStringParams({ filter });
@@ -49,7 +49,7 @@ export class MetadataApi {
       'get_automotive_parts_compatibility_policies',
       marketplaceId,
       'Failed to get automotive parts compatibility policies',
-      filter
+      filter,
     );
   }
 
@@ -63,7 +63,7 @@ export class MetadataApi {
       'get_category_policies',
       marketplaceId,
       'Failed to get category policies',
-      filter
+      filter,
     );
   }
 
@@ -77,7 +77,7 @@ export class MetadataApi {
       'get_extended_producer_responsibility_policies',
       marketplaceId,
       'Failed to get extended producer responsibility policies',
-      filter
+      filter,
     );
   }
 
@@ -90,7 +90,7 @@ export class MetadataApi {
     return await this.getMarketplacePolicy(
       'get_hazardous_materials_labels',
       marketplaceId,
-      'Failed to get hazardous materials labels'
+      'Failed to get hazardous materials labels',
     );
   }
 
@@ -104,7 +104,7 @@ export class MetadataApi {
       'get_item_condition_policies',
       marketplaceId,
       'Failed to get item condition policies',
-      filter
+      filter,
     );
   }
 
@@ -118,7 +118,7 @@ export class MetadataApi {
       'get_listing_structure_policies',
       marketplaceId,
       'Failed to get listing structure policies',
-      filter
+      filter,
     );
   }
 
@@ -132,7 +132,7 @@ export class MetadataApi {
       'get_negotiated_price_policies',
       marketplaceId,
       'Failed to get negotiated price policies',
-      filter
+      filter,
     );
   }
 
@@ -145,7 +145,7 @@ export class MetadataApi {
     return await this.getMarketplacePolicy(
       'get_product_safety_labels',
       marketplaceId,
-      'Failed to get product safety labels'
+      'Failed to get product safety labels',
     );
   }
 
@@ -159,7 +159,7 @@ export class MetadataApi {
       'get_regulatory_policies',
       marketplaceId,
       'Failed to get regulatory policies',
-      filter
+      filter,
     );
   }
 
@@ -173,7 +173,7 @@ export class MetadataApi {
       'get_return_policies',
       marketplaceId,
       'Failed to get return policies',
-      filter
+      filter,
     );
   }
 
@@ -187,7 +187,7 @@ export class MetadataApi {
       'get_shipping_cost_type_policies',
       marketplaceId,
       'Failed to get shipping cost type policies',
-      filter
+      filter,
     );
   }
 
@@ -201,7 +201,7 @@ export class MetadataApi {
       'get_classified_ad_policies',
       marketplaceId,
       'Failed to get classified ad policies',
-      filter
+      filter,
     );
   }
 
@@ -214,7 +214,7 @@ export class MetadataApi {
     return await this.getMarketplacePolicy(
       'get_currencies',
       marketplaceId,
-      'Failed to get currencies'
+      'Failed to get currencies',
     );
   }
 
@@ -228,7 +228,7 @@ export class MetadataApi {
       'get_listing_type_policies',
       marketplaceId,
       'Failed to get listing type policies',
-      filter
+      filter,
     );
   }
 
@@ -242,7 +242,7 @@ export class MetadataApi {
       'get_motors_listing_policies',
       marketplaceId,
       'Failed to get motors listing policies',
-      filter
+      filter,
     );
   }
 
@@ -256,7 +256,7 @@ export class MetadataApi {
       'get_shipping_policies',
       marketplaceId,
       'Failed to get shipping policies',
-      filter
+      filter,
     );
   }
 
@@ -270,7 +270,7 @@ export class MetadataApi {
       'get_site_visibility_policies',
       marketplaceId,
       'Failed to get site visibility policies',
-      filter
+      filter,
     );
   }
 
@@ -285,8 +285,8 @@ export class MetadataApi {
     return await withApiError('Failed to get compatibilities by specification', () =>
       this.client.post(
         `${this.basePath}/compatibilities/get_compatibilities_by_specification`,
-        specification
-      )
+        specification,
+      ),
     );
   }
 
@@ -299,7 +299,7 @@ export class MetadataApi {
     requireObject(data, 'data');
 
     return await withApiError('Failed to get compatibility property names', () =>
-      this.client.post(`${this.basePath}/compatibilities/get_compatibility_property_names`, data)
+      this.client.post(`${this.basePath}/compatibilities/get_compatibility_property_names`, data),
     );
   }
 
@@ -312,7 +312,7 @@ export class MetadataApi {
     requireObject(data, 'data');
 
     return await withApiError('Failed to get compatibility property values', () =>
-      this.client.post(`${this.basePath}/compatibilities/get_compatibility_property_values`, data)
+      this.client.post(`${this.basePath}/compatibilities/get_compatibility_property_values`, data),
     );
   }
 
@@ -327,8 +327,8 @@ export class MetadataApi {
     return await withApiError('Failed to get multi compatibility property values', () =>
       this.client.post(
         `${this.basePath}/compatibilities/get_multi_compatibility_property_values`,
-        data
-      )
+        data,
+      ),
     );
   }
 
@@ -341,7 +341,7 @@ export class MetadataApi {
     requireObject(data, 'data');
 
     return await withApiError('Failed to get product compatibilities', () =>
-      this.client.post(`${this.basePath}/compatibilities/get_product_compatibilities`, data)
+      this.client.post(`${this.basePath}/compatibilities/get_product_compatibilities`, data),
     );
   }
 
@@ -354,7 +354,7 @@ export class MetadataApi {
     requireString(countryCode, 'countryCode');
 
     return await withApiError('Failed to get sales tax jurisdictions', () =>
-      this.client.get(`${this.basePath}/country/${countryCode}/sales_tax_jurisdiction`)
+      this.client.get(`${this.basePath}/country/${countryCode}/sales_tax_jurisdiction`),
     );
   }
 
@@ -368,7 +368,7 @@ export class MetadataApi {
       'get_product_compliance_policies',
       marketplaceId,
       'Failed to get product compliance policies',
-      filter
+      filter,
     );
   }
 }

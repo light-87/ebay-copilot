@@ -170,7 +170,7 @@ export const metadataEntries: ToolEntry[] = [
     description: 'Get compatibilities by specification',
     inputSchema: {
       specification: compatibilitySpecificationSchema.describe(
-        'Compatibility specification object'
+        'Compatibility specification object',
       ),
     },
     handler: (api, args) => api.metadata.getCompatibilitiesBySpecification(args.specification),
@@ -180,7 +180,7 @@ export const metadataEntries: ToolEntry[] = [
     description: 'Get compatibility property names',
     inputSchema: {
       data: compatibilityDataSchema.describe(
-        'Request data for getting compatibility property names'
+        'Request data for getting compatibility property names',
       ),
     },
     handler: (api, args) => api.metadata.getCompatibilityPropertyNames(args.data),
@@ -190,7 +190,7 @@ export const metadataEntries: ToolEntry[] = [
     description: 'Get compatibility property values',
     inputSchema: {
       data: compatibilityDataSchema.describe(
-        'Request data for getting compatibility property values'
+        'Request data for getting compatibility property values',
       ),
     },
     handler: (api, args) => api.metadata.getCompatibilityPropertyValues(args.data),
@@ -200,7 +200,7 @@ export const metadataEntries: ToolEntry[] = [
     description: 'Get multiple compatibility property values',
     inputSchema: {
       data: compatibilityDataSchema.describe(
-        'Request data for getting multi compatibility property values'
+        'Request data for getting multi compatibility property values',
       ),
     },
     handler: (api, args) => api.metadata.getMultiCompatibilityPropertyValues(args.data),

@@ -121,7 +121,7 @@ export const inventoryEntries: ToolEntry[] = [
     description: 'Create a new offer for an inventory item',
     inputSchema: {
       offer: offerSchema.describe(
-        'Offer details including SKU, marketplace, pricing, and policies'
+        'Offer details including SKU, marketplace, pricing, and policies',
       ),
     },
     outputSchema: zodToJsonSchema(createOfferOutputSchema, {
@@ -166,7 +166,7 @@ export const inventoryEntries: ToolEntry[] = [
               .object({
                 sku: z.string(),
               })
-              .passthrough()
+              .passthrough(),
           ),
         })
         .passthrough()
@@ -257,7 +257,7 @@ export const inventoryEntries: ToolEntry[] = [
     handler: (api, args) =>
       api.inventory.createOrReplaceInventoryItemGroup(
         args.inventoryItemGroupKey,
-        args.inventoryItemGroup
+        args.inventoryItemGroup,
       ),
   }),
   defineTool({
@@ -496,7 +496,7 @@ export const inventoryEntries: ToolEntry[] = [
               z.object({
                 merchantLocationKey: z.string().describe('The fulfillment center location key'),
                 quantity: z.number().optional().describe('Available quantity at this location'),
-              })
+              }),
             )
             .describe('Array of location details with quantities'),
         })
@@ -512,7 +512,7 @@ export const inventoryEntries: ToolEntry[] = [
       api.inventory.createOrReplaceSkuLocationMapping(
         args.listingId,
         args.sku,
-        args.locationMapping
+        args.locationMapping,
       ),
   }),
   defineTool({

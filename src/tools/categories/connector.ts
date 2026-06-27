@@ -57,7 +57,7 @@ export const connectorEntries: ToolEntry[] = [
         // Only items with valid SKUs can be passed to getInventoryItem later.
         const itemsWithSku = pageItems.filter(
           (item): item is typeof item & { sku: string } =>
-            typeof item.sku === 'string' && item.sku.trim() !== ''
+            typeof item.sku === 'string' && item.sku.trim() !== '',
         );
 
         const filtered = query

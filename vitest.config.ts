@@ -1,39 +1,39 @@
-import { defineConfig } from "vitest/config";
-import path from "path";
+import path from 'node:path';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
   },
   test: {
     globals: true,
-    environment: "node",
+    environment: 'node',
     coverage: {
-      provider: "v8",
-      reporter: ["text", "json", "html", "lcov"],
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
-        "node_modules/**",
-        "build/**",
-        "dist/**",
-        "**/*.d.ts",
-        "**/*.config.*",
-        "**/types/**",
-        "tests/**",
+        'node_modules/**',
+        'build/**',
+        'dist/**',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/types/**',
+        'tests/**',
         // Exclude schema definition files (no logic to test)
-        "src/utils/**",
-        "src/schemas/**",
+        'src/utils/**',
+        'src/schemas/**',
         // Exclude server entry points (tested via integration)
-        "src/index.ts",
-        "src/server-http.ts",
+        'src/index.ts',
+        'src/server-http.ts',
         // Exclude simple template generators
-        "src/tools/token-template.ts",
-        "src/tools/tool-definitions.ts",
+        'src/tools/token-template.ts',
+        'src/tools/tool-definitions.ts',
         // Exclude script files
-        "src/scripts/**",
+        'src/scripts/**',
       ],
-      include: ["src/**/*.ts"],
+      include: ['src/**/*.ts'],
       thresholds: {
         lines: 75,
         functions: 90,
@@ -41,14 +41,9 @@ export default defineConfig({
         statements: 75,
       },
     },
-    include: ["tests/unit/**/*.test.ts"],
-    exclude: [
-      "node_modules",
-      "build",
-      "dist",
-      "tests/integration/**",
-    ],
-    testTimeout: 10000,
-    hookTimeout: 10000,
+    include: ['tests/unit/**/*.test.ts'],
+    exclude: ['node_modules', 'build', 'dist', 'tests/integration/**'],
+    testTimeout: 10_000,
+    hookTimeout: 10_000,
   },
 });

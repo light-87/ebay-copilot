@@ -120,7 +120,7 @@ describe('AccountApi', () => {
 
       expect(mockClient.put).toHaveBeenCalledWith(
         '/sell/account/v1/custom_policy/1234567890',
-        policyRequest
+        policyRequest,
       );
     });
 
@@ -218,7 +218,7 @@ describe('AccountApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/account/v1/fulfillment_policy',
-        policyRequest
+        policyRequest,
       );
       expect(result.fulfillmentPolicyId).toBe('9876543210');
     });
@@ -239,7 +239,7 @@ describe('AccountApi', () => {
 
       expect(mockClient.put).toHaveBeenCalledWith(
         '/sell/account/v1/fulfillment_policy/1234567890',
-        policyRequest
+        policyRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -250,7 +250,7 @@ describe('AccountApi', () => {
       await accountApi.deleteFulfillmentPolicy('1234567890');
 
       expect(mockClient.delete).toHaveBeenCalledWith(
-        '/sell/account/v1/fulfillment_policy/1234567890'
+        '/sell/account/v1/fulfillment_policy/1234567890',
       );
     });
   });
@@ -336,7 +336,7 @@ describe('AccountApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/account/v1/payment_policy',
-        policyRequest
+        policyRequest,
       );
       expect(result.paymentPolicyId).toBe('9876543210');
     });
@@ -357,7 +357,7 @@ describe('AccountApi', () => {
 
       expect(mockClient.put).toHaveBeenCalledWith(
         '/sell/account/v1/payment_policy/1234567890',
-        policyRequest
+        policyRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -470,7 +470,7 @@ describe('AccountApi', () => {
 
       expect(mockClient.put).toHaveBeenCalledWith(
         '/sell/account/v1/return_policy/1234567890',
-        policyRequest
+        policyRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -555,7 +555,7 @@ describe('AccountApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/account/v1/payments_program/EBAY_US/EBAY_PAYMENTS',
-        {}
+        {},
       );
       expect(result).toEqual(mockResponse);
     });
@@ -572,7 +572,7 @@ describe('AccountApi', () => {
       const result = await accountApi.getPaymentsProgramStatus('EBAY_US', 'EBAY_PAYMENTS');
 
       expect(mockClient.get).toHaveBeenCalledWith(
-        '/sell/account/v1/payments_program/EBAY_US/EBAY_PAYMENTS'
+        '/sell/account/v1/payments_program/EBAY_US/EBAY_PAYMENTS',
       );
       expect(result).toEqual(mockResponse);
     });
@@ -678,7 +678,7 @@ describe('AccountApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/account/v1/sales_tax/bulk_create_or_replace',
-        { requests }
+        { requests },
       );
     });
 

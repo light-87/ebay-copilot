@@ -44,7 +44,7 @@ describe('InventoryApi', () => {
 
     it('should throw error for negative offset', async () => {
       await expect(api.getInventoryItems(10, -1)).rejects.toThrow(
-        'offset must be a non-negative number'
+        'offset must be a non-negative number',
       );
     });
   });
@@ -67,7 +67,7 @@ describe('InventoryApi', () => {
       vi.mocked(client.get).mockRejectedValue(new Error('Not Found'));
 
       await expect(api.getInventoryItem('TEST-SKU')).rejects.toThrow(
-        'Failed to get inventory item: Not Found'
+        'Failed to get inventory item: Not Found',
       );
     });
   });
@@ -84,19 +84,19 @@ describe('InventoryApi', () => {
 
       expect(client.put).toHaveBeenCalledWith(
         '/sell/inventory/v1/inventory_item/TEST-SKU',
-        inventoryItem
+        inventoryItem,
       );
     });
 
     it('should throw error when SKU is missing', async () => {
       await expect(api.createOrReplaceInventoryItem('', {} as any)).rejects.toThrow(
-        'sku is required'
+        'sku is required',
       );
     });
 
     it('should throw error when inventory item is missing', async () => {
       await expect(api.createOrReplaceInventoryItem('TEST-SKU', undefined as any)).rejects.toThrow(
-        'inventoryItem is required'
+        'inventoryItem is required',
       );
     });
   });
@@ -259,13 +259,13 @@ describe('InventoryApi', () => {
 
     it('should throw error when location key is missing', async () => {
       await expect(api.createOrReplaceInventoryLocation('', {} as any)).rejects.toThrow(
-        'merchantLocationKey is required'
+        'merchantLocationKey is required',
       );
     });
 
     it('should throw error when location data is missing', async () => {
       await expect(
-        api.createOrReplaceInventoryLocation('WAREHOUSE_1', undefined as any)
+        api.createOrReplaceInventoryLocation('WAREHOUSE_1', undefined as any),
       ).rejects.toThrow('location is required');
     });
   });
@@ -281,7 +281,7 @@ describe('InventoryApi', () => {
 
     it('should throw error when location key is missing', async () => {
       await expect(api.deleteInventoryLocation('')).rejects.toThrow(
-        'merchantLocationKey is required'
+        'merchantLocationKey is required',
       );
     });
   });
@@ -309,13 +309,13 @@ describe('InventoryApi', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/inventory/v1/bulk_create_or_replace_inventory_item',
-        requests
+        requests,
       );
     });
 
     it('should throw error when requests are missing', async () => {
       await expect(api.bulkCreateOrReplaceInventoryItem(undefined as any)).rejects.toThrow(
-        'requests is required and must be an object'
+        'requests is required and must be an object',
       );
     });
   });
@@ -340,13 +340,13 @@ describe('InventoryApi', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/inventory/v1/bulk_update_price_quantity',
-        requests
+        requests,
       );
     });
 
     it('should throw error when requests are missing', async () => {
       await expect(api.bulkUpdatePriceQuantity(undefined as any)).rejects.toThrow(
-        'requests is required and must be an object'
+        'requests is required and must be an object',
       );
     });
   });
@@ -383,7 +383,7 @@ describe('InventoryApi', () => {
 
     it('should throw error when offer data is missing', async () => {
       await expect(api.updateOffer('OFFER-123', undefined as any)).rejects.toThrow(
-        'offer is required'
+        'offer is required',
       );
     });
   });
@@ -445,7 +445,7 @@ describe('InventoryApi', () => {
 
     it('should throw error when requests are missing', async () => {
       await expect(api.bulkMigrateListing(undefined as any)).rejects.toThrow(
-        'requests is required'
+        'requests is required',
       );
     });
   });
@@ -458,7 +458,7 @@ describe('InventoryApi', () => {
       const result = await api.getProductCompatibility('TEST-SKU');
 
       expect(client.get).toHaveBeenCalledWith(
-        '/sell/inventory/v1/inventory_item/TEST-SKU/product_compatibility'
+        '/sell/inventory/v1/inventory_item/TEST-SKU/product_compatibility',
       );
       expect(result).toEqual(mockCompatibility);
     });
@@ -477,19 +477,19 @@ describe('InventoryApi', () => {
 
       expect(client.put).toHaveBeenCalledWith(
         '/sell/inventory/v1/inventory_item/TEST-SKU/product_compatibility',
-        compatibility
+        compatibility,
       );
     });
 
     it('should throw error when SKU is missing', async () => {
       await expect(api.createOrReplaceProductCompatibility('', {})).rejects.toThrow(
-        'sku is required'
+        'sku is required',
       );
     });
 
     it('should throw error when compatibility is missing', async () => {
       await expect(
-        api.createOrReplaceProductCompatibility('TEST-SKU', undefined as any)
+        api.createOrReplaceProductCompatibility('TEST-SKU', undefined as any),
       ).rejects.toThrow('compatibility is required');
     });
   });
@@ -501,7 +501,7 @@ describe('InventoryApi', () => {
       await api.deleteProductCompatibility('TEST-SKU');
 
       expect(client.delete).toHaveBeenCalledWith(
-        '/sell/inventory/v1/inventory_item/TEST-SKU/product_compatibility'
+        '/sell/inventory/v1/inventory_item/TEST-SKU/product_compatibility',
       );
     });
 
@@ -523,7 +523,7 @@ describe('InventoryApi', () => {
 
     it('should throw error when group key is missing', async () => {
       await expect(api.getInventoryItemGroup('')).rejects.toThrow(
-        'inventoryItemGroupKey is required'
+        'inventoryItemGroupKey is required',
       );
     });
   });
@@ -537,19 +537,19 @@ describe('InventoryApi', () => {
 
       expect(client.put).toHaveBeenCalledWith(
         '/sell/inventory/v1/inventory_item_group/GROUP-123',
-        group
+        group,
       );
     });
 
     it('should throw error when group key is missing', async () => {
       await expect(api.createOrReplaceInventoryItemGroup('', {})).rejects.toThrow(
-        'inventoryItemGroupKey is required'
+        'inventoryItemGroupKey is required',
       );
     });
 
     it('should throw error when group data is missing', async () => {
       await expect(
-        api.createOrReplaceInventoryItemGroup('GROUP-123', undefined as any)
+        api.createOrReplaceInventoryItemGroup('GROUP-123', undefined as any),
       ).rejects.toThrow('inventoryItemGroup is required');
     });
   });
@@ -561,13 +561,13 @@ describe('InventoryApi', () => {
       await api.deleteInventoryItemGroup('GROUP-123');
 
       expect(client.delete).toHaveBeenCalledWith(
-        '/sell/inventory/v1/inventory_item_group/GROUP-123'
+        '/sell/inventory/v1/inventory_item_group/GROUP-123',
       );
     });
 
     it('should throw error when group key is missing', async () => {
       await expect(api.deleteInventoryItemGroup('')).rejects.toThrow(
-        'inventoryItemGroupKey is required'
+        'inventoryItemGroupKey is required',
       );
     });
   });
@@ -599,7 +599,7 @@ describe('InventoryApi', () => {
 
     it('should throw error when location key is missing', async () => {
       await expect(api.disableInventoryLocation('')).rejects.toThrow(
-        'merchantLocationKey is required'
+        'merchantLocationKey is required',
       );
     });
   });
@@ -615,7 +615,7 @@ describe('InventoryApi', () => {
 
     it('should throw error when location key is missing', async () => {
       await expect(api.enableInventoryLocation('')).rejects.toThrow(
-        'merchantLocationKey is required'
+        'merchantLocationKey is required',
       );
     });
   });
@@ -629,19 +629,19 @@ describe('InventoryApi', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/inventory/v1/location/LOC-123/update_location_details',
-        details
+        details,
       );
     });
 
     it('should throw error when location key is missing', async () => {
       await expect(api.updateLocationDetails('', {})).rejects.toThrow(
-        'merchantLocationKey is required'
+        'merchantLocationKey is required',
       );
     });
 
     it('should throw error when location details are missing', async () => {
       await expect(api.updateLocationDetails('LOC-123', undefined as any)).rejects.toThrow(
-        'locationDetails is required'
+        'locationDetails is required',
       );
     });
   });
@@ -655,13 +655,13 @@ describe('InventoryApi', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/inventory/v1/bulk_create_or_replace_inventory_item',
-        requests
+        requests,
       );
     });
 
     it('should throw error when requests are missing', async () => {
       await expect(api.bulkCreateOrReplaceInventoryItem(undefined as any)).rejects.toThrow(
-        'requests is required'
+        'requests is required',
       );
     });
   });
@@ -675,13 +675,13 @@ describe('InventoryApi', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/inventory/v1/bulk_get_inventory_item',
-        requests
+        requests,
       );
     });
 
     it('should throw error when requests are missing', async () => {
       await expect(api.bulkGetInventoryItem(undefined as any)).rejects.toThrow(
-        'requests is required'
+        'requests is required',
       );
     });
   });
@@ -703,7 +703,7 @@ describe('InventoryApi', () => {
       vi.mocked(client.delete).mockRejectedValue(new Error('Delete failed'));
 
       await expect(api.deleteInventoryItem('TEST-SKU')).rejects.toThrow(
-        'Failed to delete inventory item: Delete failed'
+        'Failed to delete inventory item: Delete failed',
       );
     });
   });
@@ -716,13 +716,13 @@ describe('InventoryApi', () => {
       await api.getListingLocations('LISTING-123', 'TEST-SKU');
 
       expect(client.get).toHaveBeenCalledWith(
-        '/sell/inventory/v1/listing/LISTING-123/sku/TEST-SKU/locations'
+        '/sell/inventory/v1/listing/LISTING-123/sku/TEST-SKU/locations',
       );
     });
 
     it('should throw error when listingId is missing', async () => {
       await expect(api.getListingLocations('', 'TEST-SKU')).rejects.toThrow(
-        'listingId is required'
+        'listingId is required',
       );
     });
 
@@ -734,7 +734,7 @@ describe('InventoryApi', () => {
       vi.mocked(client.get).mockRejectedValue(new Error('Not Found'));
 
       await expect(api.getListingLocations('LISTING-123', 'TEST-SKU')).rejects.toThrow(
-        'Failed to get listing locations: Not Found'
+        'Failed to get listing locations: Not Found',
       );
     });
   });
@@ -752,13 +752,13 @@ describe('InventoryApi', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/inventory/v1/offer/publish_by_inventory_item_group',
-        request
+        request,
       );
     });
 
     it('should throw error when request is missing', async () => {
       await expect(api.publishOfferByInventoryItemGroup(undefined as any)).rejects.toThrow(
-        'request is required'
+        'request is required',
       );
     });
 
@@ -766,7 +766,7 @@ describe('InventoryApi', () => {
       vi.mocked(client.post).mockRejectedValue(new Error('Publish failed'));
 
       await expect(
-        api.publishOfferByInventoryItemGroup({ inventoryItemGroupKey: 'GROUP-123' })
+        api.publishOfferByInventoryItemGroup({ inventoryItemGroupKey: 'GROUP-123' }),
       ).rejects.toThrow('Failed to publish offer by inventory item group: Publish failed');
     });
   });
@@ -784,13 +784,13 @@ describe('InventoryApi', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/inventory/v1/offer/withdraw_by_inventory_item_group',
-        request
+        request,
       );
     });
 
     it('should throw error when request is missing', async () => {
       await expect(api.withdrawOfferByInventoryItemGroup(undefined as any)).rejects.toThrow(
-        'request is required'
+        'request is required',
       );
     });
 
@@ -798,7 +798,7 @@ describe('InventoryApi', () => {
       vi.mocked(client.post).mockRejectedValue(new Error('Withdraw failed'));
 
       await expect(
-        api.withdrawOfferByInventoryItemGroup({ inventoryItemGroupKey: 'GROUP-123' })
+        api.withdrawOfferByInventoryItemGroup({ inventoryItemGroupKey: 'GROUP-123' }),
       ).rejects.toThrow('Failed to withdraw offer by inventory item group: Withdraw failed');
     });
   });
@@ -831,43 +831,43 @@ describe('InventoryApi', () => {
           headers: {
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
     });
 
     it('should throw error when listingId is empty', async () => {
       await expect(
-        api.createOrReplaceSkuLocationMapping('', 'SKU-456', { quantity: 10 })
+        api.createOrReplaceSkuLocationMapping('', 'SKU-456', { quantity: 10 }),
       ).rejects.toThrow('listingId is required and must be a string');
     });
 
     it('should throw error when listingId is null', async () => {
       await expect(
-        api.createOrReplaceSkuLocationMapping(null as any, 'SKU-456', { quantity: 10 })
+        api.createOrReplaceSkuLocationMapping(null as any, 'SKU-456', { quantity: 10 }),
       ).rejects.toThrow('listingId is required and must be a string');
     });
 
     it('should throw error when sku is empty', async () => {
       await expect(
-        api.createOrReplaceSkuLocationMapping('LISTING-123', '', { quantity: 10 })
+        api.createOrReplaceSkuLocationMapping('LISTING-123', '', { quantity: 10 }),
       ).rejects.toThrow('sku is required and must be a string');
     });
 
     it('should throw error when sku is null', async () => {
       await expect(
-        api.createOrReplaceSkuLocationMapping('LISTING-123', null as any, { quantity: 10 })
+        api.createOrReplaceSkuLocationMapping('LISTING-123', null as any, { quantity: 10 }),
       ).rejects.toThrow('sku is required and must be a string');
     });
 
     it('should throw error when locationMapping is missing', async () => {
       await expect(
-        api.createOrReplaceSkuLocationMapping('LISTING-123', 'SKU-456', undefined as any)
+        api.createOrReplaceSkuLocationMapping('LISTING-123', 'SKU-456', undefined as any),
       ).rejects.toThrow('locationMapping is required and must be an object');
     });
 
     it('should throw error when locationMapping is not an object', async () => {
       await expect(
-        api.createOrReplaceSkuLocationMapping('LISTING-123', 'SKU-456', 'invalid' as any)
+        api.createOrReplaceSkuLocationMapping('LISTING-123', 'SKU-456', 'invalid' as any),
       ).rejects.toThrow('locationMapping is required and must be an object');
     });
 
@@ -875,7 +875,7 @@ describe('InventoryApi', () => {
       vi.mocked(client.put).mockRejectedValue(new Error('API Error'));
 
       await expect(
-        api.createOrReplaceSkuLocationMapping('LISTING-123', 'SKU-456', { quantity: 10 })
+        api.createOrReplaceSkuLocationMapping('LISTING-123', 'SKU-456', { quantity: 10 }),
       ).rejects.toThrow('Failed to create or replace SKU location mapping: API Error');
     });
   });
@@ -887,31 +887,31 @@ describe('InventoryApi', () => {
       await api.deleteSkuLocationMapping('LISTING-123', 'SKU-456');
 
       expect(client.delete).toHaveBeenCalledWith(
-        '/sell/inventory/v1/listing/LISTING-123/sku/SKU-456/locations'
+        '/sell/inventory/v1/listing/LISTING-123/sku/SKU-456/locations',
       );
     });
 
     it('should throw error when listingId is empty', async () => {
       await expect(api.deleteSkuLocationMapping('', 'SKU-456')).rejects.toThrow(
-        'listingId is required and must be a string'
+        'listingId is required and must be a string',
       );
     });
 
     it('should throw error when listingId is null', async () => {
       await expect(api.deleteSkuLocationMapping(null as any, 'SKU-456')).rejects.toThrow(
-        'listingId is required and must be a string'
+        'listingId is required and must be a string',
       );
     });
 
     it('should throw error when sku is empty', async () => {
       await expect(api.deleteSkuLocationMapping('LISTING-123', '')).rejects.toThrow(
-        'sku is required and must be a string'
+        'sku is required and must be a string',
       );
     });
 
     it('should throw error when sku is null', async () => {
       await expect(api.deleteSkuLocationMapping('LISTING-123', null as any)).rejects.toThrow(
-        'sku is required and must be a string'
+        'sku is required and must be a string',
       );
     });
 
@@ -919,7 +919,7 @@ describe('InventoryApi', () => {
       vi.mocked(client.delete).mockRejectedValue(new Error('Delete failed'));
 
       await expect(api.deleteSkuLocationMapping('LISTING-123', 'SKU-456')).rejects.toThrow(
-        'Failed to delete SKU location mapping: Delete failed'
+        'Failed to delete SKU location mapping: Delete failed',
       );
     });
   });

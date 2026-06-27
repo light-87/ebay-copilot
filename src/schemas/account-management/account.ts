@@ -33,7 +33,7 @@ const errorSchema = z.object({
       z.object({
         name: z.string().optional(),
         value: z.string().optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -71,7 +71,7 @@ export const getCustomPoliciesInputSchema = z.object({
     .string()
     .optional()
     .describe(
-      'Comma-delimited list of policy types to retrieve (e.g., PRODUCT_COMPLIANCE, TAKE_BACK)'
+      'Comma-delimited list of policy types to retrieve (e.g., PRODUCT_COMPLIANCE, TAKE_BACK)',
     ),
 });
 
@@ -449,7 +449,7 @@ export const programsOutputSchema = z.object({
       z.object({
         programType: z.string().optional(),
         programStatus: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   warnings: z.array(errorSchema).optional(),
@@ -501,51 +501,51 @@ export function getAccountManagementJsonSchemas() {
     getCustomPoliciesOutput: zodToJsonSchema(customPolicyResponseSchema, 'getCustomPoliciesOutput'),
     createCustomPolicyInput: zodToJsonSchema(
       createCustomPolicyInputSchema,
-      'createCustomPolicyInput'
+      'createCustomPolicyInput',
     ),
     createCustomPolicyOutput: zodToJsonSchema(
       createCustomPolicyOutputSchema,
-      'createCustomPolicyOutput'
+      'createCustomPolicyOutput',
     ),
 
     // Fulfillment Policies
     getFulfillmentPoliciesInput: zodToJsonSchema(
       getFulfillmentPoliciesInputSchema,
-      'getFulfillmentPoliciesInput'
+      'getFulfillmentPoliciesInput',
     ),
     getFulfillmentPoliciesOutput: zodToJsonSchema(
       getFulfillmentPoliciesOutputSchema,
-      'getFulfillmentPoliciesOutput'
+      'getFulfillmentPoliciesOutput',
     ),
     createFulfillmentPolicyInput: zodToJsonSchema(
       createFulfillmentPolicyInputSchema,
-      'createFulfillmentPolicyInput'
+      'createFulfillmentPolicyInput',
     ),
     createFulfillmentPolicyOutput: zodToJsonSchema(
       createFulfillmentPolicyOutputSchema,
-      'createFulfillmentPolicyOutput'
+      'createFulfillmentPolicyOutput',
     ),
     fulfillmentPolicyDetails: zodToJsonSchema(
       fulfillmentPolicyResponseSchema,
-      'fulfillmentPolicyDetails'
+      'fulfillmentPolicyDetails',
     ),
 
     // Payment Policies
     getPaymentPoliciesInput: zodToJsonSchema(
       getPaymentPoliciesInputSchema,
-      'getPaymentPoliciesInput'
+      'getPaymentPoliciesInput',
     ),
     getPaymentPoliciesOutput: zodToJsonSchema(
       getPaymentPoliciesOutputSchema,
-      'getPaymentPoliciesOutput'
+      'getPaymentPoliciesOutput',
     ),
     createPaymentPolicyInput: zodToJsonSchema(
       createPaymentPolicyInputSchema,
-      'createPaymentPolicyInput'
+      'createPaymentPolicyInput',
     ),
     createPaymentPolicyOutput: zodToJsonSchema(
       createPaymentPolicyOutputSchema,
-      'createPaymentPolicyOutput'
+      'createPaymentPolicyOutput',
     ),
     paymentPolicyDetails: zodToJsonSchema(paymentPolicyResponseSchema, 'paymentPolicyDetails'),
 
@@ -553,15 +553,15 @@ export function getAccountManagementJsonSchemas() {
     getReturnPoliciesInput: zodToJsonSchema(getReturnPoliciesInputSchema, 'getReturnPoliciesInput'),
     getReturnPoliciesOutput: zodToJsonSchema(
       getReturnPoliciesOutputSchema,
-      'getReturnPoliciesOutput'
+      'getReturnPoliciesOutput',
     ),
     createReturnPolicyInput: zodToJsonSchema(
       createReturnPolicyInputSchema,
-      'createReturnPolicyInput'
+      'createReturnPolicyInput',
     ),
     createReturnPolicyOutput: zodToJsonSchema(
       createReturnPolicyOutputSchema,
-      'createReturnPolicyOutput'
+      'createReturnPolicyOutput',
     ),
     returnPolicyDetails: zodToJsonSchema(returnPolicyResponseSchema, 'returnPolicyDetails'),
 

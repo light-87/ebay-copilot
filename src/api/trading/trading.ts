@@ -29,7 +29,7 @@ function asRecordArray(value: unknown): Record<string, unknown>[] {
 
   return value.filter(
     (entry): entry is Record<string, unknown> =>
-      typeof entry === 'object' && entry !== null && !Array.isArray(entry)
+      typeof entry === 'object' && entry !== null && !Array.isArray(entry),
   );
 }
 
@@ -122,7 +122,7 @@ export class TradingApi {
    */
   async reviseListing(
     itemId: string,
-    fields: Record<string, unknown>
+    fields: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
     if (!itemId) throw new Error('itemId is required');
 
@@ -148,7 +148,7 @@ export class TradingApi {
    */
   async relistItem(
     itemId: string,
-    modifications?: Record<string, unknown>
+    modifications?: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
     if (!itemId) throw new Error('itemId is required');
 

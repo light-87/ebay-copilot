@@ -15,7 +15,7 @@ export class EDeliveryApi {
    */
   async createShippingQuote(shippingQuoteRequest: Record<string, unknown>) {
     return await withApiError('Failed to create shipping quote', () =>
-      this.client.post(`${this.basePath}/shipping_quote`, shippingQuoteRequest)
+      this.client.post(`${this.basePath}/shipping_quote`, shippingQuoteRequest),
     );
   }
 
@@ -24,7 +24,7 @@ export class EDeliveryApi {
    */
   async getShippingQuote(shippingQuoteId: string) {
     return await withApiError('Failed to get shipping quote', () =>
-      this.client.get(`${this.basePath}/shipping_quote/${shippingQuoteId}`)
+      this.client.get(`${this.basePath}/shipping_quote/${shippingQuoteId}`),
     );
   }
 
@@ -36,7 +36,7 @@ export class EDeliveryApi {
    */
   async getActualCosts(params?: Record<string, string>) {
     return await withApiError('Failed to get actual costs', () =>
-      this.client.get(`${this.basePath}/actual_costs`, params)
+      this.client.get(`${this.basePath}/actual_costs`, params),
     );
   }
 
@@ -46,7 +46,7 @@ export class EDeliveryApi {
    */
   async getAddressPreferences() {
     return await withApiError('Failed to get address preferences', () =>
-      this.client.get(`${this.basePath}/address_preference`)
+      this.client.get(`${this.basePath}/address_preference`),
     );
   }
 
@@ -56,7 +56,7 @@ export class EDeliveryApi {
    */
   async createAddressPreference(addressPreference: Record<string, unknown>) {
     return await withApiError('Failed to create address preference', () =>
-      this.client.post(`${this.basePath}/address_preference`, addressPreference)
+      this.client.post(`${this.basePath}/address_preference`, addressPreference),
     );
   }
 
@@ -66,7 +66,7 @@ export class EDeliveryApi {
    */
   async getConsignPreferences() {
     return await withApiError('Failed to get consign preferences', () =>
-      this.client.get(`${this.basePath}/consign_preference`)
+      this.client.get(`${this.basePath}/consign_preference`),
     );
   }
 
@@ -76,7 +76,7 @@ export class EDeliveryApi {
    */
   async createConsignPreference(consignPreference: Record<string, unknown>) {
     return await withApiError('Failed to create consign preference', () =>
-      this.client.post(`${this.basePath}/consign_preference`, consignPreference)
+      this.client.post(`${this.basePath}/consign_preference`, consignPreference),
     );
   }
 
@@ -88,7 +88,7 @@ export class EDeliveryApi {
    */
   async getAgents(params?: Record<string, string>) {
     return await withApiError('Failed to get agents', () =>
-      this.client.get(`${this.basePath}/agents`, params)
+      this.client.get(`${this.basePath}/agents`, params),
     );
   }
 
@@ -98,7 +98,7 @@ export class EDeliveryApi {
    */
   async getBatteryQualifications(params?: Record<string, string>) {
     return await withApiError('Failed to get battery qualifications', () =>
-      this.client.get(`${this.basePath}/battery_qualifications`, params)
+      this.client.get(`${this.basePath}/battery_qualifications`, params),
     );
   }
 
@@ -108,7 +108,7 @@ export class EDeliveryApi {
    */
   async getDropoffSites(params: Record<string, string>) {
     return await withApiError('Failed to get dropoff sites', () =>
-      this.client.get(`${this.basePath}/dropoff_sites`, params)
+      this.client.get(`${this.basePath}/dropoff_sites`, params),
     );
   }
 
@@ -118,7 +118,7 @@ export class EDeliveryApi {
    */
   async getShippingServices(params?: Record<string, string>) {
     return await withApiError('Failed to get shipping services', () =>
-      this.client.get(`${this.basePath}/services`, params)
+      this.client.get(`${this.basePath}/services`, params),
     );
   }
 
@@ -130,7 +130,7 @@ export class EDeliveryApi {
    */
   async createBundle(bundleRequest: Record<string, unknown>) {
     return await withApiError('Failed to create bundle', () =>
-      this.client.post(`${this.basePath}/bundle`, bundleRequest)
+      this.client.post(`${this.basePath}/bundle`, bundleRequest),
     );
   }
 
@@ -140,7 +140,7 @@ export class EDeliveryApi {
    */
   async getBundle(bundleId: string) {
     return await withApiError('Failed to get bundle', () =>
-      this.client.get(`${this.basePath}/bundle/${bundleId}`)
+      this.client.get(`${this.basePath}/bundle/${bundleId}`),
     );
   }
 
@@ -150,7 +150,7 @@ export class EDeliveryApi {
    */
   async cancelBundle(bundleId: string) {
     return await withApiError('Failed to cancel bundle', () =>
-      this.client.post(`${this.basePath}/bundle/${bundleId}/cancel`, {})
+      this.client.post(`${this.basePath}/bundle/${bundleId}/cancel`, {}),
     );
   }
 
@@ -160,7 +160,7 @@ export class EDeliveryApi {
    */
   async getBundleLabel(bundleId: string) {
     return await withApiError('Failed to get bundle label', () =>
-      this.client.get(`${this.basePath}/bundle/${bundleId}/label`)
+      this.client.get(`${this.basePath}/bundle/${bundleId}/label`),
     );
   }
 
@@ -172,7 +172,7 @@ export class EDeliveryApi {
    */
   async createPackage(packageRequest: Record<string, unknown>) {
     return await withApiError('Failed to create package', () =>
-      this.client.post(`${this.basePath}/package`, packageRequest)
+      this.client.post(`${this.basePath}/package`, packageRequest),
     );
   }
 
@@ -182,7 +182,7 @@ export class EDeliveryApi {
    */
   async getPackage(packageId: string) {
     return await withApiError('Failed to get package', () =>
-      this.client.get(`${this.basePath}/package/${packageId}`)
+      this.client.get(`${this.basePath}/package/${packageId}`),
     );
   }
 
@@ -192,7 +192,7 @@ export class EDeliveryApi {
    */
   async deletePackage(packageId: string) {
     return await withApiError('Failed to delete package', () =>
-      this.client.delete(`${this.basePath}/package/${packageId}`)
+      this.client.delete(`${this.basePath}/package/${packageId}`),
     );
   }
 
@@ -202,7 +202,7 @@ export class EDeliveryApi {
    */
   async getPackageByOrderLineItem(orderLineItemId: string) {
     return await withApiError('Failed to get package by order line item', () =>
-      this.client.get(`${this.basePath}/package/${orderLineItemId}/item`)
+      this.client.get(`${this.basePath}/package/${orderLineItemId}/item`),
     );
   }
 
@@ -212,7 +212,7 @@ export class EDeliveryApi {
    */
   async cancelPackage(packageId: string) {
     return await withApiError('Failed to cancel package', () =>
-      this.client.post(`${this.basePath}/package/${packageId}/cancel`, {})
+      this.client.post(`${this.basePath}/package/${packageId}/cancel`, {}),
     );
   }
 
@@ -222,7 +222,7 @@ export class EDeliveryApi {
    */
   async clonePackage(packageId: string) {
     return await withApiError('Failed to clone package', () =>
-      this.client.post(`${this.basePath}/package/${packageId}/clone`, {})
+      this.client.post(`${this.basePath}/package/${packageId}/clone`, {}),
     );
   }
 
@@ -232,7 +232,7 @@ export class EDeliveryApi {
    */
   async confirmPackage(packageId: string) {
     return await withApiError('Failed to confirm package', () =>
-      this.client.post(`${this.basePath}/package/${packageId}/confirm`, {})
+      this.client.post(`${this.basePath}/package/${packageId}/confirm`, {}),
     );
   }
 
@@ -244,7 +244,7 @@ export class EDeliveryApi {
    */
   async bulkCancelPackages(bulkCancelRequest: Record<string, unknown>) {
     return await withApiError('Failed to bulk cancel packages', () =>
-      this.client.post(`${this.basePath}/package/bulk_cancel_packages`, bulkCancelRequest)
+      this.client.post(`${this.basePath}/package/bulk_cancel_packages`, bulkCancelRequest),
     );
   }
 
@@ -254,7 +254,7 @@ export class EDeliveryApi {
    */
   async bulkConfirmPackages(bulkConfirmRequest: Record<string, unknown>) {
     return await withApiError('Failed to bulk confirm packages', () =>
-      this.client.post(`${this.basePath}/package/bulk_confirm_packages`, bulkConfirmRequest)
+      this.client.post(`${this.basePath}/package/bulk_confirm_packages`, bulkConfirmRequest),
     );
   }
 
@@ -264,7 +264,7 @@ export class EDeliveryApi {
    */
   async bulkDeletePackages(bulkDeleteRequest: Record<string, unknown>) {
     return await withApiError('Failed to bulk delete packages', () =>
-      this.client.post(`${this.basePath}/package/bulk_delete_packages`, bulkDeleteRequest)
+      this.client.post(`${this.basePath}/package/bulk_delete_packages`, bulkDeleteRequest),
     );
   }
 
@@ -276,7 +276,7 @@ export class EDeliveryApi {
    */
   async getLabels(params?: Record<string, string>) {
     return await withApiError('Failed to get labels', () =>
-      this.client.get(`${this.basePath}/labels`, params)
+      this.client.get(`${this.basePath}/labels`, params),
     );
   }
 
@@ -286,7 +286,7 @@ export class EDeliveryApi {
    */
   async getHandoverSheet(params?: Record<string, string>) {
     return await withApiError('Failed to get handover sheet', () =>
-      this.client.get(`${this.basePath}/handover_sheet`, params)
+      this.client.get(`${this.basePath}/handover_sheet`, params),
     );
   }
 
@@ -296,7 +296,7 @@ export class EDeliveryApi {
    */
   async getTracking(params: Record<string, string>) {
     return await withApiError('Failed to get tracking', () =>
-      this.client.get(`${this.basePath}/tracking`, params)
+      this.client.get(`${this.basePath}/tracking`, params),
     );
   }
 
@@ -308,7 +308,7 @@ export class EDeliveryApi {
    */
   async createComplaint(complaintRequest: Record<string, unknown>) {
     return await withApiError('Failed to create complaint', () =>
-      this.client.post(`${this.basePath}/complaint`, complaintRequest)
+      this.client.post(`${this.basePath}/complaint`, complaintRequest),
     );
   }
 }

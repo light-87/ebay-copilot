@@ -31,10 +31,10 @@ describe('shared API request helpers', () => {
     });
 
     expect(() => buildValidatedPaginatedParams(undefined, 0, 0)).toThrow(
-      'limit must be a positive number when provided'
+      'limit must be a positive number when provided',
     );
     expect(() => buildValidatedPaginatedParams(undefined, 1, -1)).toThrow(
-      'offset must be a non-negative number when provided'
+      'offset must be a non-negative number when provided',
     );
   });
 
@@ -44,18 +44,18 @@ describe('shared API request helpers', () => {
       continuation_token: 'next-page',
     });
     expect(() => buildContinuationParams(0)).toThrow(
-      'limit must be a positive number when provided'
+      'limit must be a positive number when provided',
     );
     expect(() => buildContinuationParams(25, 1 as never)).toThrow(
-      'continuationToken must be a string when provided'
+      'continuationToken must be a string when provided',
     );
   });
 
   it('wraps lower-level request errors with endpoint context', async () => {
     await expect(
       withApiError('Failed to get inventory item', () =>
-        Promise.reject(new Error('eBay API Error: missing sku'))
-      )
+        Promise.reject(new Error('eBay API Error: missing sku')),
+      ),
     ).rejects.toThrow('Failed to get inventory item: eBay API Error: missing sku');
   });
 });

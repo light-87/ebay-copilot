@@ -23,7 +23,7 @@ const errorSchema = z.object({
       z.object({
         name: z.string().optional(),
         value: z.string().optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -85,7 +85,7 @@ const lineItemSchema = z.object({
       z.object({
         taxType: z.string().optional(),
         amount: amountSchema.optional(),
-      })
+      }),
     )
     .optional(),
   itemLocation: addressSchema.optional(),
@@ -105,7 +105,7 @@ const shippingFulfillmentSchema = z.object({
       z.object({
         lineItemId: z.string().optional(),
         quantity: z.number().optional(),
-      })
+      }),
     )
     .optional(),
   shippedDate: z.string().optional(),
@@ -143,7 +143,7 @@ const orderSchema = z.object({
             cancelRequestedDate: z.string().optional(),
             cancelRequestId: z.string().optional(),
             cancelRequestState: z.string().optional(),
-          })
+          }),
         )
         .optional(),
     })
@@ -164,7 +164,7 @@ const orderSchema = z.object({
             shippingServiceCode: z.string().optional(),
           })
           .optional(),
-      })
+      }),
     )
     .optional(),
   fulfillmentHrefs: z.array(z.string()).optional(),
@@ -178,7 +178,7 @@ const orderSchema = z.object({
             paymentReferenceId: z.string().optional(),
             paymentStatus: z.string().optional(),
             amount: amountSchema.optional(),
-          })
+          }),
         )
         .optional(),
       refunds: z
@@ -189,7 +189,7 @@ const orderSchema = z.object({
             refundReferenceId: z.string().optional(),
             refundStatus: z.string().optional(),
             amount: amountSchema.optional(),
-          })
+          }),
         )
         .optional(),
       totalDueSeller: amountSchema.optional(),
@@ -256,7 +256,7 @@ export const createShippingFulfillmentInputSchema = z.object({
         z.object({
           lineItemId: z.string(),
           quantity: z.number().optional(),
-        })
+        }),
       )
       .describe('Line items to fulfill'),
     shippedDate: z.string().optional().describe('Date the items were shipped (ISO 8601 format)'),
@@ -352,17 +352,17 @@ const paymentDisputeSchema = z.object({
               fileId: z.string().optional(),
               name: z.string().optional(),
               uploadedDate: z.string().optional(),
-            })
+            }),
           )
           .optional(),
         lineItems: z
           .array(
             z.object({
               lineItemId: z.string().optional(),
-            })
+            }),
           )
           .optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -412,23 +412,23 @@ export function getFulfillmentJsonSchemas() {
     // Shipping Fulfillment
     createShippingFulfillmentInput: zodToJsonSchema(
       createShippingFulfillmentInputSchema,
-      'createShippingFulfillmentInput'
+      'createShippingFulfillmentInput',
     ),
     createShippingFulfillmentOutput: zodToJsonSchema(
       createShippingFulfillmentOutputSchema,
-      'createShippingFulfillmentOutput'
+      'createShippingFulfillmentOutput',
     ),
     getShippingFulfillmentsInput: zodToJsonSchema(
       getShippingFulfillmentsInputSchema,
-      'getShippingFulfillmentsInput'
+      'getShippingFulfillmentsInput',
     ),
     getShippingFulfillmentsOutput: zodToJsonSchema(
       getShippingFulfillmentsOutputSchema,
-      'getShippingFulfillmentsOutput'
+      'getShippingFulfillmentsOutput',
     ),
     shippingFulfillmentDetails: zodToJsonSchema(
       shippingFulfillmentSchema,
-      'shippingFulfillmentDetails'
+      'shippingFulfillmentDetails',
     ),
 
     // Refunds
@@ -438,11 +438,11 @@ export function getFulfillmentJsonSchemas() {
     // Payment Disputes
     getPaymentDisputesInput: zodToJsonSchema(
       getPaymentDisputesInputSchema,
-      'getPaymentDisputesInput'
+      'getPaymentDisputesInput',
     ),
     getPaymentDisputesOutput: zodToJsonSchema(
       getPaymentDisputesOutputSchema,
-      'getPaymentDisputesOutput'
+      'getPaymentDisputesOutput',
     ),
     paymentDisputeDetails: zodToJsonSchema(paymentDisputeSchema, 'paymentDisputeDetails'),
   };

@@ -157,8 +157,8 @@ async function downloadSpecs(): Promise<number> {
   if (failed > 0 && downloaded === 0) {
     console.log(
       ui.error(
-        `\n  ✗ All ${failed} spec downloads failed — eBay is likely blocking automated requests (HTTP 403).`
-      )
+        `\n  ✗ All ${failed} spec downloads failed — eBay is likely blocking automated requests (HTTP 403).`,
+      ),
     );
   }
 
@@ -200,7 +200,7 @@ function generateTypes(): number {
             .map((part, i) =>
               i === 0
                 ? part.toLowerCase()
-                : part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+                : part.charAt(0).toUpperCase() + part.slice(1).toLowerCase(),
             )
             .join('');
 
@@ -544,7 +544,7 @@ function showMissingEndpoints(missing: EndpointInfo[]): void {
 
   console.log(ui.bold('\n📋 Potentially Missing Endpoints\n'));
   console.log(
-    ui.dim('  These endpoints were found in specs but may not have corresponding tools:\n')
+    ui.dim('  These endpoints were found in specs but may not have corresponding tools:\n'),
   );
 
   const grouped = missing.reduce(
@@ -554,7 +554,7 @@ function showMissingEndpoints(missing: EndpointInfo[]): void {
       acc[key].push(ep);
       return acc;
     },
-    {} as Record<string, EndpointInfo[]>
+    {} as Record<string, EndpointInfo[]>,
   );
 
   for (const [group, endpoints] of Object.entries(grouped).slice(0, 10)) {
@@ -589,7 +589,7 @@ async function main(): Promise<void> {
 ╔════════════════════════════════════════════════════════════╗
 ║           eBay MCP Server - Developer Sync Tool            ║
 ╚════════════════════════════════════════════════════════════╝
-`)
+`),
   );
 
   const args = process.argv.slice(2);
@@ -654,13 +654,13 @@ ${ui.bold('What this does:')}
   if (usingStaleSpecs) {
     console.log(
       ui.warning(
-        '\n  ⚠ No specs were downloaded — coverage above reflects the cached specs on disk, not eBay live.'
-      )
+        '\n  ⚠ No specs were downloaded — coverage above reflects the cached specs on disk, not eBay live.',
+      ),
     );
     console.log(
       ui.dim(
-        '    Refresh the specs (the eBay docs URLs return 403 to scripts) before trusting these numbers.'
-      )
+        '    Refresh the specs (the eBay docs URLs return 403 to scripts) before trusting these numbers.',
+      ),
     );
   }
 

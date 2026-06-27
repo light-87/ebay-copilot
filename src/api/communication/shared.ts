@@ -16,7 +16,7 @@ import {
 export function buildPaginatedQueryParams(
   filter?: string,
   limit?: number,
-  offset?: number
+  offset?: number,
 ): Record<string, string | number> {
   return buildValidatedPaginatedParams(filter, limit, offset);
 }
@@ -42,7 +42,7 @@ export function assertRequiredString(value: string, paramName: string): void {
 export async function getPathWithContextError(
   client: EbayApiClient,
   path: string,
-  failureMessage: string
+  failureMessage: string,
 ) {
   return await getWithApiError(client, path, failureMessage);
 }
@@ -60,7 +60,7 @@ export async function getWithContextError(
   client: EbayApiClient,
   path: string,
   params: Record<string, string | number>,
-  failureMessage: string
+  failureMessage: string,
 ) {
   return await getWithApiError(client, path, failureMessage, params);
 }
@@ -82,7 +82,7 @@ export async function getPaginatedWithContextError(
   failureMessage: string,
   filter?: string,
   limit?: number,
-  offset?: number
+  offset?: number,
 ) {
   const params = buildPaginatedQueryParams(filter, limit, offset);
   return await getWithContextError(client, path, params, failureMessage);

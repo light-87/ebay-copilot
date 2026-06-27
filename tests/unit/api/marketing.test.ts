@@ -128,7 +128,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign',
-        campaignRequest
+        campaignRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -150,7 +150,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/clone',
-        cloneRequest
+        cloneRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -162,7 +162,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/pause',
-        {}
+        {},
       );
     });
 
@@ -173,7 +173,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/resume',
-        {}
+        {},
       );
     });
 
@@ -184,7 +184,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/end',
-        {}
+        {},
       );
     });
 
@@ -201,7 +201,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.get).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/get_campaign_by_name',
-        { campaign_name: 'Test Campaign' }
+        { campaign_name: 'Test Campaign' },
       );
       expect(result.campaignName).toBe('Test Campaign');
     });
@@ -217,7 +217,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.put).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/update_campaign_identification',
-        updateRequest
+        updateRequest,
       );
     });
   });
@@ -241,7 +241,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.get).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad',
-        {}
+        {},
       );
       expect(result).toEqual(mockResponse);
     });
@@ -263,7 +263,7 @@ describe('MarketingApi', () => {
           ad_status: 'ACTIVE',
           limit: 10,
           listing_ids: 'listing-001',
-        }
+        },
       );
     });
 
@@ -279,7 +279,7 @@ describe('MarketingApi', () => {
       const result = await marketingApi.getAd('campaign-001', 'ad-001');
 
       expect(mockClient.get).toHaveBeenCalledWith(
-        '/sell/marketing/v1/ad_campaign/campaign-001/ad/ad-001'
+        '/sell/marketing/v1/ad_campaign/campaign-001/ad/ad-001',
       );
       expect(result.adId).toBe('ad-001');
     });
@@ -300,7 +300,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad',
-        adRequest
+        adRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -311,7 +311,7 @@ describe('MarketingApi', () => {
       await marketingApi.deleteAd('campaign-001', 'ad-001');
 
       expect(mockClient.delete).toHaveBeenCalledWith(
-        '/sell/marketing/v1/ad_campaign/campaign-001/ad/ad-001'
+        '/sell/marketing/v1/ad_campaign/campaign-001/ad/ad-001',
       );
     });
 
@@ -331,7 +331,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad/ad-001/clone',
-        adRequest
+        adRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -347,7 +347,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.get).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/get_ads_by_listing_id',
-        { listing_id: 'listing-001' }
+        { listing_id: 'listing-001' },
       );
       expect(result).toEqual(mockAds);
     });
@@ -361,7 +361,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad/ad-001/update_bid',
-        bidUpdate
+        bidUpdate,
       );
     });
 
@@ -378,7 +378,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/create_ads_by_inventory_reference',
-        request
+        request,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -391,7 +391,7 @@ describe('MarketingApi', () => {
       const result = await marketingApi.getAdsByInventoryReference(
         'campaign-001',
         'ref-001',
-        'INVENTORY_ITEM'
+        'INVENTORY_ITEM',
       );
 
       expect(mockClient.get).toHaveBeenCalledWith(
@@ -399,7 +399,7 @@ describe('MarketingApi', () => {
         {
           inventory_reference_id: 'ref-001',
           inventory_reference_type: 'INVENTORY_ITEM',
-        }
+        },
       );
       expect(result).toEqual(mockResponse);
     });
@@ -423,7 +423,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/bulk_create_ads_by_inventory_reference',
-        request
+        request,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -442,7 +442,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/bulk_create_ads_by_listing_id',
-        request
+        request,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -466,7 +466,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/bulk_delete_ads_by_inventory_reference',
-        request
+        request,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -485,7 +485,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/bulk_delete_ads_by_listing_id',
-        request
+        request,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -508,12 +508,12 @@ describe('MarketingApi', () => {
 
       const result = await marketingApi.bulkUpdateAdsBidByInventoryReference(
         'campaign-001',
-        request
+        request,
       );
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/bulk_update_ads_bid_by_inventory_reference',
-        request
+        request,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -537,7 +537,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/bulk_update_ads_bid_by_listing_id',
-        request
+        request,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -561,7 +561,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/bulk_update_ads_status',
-        request
+        request,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -585,7 +585,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/bulk_update_ads_status_by_listing_id',
-        request
+        request,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -602,7 +602,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/delete_ads_by_inventory_reference',
-        request
+        request,
       );
     });
 
@@ -618,7 +618,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-002/delete_ads_by_inventory_reference',
-        request
+        request,
       );
     });
   });
@@ -640,7 +640,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group',
-        adGroupRequest
+        adGroupRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -663,7 +663,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.get).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group',
-        {}
+        {},
       );
       expect(result).toEqual(mockResponse);
     });
@@ -683,7 +683,7 @@ describe('MarketingApi', () => {
         {
           ad_group_status: 'ACTIVE',
           limit: 10,
-        }
+        },
       );
     });
 
@@ -699,7 +699,7 @@ describe('MarketingApi', () => {
       const result = await marketingApi.getAdGroup('campaign-001', 'adgroup-001');
 
       expect(mockClient.get).toHaveBeenCalledWith(
-        '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001'
+        '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001',
       );
       expect(result.adGroupId).toBe('adgroup-001');
     });
@@ -720,7 +720,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/clone',
-        cloneRequest
+        cloneRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -740,7 +740,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/suggest_bids',
-        {}
+        {},
       );
       expect(result).toEqual(mockBids);
     });
@@ -761,7 +761,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/update_ad_group_bids',
-        updateBidsRequest
+        updateBidsRequest,
       );
     });
 
@@ -781,12 +781,12 @@ describe('MarketingApi', () => {
       await marketingApi.updateAdGroupKeywords(
         'campaign-001',
         'adgroup-001',
-        updateKeywordsRequest
+        updateKeywordsRequest,
       );
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/update_ad_group_keywords',
-        updateKeywordsRequest
+        updateKeywordsRequest,
       );
     });
   });
@@ -810,7 +810,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.get).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/keyword',
-        {}
+        {},
       );
       expect(result).toEqual(mockResponse);
     });
@@ -830,7 +830,7 @@ describe('MarketingApi', () => {
         {
           keyword_status: 'ACTIVE',
           limit: 10,
-        }
+        },
       );
     });
 
@@ -849,12 +849,12 @@ describe('MarketingApi', () => {
       const result = await marketingApi.createKeyword(
         'campaign-001',
         'adgroup-001',
-        keywordRequest
+        keywordRequest,
       );
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/create_keyword',
-        keywordRequest
+        keywordRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -871,7 +871,7 @@ describe('MarketingApi', () => {
       const result = await marketingApi.getKeyword('campaign-001', 'adgroup-001', 'keyword-001');
 
       expect(mockClient.get).toHaveBeenCalledWith(
-        '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/keyword/keyword-001'
+        '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/keyword/keyword-001',
       );
       expect(result.keywordId).toBe('keyword-001');
     });
@@ -882,7 +882,7 @@ describe('MarketingApi', () => {
       await marketingApi.deleteKeyword('campaign-001', 'adgroup-001', 'keyword-001');
 
       expect(mockClient.delete).toHaveBeenCalledWith(
-        '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/keyword/keyword-001'
+        '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/keyword/keyword-001',
       );
     });
 
@@ -895,7 +895,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/keyword/keyword-001/update_bid',
-        bidUpdate
+        bidUpdate,
       );
     });
 
@@ -914,12 +914,12 @@ describe('MarketingApi', () => {
       const result = await marketingApi.suggestKeywords(
         'campaign-001',
         'adgroup-001',
-        suggestRequest
+        suggestRequest,
       );
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/suggest_keywords',
-        suggestRequest
+        suggestRequest,
       );
       expect(result).toEqual(mockKeywords);
     });
@@ -950,12 +950,12 @@ describe('MarketingApi', () => {
       const result = await marketingApi.bulkCreateKeywords(
         'campaign-001',
         'adgroup-001',
-        bulkRequest
+        bulkRequest,
       );
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/bulk_create_keywords',
-        bulkRequest
+        bulkRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -974,12 +974,12 @@ describe('MarketingApi', () => {
       const result = await marketingApi.bulkDeleteKeywords(
         'campaign-001',
         'adgroup-001',
-        bulkRequest
+        bulkRequest,
       );
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/bulk_delete_keywords',
-        bulkRequest
+        bulkRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -1007,12 +1007,12 @@ describe('MarketingApi', () => {
       const result = await marketingApi.bulkUpdateKeywordBids(
         'campaign-001',
         'adgroup-001',
-        bulkRequest
+        bulkRequest,
       );
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/ad_group/adgroup-001/bulk_update_keyword_bids',
-        bulkRequest
+        bulkRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -1073,7 +1073,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/negative_keyword',
-        negKeywordRequest
+        negKeywordRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -1102,7 +1102,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.put).toHaveBeenCalledWith(
         '/sell/marketing/v1/negative_keyword/neg-001',
-        updateRequest
+        updateRequest,
       );
     });
 
@@ -1135,7 +1135,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/bulk_create_negative_keyword',
-        bulkRequest
+        bulkRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -1158,7 +1158,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/bulk_update_negative_keyword',
-        bulkRequest
+        bulkRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -1231,7 +1231,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/item_promotion',
-        promotionRequest
+        promotionRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -1265,7 +1265,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/item_promotion/promo-001/pause',
-        {}
+        {},
       );
     });
 
@@ -1276,7 +1276,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/item_promotion/promo-001/resume',
-        {}
+        {},
       );
     });
 
@@ -1295,7 +1295,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.put).toHaveBeenCalledWith(
         '/sell/marketing/v1/item_promotion/promo-001',
-        updateRequest
+        updateRequest,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -1315,7 +1315,7 @@ describe('MarketingApi', () => {
         'LISTING_ID',
         'CLICK',
         '2025-01-01',
-        '2025-01-31'
+        '2025-01-31',
       );
 
       expect(mockClient.get).toHaveBeenCalledWith('/sell/marketing/v1/ad_report', {
@@ -1343,7 +1343,7 @@ describe('MarketingApi', () => {
         '2025-01-31',
         'CLICK',
         'listing-001,listing-002',
-        'EBAY_US'
+        'EBAY_US',
       );
 
       expect(mockClient.get).toHaveBeenCalledWith('/sell/marketing/v1/ad_report', {
@@ -1386,7 +1386,7 @@ describe('MarketingApi', () => {
       const result = await marketingApi.getAdReportMetadataForReportType('CAMPAIGN_PERFORMANCE');
 
       expect(mockClient.get).toHaveBeenCalledWith(
-        '/sell/marketing/v1/ad_report_metadata/CAMPAIGN_PERFORMANCE'
+        '/sell/marketing/v1/ad_report_metadata/CAMPAIGN_PERFORMANCE',
       );
       expect(result).toEqual(mockMetadata);
     });
@@ -1404,7 +1404,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_report_task',
-        reportTaskRequest
+        reportTaskRequest,
       );
     });
 
@@ -1508,7 +1508,7 @@ describe('MarketingApi', () => {
       const result = await marketingApi.getTargeting('campaign-001');
 
       expect(mockClient.get).toHaveBeenCalledWith(
-        '/sell/marketing/v1/ad_campaign/campaign-001/targeting'
+        '/sell/marketing/v1/ad_campaign/campaign-001/targeting',
       );
       expect(result).toEqual(mockTargeting);
     });
@@ -1524,7 +1524,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/targeting',
-        targetingRequest
+        targetingRequest,
       );
     });
 
@@ -1539,7 +1539,7 @@ describe('MarketingApi', () => {
 
       expect(mockClient.put).toHaveBeenCalledWith(
         '/sell/marketing/v1/ad_campaign/campaign-001/targeting',
-        targetingRequest
+        targetingRequest,
       );
     });
   });

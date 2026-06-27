@@ -83,7 +83,7 @@ export interface GetApiStatusFeedOptions {
  * optionally filtered by status and API name, limited to `limit` items.
  */
 export async function getApiStatusFeed(
-  options: GetApiStatusFeedOptions = {}
+  options: GetApiStatusFeedOptions = {},
 ): Promise<{ items: ApiStatusItem[]; error?: string }> {
   const { limit = 20, status: statusFilter, api: apiFilter } = options;
 

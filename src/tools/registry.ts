@@ -41,7 +41,7 @@ const handlerByName: Record<string, ToolHandler> = Object.fromEntries(
   [...registeredEntries, ...handlerOnlyEntries].map((entry) => [
     entry.definition.name,
     entry.handler,
-  ])
+  ]),
 );
 
 let cachedEntries: ToolEntry[] | undefined;
@@ -49,7 +49,7 @@ let cachedEntries: ToolEntry[] | undefined;
 /** Validates that tool definitions have unique names and matching handlers. */
 export function validateToolRegistry(
   definitions: ToolDefinition[] = registeredEntries.map((entry) => entry.definition),
-  handlers: Record<string, ToolHandler> = handlerByName
+  handlers: Record<string, ToolHandler> = handlerByName,
 ): ToolRegistryValidation {
   const seenNames = new Set<string>();
   const duplicateNames = new Set<string>();
@@ -114,7 +114,7 @@ export function getToolHandler(toolName: string): ToolHandler | undefined {
 export async function executeTool(
   api: Parameters<ToolHandler>[0],
   toolName: string,
-  args: Parameters<ToolHandler>[1]
+  args: Parameters<ToolHandler>[1],
 ): Promise<unknown> {
   const handler = getToolHandler(toolName);
   if (!handler) {

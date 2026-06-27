@@ -167,7 +167,7 @@ describe('FulfillmentApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/order/12345-67890/shipping_fulfillment',
-        fulfillmentDetails
+        fulfillmentDetails,
       );
     });
 
@@ -187,7 +187,7 @@ describe('FulfillmentApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/order/12345-67890/shipping_fulfillment',
-        fulfillmentDetails
+        fulfillmentDetails,
       );
     });
 
@@ -205,7 +205,7 @@ describe('FulfillmentApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/order/12345-67890/shipping_fulfillment',
-        fulfillmentDetails
+        fulfillmentDetails,
       );
     });
   });
@@ -229,7 +229,7 @@ describe('FulfillmentApi', () => {
       const result = await fulfillmentApi.getShippingFulfillments('12345-67890');
 
       expect(mockClient.get).toHaveBeenCalledWith(
-        '/sell/fulfillment/v1/order/12345-67890/shipping_fulfillment'
+        '/sell/fulfillment/v1/order/12345-67890/shipping_fulfillment',
       );
       expect(result).toEqual(mockResponse);
       expect(result.fulfillments).toHaveLength(1);
@@ -270,7 +270,7 @@ describe('FulfillmentApi', () => {
       const result = await fulfillmentApi.getShippingFulfillment('12345-67890', 'FUL-001');
 
       expect(mockClient.get).toHaveBeenCalledWith(
-        '/sell/fulfillment/v1/order/12345-67890/shipping_fulfillment/FUL-001'
+        '/sell/fulfillment/v1/order/12345-67890/shipping_fulfillment/FUL-001',
       );
       expect(result).toEqual(mockFulfillment);
       expect(result.fulfillmentId).toBe('FUL-001');
@@ -324,7 +324,7 @@ describe('FulfillmentApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/order/12345-67890/issue_refund',
-        refundRequest
+        refundRequest,
       );
       expect(result).toEqual(mockRefund);
       expect(result.refundId).toBe('REF-001');
@@ -387,7 +387,7 @@ describe('FulfillmentApi', () => {
         '/sell/fulfillment/v1/order/12345-67890/issue_refund',
         expect.objectContaining({
           comment: 'Item is temporarily out of stock',
-        })
+        }),
       );
     });
 
@@ -426,7 +426,7 @@ describe('FulfillmentApi', () => {
             expect.objectContaining({ lineItemId: '1' }),
             expect.objectContaining({ lineItemId: '2' }),
           ]),
-        })
+        }),
       );
       expect(result).toEqual(mockRefund);
     });

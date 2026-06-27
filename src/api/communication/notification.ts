@@ -43,12 +43,12 @@ export class NotificationApi {
     endpoint: string,
     failureMessage: string,
     limit?: number,
-    continuationToken?: string
+    continuationToken?: string,
   ) {
     return await this.get(
       endpoint,
       failureMessage,
-      buildContinuationParams(limit, continuationToken)
+      buildContinuationParams(limit, continuationToken),
     );
   }
 
@@ -88,7 +88,7 @@ export class NotificationApi {
       '/destination',
       'Failed to get destinations',
       limit,
-      continuationToken
+      continuationToken,
     );
   }
 
@@ -121,7 +121,7 @@ export class NotificationApi {
     return await this.put(
       `/destination/${destinationId}`,
       'Failed to update destination',
-      destination
+      destination,
     );
   }
 
@@ -144,7 +144,7 @@ export class NotificationApi {
       '/subscription',
       'Failed to get subscriptions',
       limit,
-      continuationToken
+      continuationToken,
     );
   }
 
@@ -180,7 +180,7 @@ export class NotificationApi {
     return await this.put(
       `/subscription/${subscriptionId}`,
       'Failed to update subscription',
-      subscription
+      subscription,
     );
   }
 
@@ -204,7 +204,7 @@ export class NotificationApi {
     return await this.post(
       `/subscription/${subscriptionId}/disable`,
       'Failed to disable subscription',
-      {}
+      {},
     );
   }
 
@@ -218,7 +218,7 @@ export class NotificationApi {
     return await this.post(
       `/subscription/${subscriptionId}/enable`,
       'Failed to enable subscription',
-      {}
+      {},
     );
   }
 
@@ -232,7 +232,7 @@ export class NotificationApi {
     return await this.post(
       `/subscription/${subscriptionId}/test`,
       'Failed to test subscription',
-      {}
+      {},
     );
   }
 
@@ -267,7 +267,7 @@ export class NotificationApi {
     return await this.post(
       `/subscription/${subscriptionId}/filter`,
       'Failed to create subscription filter',
-      filter
+      filter,
     );
   }
 
@@ -281,7 +281,7 @@ export class NotificationApi {
     requireString(filterId, 'filterId');
     return await this.get(
       `/subscription/${subscriptionId}/filter/${filterId}`,
-      'Failed to get subscription filter'
+      'Failed to get subscription filter',
     );
   }
 
@@ -295,7 +295,7 @@ export class NotificationApi {
     requireString(filterId, 'filterId');
     return await this.delete(
       `/subscription/${subscriptionId}/filter/${filterId}`,
-      'Failed to delete subscription filter'
+      'Failed to delete subscription filter',
     );
   }
 }

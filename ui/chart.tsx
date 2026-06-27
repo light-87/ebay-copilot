@@ -6,8 +6,8 @@
  */
 
 import type { ReactNode } from 'react';
-import type { ChartSeries, ChartViewModel } from '../src/tools/ui/view-models';
-import { AppShell, EmptyState, mount, useViewModel } from './host';
+import type { ChartSeries, ChartViewModel } from '../src/tools/ui/view-models.ts';
+import { AppShell, EmptyState, mount, useViewModel } from './host.tsx';
 
 /** Fallback series colours, assigned by index when a series sets no explicit colour. */
 const PALETTE = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'];
@@ -44,18 +44,12 @@ function Chart({ view }: { view: ChartViewModel }): ReactNode {
   const barWidth = (groupWidth * 0.8) / Math.max(1, view.series.length);
 
   return (
-    <div className="chart">
-      {view.title ? <h1 className="view-title">{view.title}</h1> : null}
+    <div class="chart">
+      {view.title ? <h1 class="view-title">{view.title}</h1> : null}
       <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={view.title ?? 'Chart'}>
-        <line
-          className="chart-axis"
-          x1={PAD.left}
-          y1={BASELINE}
-          x2={WIDTH - PAD.right}
-          y2={BASELINE}
-        />
-        <line className="chart-axis" x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={BASELINE} />
-        <text className="chart-label" x={PAD.left - 6} y={PAD.top + 4} textAnchor="end">
+        <line class="chart-axis" x1={PAD.left} y1={BASELINE} x2={WIDTH - PAD.right} y2={BASELINE} />
+        <line class="chart-axis" x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={BASELINE} />
+        <text class="chart-label" x={PAD.left - 6} y={PAD.top + 4} textAnchor="end">
           {maxY}
         </text>
 
@@ -84,28 +78,28 @@ function Chart({ view }: { view: ChartViewModel }): ReactNode {
                     fill={seriesColor(series, seriesIndex)}
                   />
                 );
-              })
+              }),
             )}
 
         {labels.map((label, index) =>
           index % stride === 0 ? (
             <text
               key={`${label}-${index}`}
-              className="chart-label"
+              class="chart-label"
               x={view.kind === 'line' ? lineX(index) : PAD.left + (index + 0.5) * groupWidth}
               y={BASELINE + 16}
               textAnchor="middle"
             >
               {label}
             </text>
-          ) : null
+          ) : null,
         )}
       </svg>
 
-      <div className="chart-legend">
+      <div class="chart-legend">
         {view.series.map((series, index) => (
           <span key={series.name}>
-            <span className="chart-swatch" style={{ background: seriesColor(series, index) }} />
+            <span class="chart-swatch" style={{ background: seriesColor(series, index) }} />
             {series.name}
           </span>
         ))}

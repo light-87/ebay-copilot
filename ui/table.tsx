@@ -5,9 +5,9 @@
  */
 
 import type { App } from '@modelcontextprotocol/ext-apps/react';
-import { useEffect, useState, type ReactNode } from 'react';
-import type { TableViewModel } from '../src/tools/ui/view-models';
-import { AppShell, drill, EmptyState, mount, runServerTool, useViewModel } from './host';
+import { type ReactNode, useEffect, useState } from 'react';
+import type { TableViewModel } from '../src/tools/ui/view-models.ts';
+import { AppShell, drill, EmptyState, mount, runServerTool, useViewModel } from './host.tsx';
 
 /** Renders the live table, owning the rows so "Load more" can append in place. */
 function Table({ view, app }: { view: TableViewModel; app: App | null }): ReactNode {
@@ -35,13 +35,13 @@ function Table({ view, app }: { view: TableViewModel; app: App | null }): ReactN
   }
 
   return (
-    <div className="table-view">
-      {view.title ? <h1 className="view-title">{view.title}</h1> : null}
-      <table className="table">
+    <div class="table-view">
+      {view.title ? <h1 class="view-title">{view.title}</h1> : null}
+      <table class="table">
         <thead>
           <tr>
             {view.columns.map((column) => (
-              <th key={column.key} className={column.align === 'right' ? 'align-right' : undefined}>
+              <th key={column.key} class={column.align === 'right' ? 'align-right' : undefined}>
                 {column.label}
               </th>
             ))}
@@ -53,14 +53,11 @@ function Table({ view, app }: { view: TableViewModel; app: App | null }): ReactN
             return (
               <tr
                 key={row.id}
-                className={rowDrill ? 'is-drillable' : undefined}
+                class={rowDrill ? 'is-drillable' : undefined}
                 onClick={rowDrill ? () => drill(app, rowDrill) : undefined}
               >
                 {view.columns.map((column) => (
-                  <td
-                    key={column.key}
-                    className={column.align === 'right' ? 'align-right' : undefined}
-                  >
+                  <td key={column.key} class={column.align === 'right' ? 'align-right' : undefined}>
                     {formatCell(row.cells[column.key])}
                   </td>
                 ))}
@@ -70,11 +67,11 @@ function Table({ view, app }: { view: TableViewModel; app: App | null }): ReactN
         </tbody>
       </table>
       {loadMore ? (
-        <button type="button" className="load-more" disabled={isLoading} onClick={appendNextPage}>
+        <button type="button" class="load-more" disabled={isLoading} onClick={appendNextPage}>
           {isLoading ? 'Loading…' : (loadMore.label ?? 'Load more')}
         </button>
       ) : null}
-      {view.footnote ? <p className="view-footnote">{view.footnote}</p> : null}
+      {view.footnote ? <p class="view-footnote">{view.footnote}</p> : null}
     </div>
   );
 }

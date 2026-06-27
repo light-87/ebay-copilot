@@ -89,7 +89,7 @@ export function getDefaultScopes(environment: 'production' | 'sandbox'): string[
  */
 export function validateScopes(
   scopes: string[],
-  environment: 'production' | 'sandbox'
+  environment: 'production' | 'sandbox',
 ): { warnings: string[]; validScopes: string[] } {
   const validScopes = getDefaultScopes(environment);
   const validScopeSet = new Set(validScopes);
@@ -106,11 +106,11 @@ export function validateScopes(
 
       if (otherScopes.includes(scope)) {
         warnings.push(
-          `Scope "${scope}" is only available in ${otherEnvironment} environment, not in ${environment}. This scope will be requested but may be rejected by eBay.`
+          `Scope "${scope}" is only available in ${otherEnvironment} environment, not in ${environment}. This scope will be requested but may be rejected by eBay.`,
         );
       } else {
         warnings.push(
-          `Scope "${scope}" is not recognized for ${environment} environment. This scope will be requested but may be rejected by eBay.`
+          `Scope "${scope}" is not recognized for ${environment} environment. This scope will be requested but may be rejected by eBay.`,
         );
       }
       // Still include it in case it's a new scope not in our JSON files
@@ -156,14 +156,14 @@ export function validateEnvironmentConfig(): {
   // Check if environment is set
   if (!environment) {
     warnings.push(
-      'EBAY_ENVIRONMENT not set. Defaulting to "sandbox". Set EBAY_ENVIRONMENT=production for production use.'
+      'EBAY_ENVIRONMENT not set. Defaulting to "sandbox". Set EBAY_ENVIRONMENT=production for production use.',
     );
   }
 
   // Check if redirect URI is set (needed for OAuth user flow)
   if (!process.env.EBAY_REDIRECT_URI) {
     warnings.push(
-      'EBAY_REDIRECT_URI is not set. User OAuth flow will not work. Set this to enable user token generation.'
+      'EBAY_REDIRECT_URI is not set. User OAuth flow will not work. Set this to enable user token generation.',
     );
   }
 
@@ -215,7 +215,7 @@ export function getEbayConfig(): EbayConfig {
   // expected and must not nag (tokens can otherwise be generated from a refresh token).
   if (!disableAuthHeader && (clientId === '' || clientSecret === '')) {
     console.error(
-      'Missing required eBay credentials. Please set:\n1) EBAY_CLIENT_ID\n2) EBAY_CLIENT_SECRET\nin your .env file at project root'
+      'Missing required eBay credentials. Please set:\n1) EBAY_CLIENT_ID\n2) EBAY_CLIENT_SECRET\nin your .env file at project root',
     );
   }
 
@@ -242,7 +242,7 @@ export function getEbayConfig(): EbayConfig {
  */
 export function getBaseUrl(
   environment: 'production' | 'sandbox',
-  overrideBaseUrl?: string
+  overrideBaseUrl?: string,
 ): string {
   if (overrideBaseUrl) {
     return overrideBaseUrl;
@@ -258,7 +258,7 @@ export function getBaseUrl(
  */
 export function getIdentityBaseUrl(
   environment: 'production' | 'sandbox',
-  overrideBaseUrl?: string
+  overrideBaseUrl?: string,
 ): string {
   if (overrideBaseUrl) {
     return overrideBaseUrl;
@@ -320,7 +320,7 @@ export function getProxyAuthConfig(): ProxyAuthConfig {
     } catch {
       errors.push(
         `EBAY_MCP_API_BASE_URL is not a valid URL: "${rawBaseUrl}". ` +
-          'Provide an absolute URL such as "http://localhost:8080".'
+          'Provide an absolute URL such as "http://localhost:8080".',
       );
     }
   }
@@ -328,12 +328,12 @@ export function getProxyAuthConfig(): ProxyAuthConfig {
   if (disableAuthHeader) {
     infos.push(
       'Proxy auth mode enabled (EBAY_MCP_DISABLE_AUTH_HEADER=true): eBay credentials are not required; ' +
-        'authentication is delegated to the upstream proxy.'
+        'authentication is delegated to the upstream proxy.',
     );
     if (!apiBaseUrl) {
       warnings.push(
         'EBAY_MCP_DISABLE_AUTH_HEADER=true but EBAY_MCP_API_BASE_URL is not set. Requests will be sent ' +
-          'to eBay directly without authentication and will fail. Set EBAY_MCP_API_BASE_URL to your proxy.'
+          'to eBay directly without authentication and will fail. Set EBAY_MCP_API_BASE_URL to your proxy.',
       );
     }
   }
@@ -347,7 +347,7 @@ export function getProxyAuthConfig(): ProxyAuthConfig {
     warnings.push(
       `EBAY_MCP_API_BASE_URL points at a plaintext http:// host (${parsedBaseUrl.host}) while authentication ` +
         'is enabled. eBay access tokens will be transmitted unencrypted. Use https://, a loopback address, ' +
-        'or set EBAY_MCP_DISABLE_AUTH_HEADER=true.'
+        'or set EBAY_MCP_DISABLE_AUTH_HEADER=true.',
     );
   }
 
@@ -384,7 +384,7 @@ export function getAuthUrl(
   prompt?: 'login' | 'consent',
   responseType?: 'code',
   state?: string,
-  scopes?: string[]
+  scopes?: string[],
 ): string;
 /**
  * Resolve either the OAuth token endpoint or a full user-consent authorization URL.
@@ -397,7 +397,7 @@ export function getAuthUrl(
   prompt: 'login' | 'consent' = 'login',
   responseType: 'code' = 'code',
   state?: string,
-  scopes?: string[]
+  scopes?: string[],
 ): string {
   // If only one argument and it's an environment, return the token endpoint
   if (
@@ -414,7 +414,7 @@ export function getAuthUrl(
 
   if (!(clientId && redirectUri)) {
     console.error(
-      'clientId, redirectUri (RuName), and scope are required,please initialize the class properly.'
+      'clientId, redirectUri (RuName), and scope are required,please initialize the class properly.',
     );
     return '';
   }
@@ -448,7 +448,7 @@ export function getOAuthAuthorizationUrl(
   environment: 'production' | 'sandbox',
   scopes?: string[],
   locale?: string,
-  state?: string
+  state?: string,
 ): string {
   const authBase =
     environment === 'production' ? 'https://auth.ebay.com' : 'https://auth.sandbox.ebay.com';
@@ -476,7 +476,7 @@ const iconUrl = (size: string): string => {
   const path = fileURLToPath(url);
   if (!existsSync(path)) {
     console.warn(
-      `[eBay MCP] Icon not found at ${path}. Ensure public/icons is included in the package.`
+      `[eBay MCP] Icon not found at ${path}. Ensure public/icons is included in the package.`,
     );
   }
   return url.toString();

@@ -58,7 +58,7 @@ describe('Other APIs', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/payment_dispute/DISPUTE123/contest',
-        { returnAddress: {} }
+        { returnAddress: {} },
       );
     });
 
@@ -69,7 +69,7 @@ describe('Other APIs', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/payment_dispute/DISPUTE123/accept',
-        { returnAddress: {} }
+        { returnAddress: {} },
       );
     });
   });
@@ -89,7 +89,7 @@ describe('Other APIs', () => {
 
       expect(client.get).toHaveBeenCalledWith(
         '/commerce/taxonomy/v1/get_default_category_tree_id',
-        { marketplace_id: 'EBAY_US' }
+        { marketplace_id: 'EBAY_US' },
       );
     });
 
@@ -110,7 +110,7 @@ describe('Other APIs', () => {
 
       expect(client.get).toHaveBeenCalledWith(
         '/commerce/taxonomy/v1/category_tree/0/get_category_suggestions',
-        { q: 'iPhone' }
+        { q: 'iPhone' },
       );
     });
 
@@ -122,7 +122,7 @@ describe('Other APIs', () => {
 
       expect(client.get).toHaveBeenCalledWith(
         '/commerce/taxonomy/v1/category_tree/0/get_item_aspects_for_category',
-        { category_id: '123' }
+        { category_id: '123' },
       );
     });
 
@@ -134,7 +134,7 @@ describe('Other APIs', () => {
 
       expect(client.get).toHaveBeenCalledWith(
         '/commerce/taxonomy/v1/category_tree/0/get_category_subtree',
-        { category_id: '123' }
+        { category_id: '123' },
       );
     });
 
@@ -146,7 +146,7 @@ describe('Other APIs', () => {
 
       expect(client.get).toHaveBeenCalledWith(
         '/commerce/taxonomy/v1/category_tree/0/get_compatibility_properties',
-        { category_id: '123' }
+        { category_id: '123' },
       );
     });
 
@@ -161,7 +161,7 @@ describe('Other APIs', () => {
         {
           category_id: '123',
           compatibility_property: 'Make',
-        }
+        },
       );
     });
   });
@@ -182,7 +182,7 @@ describe('Other APIs', () => {
         'filter:test',
         10,
         undefined,
-        'EBAY_US'
+        'EBAY_US',
       );
 
       expect(client.post).toHaveBeenCalledWith(
@@ -196,7 +196,7 @@ describe('Other APIs', () => {
           headers: {
             'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US',
           },
-        }
+        },
       );
     });
   });
@@ -368,7 +368,7 @@ describe('Other APIs', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/logistics/v1/shipping_quote',
-        shippingQuoteRequest
+        shippingQuoteRequest,
       );
     });
 
@@ -411,7 +411,7 @@ describe('Other APIs', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/logistics/v1/address_preference',
-        addressData
+        addressData,
       );
     });
 
@@ -433,7 +433,7 @@ describe('Other APIs', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/logistics/v1/consign_preference',
-        consignData
+        consignData,
       );
     });
 
@@ -588,7 +588,7 @@ describe('Other APIs', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/logistics/v1/package/bulk_cancel_packages',
-        bulkData
+        bulkData,
       );
     });
 
@@ -601,7 +601,7 @@ describe('Other APIs', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/logistics/v1/package/bulk_confirm_packages',
-        bulkData
+        bulkData,
       );
     });
 
@@ -614,7 +614,7 @@ describe('Other APIs', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/sell/logistics/v1/package/bulk_delete_packages',
-        bulkData
+        bulkData,
       );
     });
 
@@ -678,7 +678,7 @@ describe('Other APIs', () => {
       await api.getUser();
 
       expect(client.getWithFullUrl).toHaveBeenCalledWith(
-        'https://apiz.sandbox.ebay.com/commerce/identity/v1/user'
+        'https://apiz.sandbox.ebay.com/commerce/identity/v1/user',
       );
     });
 

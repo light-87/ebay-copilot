@@ -271,7 +271,9 @@ describe('Environment Configuration', () => {
     it('returns the override when provided, for either environment', () => {
       expect(getBaseUrl('production', 'http://localhost:8080')).toBe('http://localhost:8080');
       expect(getBaseUrl('sandbox', 'https://proxy.internal')).toBe('https://proxy.internal');
-      expect(getIdentityBaseUrl('production', 'http://localhost:8080')).toBe('http://localhost:8080');
+      expect(getIdentityBaseUrl('production', 'http://localhost:8080')).toBe(
+        'http://localhost:8080',
+      );
     });
 
     it('falls back to the environment default when the override is absent', () => {

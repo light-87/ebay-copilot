@@ -64,7 +64,7 @@ function registerTool(
   api: EbaySellerApi,
   entry: ToolEntry,
   logToolExecution: boolean,
-  ui: UiBridge
+  ui: UiBridge,
 ): RegisteredTool {
   const { definition, handler } = entry;
 
@@ -100,7 +100,7 @@ function registerTool(
 
         return formatToolFailure(error);
       }
-    }
+    },
   );
 
   ui.register(entry, registered);
@@ -140,7 +140,7 @@ export function createEbayMcpRuntime(options: EbayMcpRuntimeOptions = {}): EbayM
   for (const entry of entries) {
     handles.set(
       entry.definition.name,
-      registerTool(server, api, entry, options.logToolExecution ?? false, ui)
+      registerTool(server, api, entry, options.logToolExecution ?? false, ui),
     );
   }
 
@@ -153,11 +153,11 @@ export function createEbayMcpRuntime(options: EbayMcpRuntimeOptions = {}): EbayM
     }
     registerMetaTools(server, createToolGatingController(handles));
     serverLogger.info(
-      `Dynamic tool mode: ${handles.size} eBay tools hidden behind 3 discovery tools`
+      `Dynamic tool mode: ${handles.size} eBay tools hidden behind 3 discovery tools`,
     );
   } else if (mode.kind === 'static') {
     serverLogger.info(
-      `Static tool mode: registered ${handles.size} tools from families: ${mode.families.join(', ')}`
+      `Static tool mode: registered ${handles.size} tools from families: ${mode.families.join(', ')}`,
     );
   } else {
     serverLogger.info(`Registering ${handles.size} tools`);

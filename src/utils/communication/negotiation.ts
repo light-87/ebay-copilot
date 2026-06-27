@@ -91,7 +91,7 @@ export const sendOfferToInterestedBuyersSchema = z.object({
       {
         invalid_type_error: 'offer_duration must be an object',
         description: 'Duration the offer is valid (default: 2 days)',
-      }
+      },
     )
     .optional(),
   offered_items: z
@@ -128,7 +128,7 @@ export const sendOfferToInterestedBuyersSchema = z.object({
             {
               invalid_type_error: 'price must be an object',
               description: 'The discounted price',
-            }
+            },
           )
           .optional(),
         quantity: z
@@ -144,7 +144,7 @@ export const sendOfferToInterestedBuyersSchema = z.object({
       {
         invalid_type_error: 'offered_items must be an array',
         description: 'Array of items to offer (currently limited to one item)',
-      }
+      },
     )
     .optional(),
   marketplace_id: z

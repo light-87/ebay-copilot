@@ -23,7 +23,7 @@ export class RecommendationApi {
     filter?: string,
     limit?: number,
     offset?: number,
-    marketplaceId?: string
+    marketplaceId?: string,
   ): Promise<PagedListingRecommendationCollection> {
     const params: Record<string, string | number> = {};
     if (filter) params.filter = filter;
@@ -42,8 +42,8 @@ export class RecommendationApi {
         {
           params,
           headers,
-        }
-      )
+        },
+      ),
     );
   }
 }

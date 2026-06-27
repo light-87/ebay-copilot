@@ -16,7 +16,7 @@ export class VeroApi {
    */
   async createVeroReport(reportData: Record<string, unknown>) {
     return await withApiError('Failed to create vero report', () =>
-      this.client.post(`${this.basePath}/vero_report`, reportData)
+      this.client.post(`${this.basePath}/vero_report`, reportData),
     );
   }
 
@@ -25,7 +25,7 @@ export class VeroApi {
    */
   async getVeroReport(veroReportId: string) {
     return await withApiError('Failed to get vero report', () =>
-      this.client.get(`${this.basePath}/vero_report/${veroReportId}`)
+      this.client.get(`${this.basePath}/vero_report/${veroReportId}`),
     );
   }
 
@@ -35,7 +35,7 @@ export class VeroApi {
   async getVeroReportItems(filter?: string, limit?: number, offset?: number) {
     const params = buildTruthyPaginatedParams(filter, limit, offset);
     return await withApiError('Failed to get vero report items', () =>
-      this.client.get(`${this.basePath}/vero_report_items`, params)
+      this.client.get(`${this.basePath}/vero_report_items`, params),
     );
   }
 
@@ -44,7 +44,7 @@ export class VeroApi {
    */
   async getVeroReasonCode(veroReasonCodeId: string) {
     return await withApiError('Failed to get vero reason code', () =>
-      this.client.get(`${this.basePath}/vero_reason_code/${veroReasonCodeId}`)
+      this.client.get(`${this.basePath}/vero_reason_code/${veroReasonCodeId}`),
     );
   }
 
@@ -53,7 +53,7 @@ export class VeroApi {
    */
   async getVeroReasonCodes() {
     return await withApiError('Failed to get vero reason codes', () =>
-      this.client.get(`${this.basePath}/vero_reason_code`)
+      this.client.get(`${this.basePath}/vero_reason_code`),
     );
   }
 }

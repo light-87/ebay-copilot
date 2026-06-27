@@ -33,7 +33,7 @@ export const tradingEntries: ToolEntry[] = [
       item: z
         .record(z.unknown())
         .describe(
-          'Item details object. Required fields: Title, PrimaryCategory.CategoryID, StartPrice, ConditionID, Country, Currency, DispatchTimeMax, ListingDuration, ListingType ("FixedPriceItem"), Quantity, SKU.'
+          'Item details object. Required fields: Title, PrimaryCategory.CategoryID, StartPrice, ConditionID, Country, Currency, DispatchTimeMax, ListingDuration, ListingType ("FixedPriceItem"), Quantity, SKU.',
         ),
     },
     annotations: { readOnlyHint: false },

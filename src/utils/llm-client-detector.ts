@@ -72,7 +72,7 @@ function getClineConfigPath(): string {
         'globalStorage',
         'saoudrizwan.claude-dev',
         'settings',
-        'cline_mcp_settings.json'
+        'cline_mcp_settings.json',
       );
     case 'win32':
       return join(
@@ -84,7 +84,7 @@ function getClineConfigPath(): string {
         'globalStorage',
         'saoudrizwan.claude-dev',
         'settings',
-        'cline_mcp_settings.json'
+        'cline_mcp_settings.json',
       );
     default:
       return join(
@@ -95,7 +95,7 @@ function getClineConfigPath(): string {
         'globalStorage',
         'saoudrizwan.claude-dev',
         'settings',
-        'cline_mcp_settings.json'
+        'cline_mcp_settings.json',
       );
   }
 }
@@ -177,7 +177,7 @@ function getRooCodeConfigPath(): string {
         'globalStorage',
         'rooveterinaryinc.roo-cline',
         'settings',
-        'mcp_settings.json'
+        'mcp_settings.json',
       );
     case 'win32':
       return join(
@@ -189,7 +189,7 @@ function getRooCodeConfigPath(): string {
         'globalStorage',
         'rooveterinaryinc.roo-cline',
         'settings',
-        'mcp_settings.json'
+        'mcp_settings.json',
       );
     default:
       return join(
@@ -200,7 +200,7 @@ function getRooCodeConfigPath(): string {
         'globalStorage',
         'rooveterinaryinc.roo-cline',
         'settings',
-        'mcp_settings.json'
+        'mcp_settings.json',
       );
   }
 }
@@ -427,7 +427,7 @@ export function configureContinue(projectRoot: string): boolean {
 
     // Check if eBay server already exists
     const existingIndex = mcpServers.findIndex(
-      (server) => server.command === 'node' && server.args?.[0]?.includes('ebay-mcp')
+      (server) => server.command === 'node' && server.args?.[0]?.includes('ebay-mcp'),
     );
 
     const serverConfig: MCPServerConfig = {

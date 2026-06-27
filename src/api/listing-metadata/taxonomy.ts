@@ -17,7 +17,7 @@ export class TaxonomyApi {
     return await withApiError('Failed to get default category tree id', () =>
       this.client.get(`${this.basePath}/get_default_category_tree_id`, {
         marketplace_id: marketplaceId,
-      })
+      }),
     );
   }
 
@@ -26,7 +26,7 @@ export class TaxonomyApi {
    */
   async getCategoryTree(categoryTreeId: string) {
     return await withApiError('Failed to get category tree', () =>
-      this.client.get(`${this.basePath}/category_tree/${categoryTreeId}`)
+      this.client.get(`${this.basePath}/category_tree/${categoryTreeId}`),
     );
   }
 
@@ -37,7 +37,7 @@ export class TaxonomyApi {
     return await withApiError('Failed to get category subtree', () =>
       this.client.get(`${this.basePath}/category_tree/${categoryTreeId}/get_category_subtree`, {
         category_id: categoryId,
-      })
+      }),
     );
   }
 
@@ -48,7 +48,7 @@ export class TaxonomyApi {
     return await withApiError('Failed to get category suggestions', () =>
       this.client.get(`${this.basePath}/category_tree/${categoryTreeId}/get_category_suggestions`, {
         q: query,
-      })
+      }),
     );
   }
 
@@ -59,8 +59,8 @@ export class TaxonomyApi {
     return await withApiError('Failed to get item aspects for category', () =>
       this.client.get(
         `${this.basePath}/category_tree/${categoryTreeId}/get_item_aspects_for_category`,
-        { category_id: categoryId }
-      )
+        { category_id: categoryId },
+      ),
     );
   }
 
@@ -71,8 +71,8 @@ export class TaxonomyApi {
     return await withApiError('Failed to get compatibility properties', () =>
       this.client.get(
         `${this.basePath}/category_tree/${categoryTreeId}/get_compatibility_properties`,
-        { category_id: categoryId }
-      )
+        { category_id: categoryId },
+      ),
     );
   }
 
@@ -82,7 +82,7 @@ export class TaxonomyApi {
   async getCompatibilityPropertyValues(
     categoryTreeId: string,
     categoryId: string,
-    compatibilityProperty: string
+    compatibilityProperty: string,
   ) {
     return await withApiError('Failed to get compatibility property values', () =>
       this.client.get(
@@ -90,8 +90,8 @@ export class TaxonomyApi {
         {
           category_id: categoryId,
           compatibility_property: compatibilityProperty,
-        }
-      )
+        },
+      ),
     );
   }
 }

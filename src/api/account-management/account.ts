@@ -46,7 +46,7 @@ export class AccountApi {
   async getCustomPolicies(policyTypes?: string): Promise<CustomPolicyResponse> {
     const params = policyTypes ? { policy_types: policyTypes } : undefined;
     return await withApiError('Failed to get custom policies', () =>
-      this.client.get<CustomPolicyResponse>(`${this.basePath}/custom_policy`, params)
+      this.client.get<CustomPolicyResponse>(`${this.basePath}/custom_policy`, params),
     );
   }
 
@@ -55,7 +55,7 @@ export class AccountApi {
    */
   async getCustomPolicy(customPolicyId: string): Promise<CustomPolicy> {
     return await withApiError('Failed to get custom policy', () =>
-      this.client.get<CustomPolicy>(`${this.basePath}/custom_policy/${customPolicyId}`)
+      this.client.get<CustomPolicy>(`${this.basePath}/custom_policy/${customPolicyId}`),
     );
   }
 
@@ -67,7 +67,7 @@ export class AccountApi {
     return await withApiError('Failed to get fulfillment policies', () =>
       this.client.get<FulfillmentPolicyResponse>(`${this.basePath}/fulfillment_policy`, {
         marketplace_id: marketplaceId,
-      })
+      }),
     );
   }
 
@@ -79,7 +79,7 @@ export class AccountApi {
     return await withApiError('Failed to get payment policies', () =>
       this.client.get<GetPaymentPoliciesResponse>(`${this.basePath}/payment_policy`, {
         marketplace_id: marketplaceId,
-      })
+      }),
     );
   }
 
@@ -91,7 +91,7 @@ export class AccountApi {
     return await withApiError('Failed to get return policies', () =>
       this.client.get<ReturnPolicyResponse>(`${this.basePath}/return_policy`, {
         marketplace_id: marketplaceId,
-      })
+      }),
     );
   }
 
@@ -100,7 +100,7 @@ export class AccountApi {
    */
   async getPrivileges(): Promise<SellingPrivileges> {
     return await withApiError('Failed to get privileges', () =>
-      this.client.get<SellingPrivileges>(`${this.basePath}/privilege`)
+      this.client.get<SellingPrivileges>(`${this.basePath}/privilege`),
     );
   }
 
@@ -112,10 +112,10 @@ export class AccountApi {
    * Create a new fulfillment policy
    */
   async createFulfillmentPolicy(
-    policy: FulfillmentPolicyRequest
+    policy: FulfillmentPolicyRequest,
   ): Promise<SetFulfillmentPolicyResponse> {
     return await withApiError('Failed to create fulfillment policy', () =>
-      this.client.post<SetFulfillmentPolicyResponse>(`${this.basePath}/fulfillment_policy`, policy)
+      this.client.post<SetFulfillmentPolicyResponse>(`${this.basePath}/fulfillment_policy`, policy),
     );
   }
 
@@ -125,8 +125,8 @@ export class AccountApi {
   async getFulfillmentPolicy(fulfillmentPolicyId: string): Promise<FulfillmentPolicy> {
     return await withApiError('Failed to get fulfillment policy', () =>
       this.client.get<FulfillmentPolicy>(
-        `${this.basePath}/fulfillment_policy/${fulfillmentPolicyId}`
-      )
+        `${this.basePath}/fulfillment_policy/${fulfillmentPolicyId}`,
+      ),
     );
   }
 
@@ -135,13 +135,13 @@ export class AccountApi {
    */
   async getFulfillmentPolicyByName(
     marketplaceId: string,
-    name: string
+    name: string,
   ): Promise<FulfillmentPolicy> {
     return await withApiError('Failed to get fulfillment policy by name', () =>
       this.client.get<FulfillmentPolicy>(`${this.basePath}/fulfillment_policy_by_name`, {
         marketplace_id: marketplaceId,
         name,
-      })
+      }),
     );
   }
 
@@ -150,13 +150,13 @@ export class AccountApi {
    */
   async updateFulfillmentPolicy(
     fulfillmentPolicyId: string,
-    policy: FulfillmentPolicyRequest
+    policy: FulfillmentPolicyRequest,
   ): Promise<SetFulfillmentPolicyResponse> {
     return await withApiError('Failed to update fulfillment policy', () =>
       this.client.put<SetFulfillmentPolicyResponse>(
         `${this.basePath}/fulfillment_policy/${fulfillmentPolicyId}`,
-        policy
-      )
+        policy,
+      ),
     );
   }
 
@@ -165,7 +165,7 @@ export class AccountApi {
    */
   async deleteFulfillmentPolicy(fulfillmentPolicyId: string): Promise<void> {
     return await withApiError('Failed to delete fulfillment policy', () =>
-      this.client.delete(`${this.basePath}/fulfillment_policy/${fulfillmentPolicyId}`)
+      this.client.delete(`${this.basePath}/fulfillment_policy/${fulfillmentPolicyId}`),
     );
   }
 
@@ -178,7 +178,7 @@ export class AccountApi {
    */
   async createPaymentPolicy(policy: PaymentPolicyRequest): Promise<SetPaymentPolicyResponse> {
     return await withApiError('Failed to create payment policy', () =>
-      this.client.post<SetPaymentPolicyResponse>(`${this.basePath}/payment_policy`, policy)
+      this.client.post<SetPaymentPolicyResponse>(`${this.basePath}/payment_policy`, policy),
     );
   }
 
@@ -187,7 +187,7 @@ export class AccountApi {
    */
   async getPaymentPolicy(paymentPolicyId: string): Promise<PaymentPolicy> {
     return await withApiError('Failed to get payment policy', () =>
-      this.client.get<PaymentPolicy>(`${this.basePath}/payment_policy/${paymentPolicyId}`)
+      this.client.get<PaymentPolicy>(`${this.basePath}/payment_policy/${paymentPolicyId}`),
     );
   }
 
@@ -199,7 +199,7 @@ export class AccountApi {
       this.client.get<PaymentPolicy>(`${this.basePath}/payment_policy_by_name`, {
         marketplace_id: marketplaceId,
         name,
-      })
+      }),
     );
   }
 
@@ -208,13 +208,13 @@ export class AccountApi {
    */
   async updatePaymentPolicy(
     paymentPolicyId: string,
-    policy: PaymentPolicyRequest
+    policy: PaymentPolicyRequest,
   ): Promise<SetPaymentPolicyResponse> {
     return await withApiError('Failed to update payment policy', () =>
       this.client.put<SetPaymentPolicyResponse>(
         `${this.basePath}/payment_policy/${paymentPolicyId}`,
-        policy
-      )
+        policy,
+      ),
     );
   }
 
@@ -223,7 +223,7 @@ export class AccountApi {
    */
   async deletePaymentPolicy(paymentPolicyId: string): Promise<void> {
     return await withApiError('Failed to delete payment policy', () =>
-      this.client.delete(`${this.basePath}/payment_policy/${paymentPolicyId}`)
+      this.client.delete(`${this.basePath}/payment_policy/${paymentPolicyId}`),
     );
   }
 
@@ -236,7 +236,7 @@ export class AccountApi {
    */
   async createReturnPolicy(policy: ReturnPolicyRequest): Promise<SetReturnPolicyResponse> {
     return await withApiError('Failed to create return policy', () =>
-      this.client.post<SetReturnPolicyResponse>(`${this.basePath}/return_policy`, policy)
+      this.client.post<SetReturnPolicyResponse>(`${this.basePath}/return_policy`, policy),
     );
   }
 
@@ -245,7 +245,7 @@ export class AccountApi {
    */
   async getReturnPolicy(returnPolicyId: string): Promise<ReturnPolicy> {
     return await withApiError('Failed to get return policy', () =>
-      this.client.get<ReturnPolicy>(`${this.basePath}/return_policy/${returnPolicyId}`)
+      this.client.get<ReturnPolicy>(`${this.basePath}/return_policy/${returnPolicyId}`),
     );
   }
 
@@ -257,7 +257,7 @@ export class AccountApi {
       this.client.get<ReturnPolicy>(`${this.basePath}/return_policy_by_name`, {
         marketplace_id: marketplaceId,
         name,
-      })
+      }),
     );
   }
 
@@ -266,13 +266,13 @@ export class AccountApi {
    */
   async updateReturnPolicy(
     returnPolicyId: string,
-    policy: ReturnPolicyRequest
+    policy: ReturnPolicyRequest,
   ): Promise<SetReturnPolicyResponse> {
     return await withApiError('Failed to update return policy', () =>
       this.client.put<SetReturnPolicyResponse>(
         `${this.basePath}/return_policy/${returnPolicyId}`,
-        policy
-      )
+        policy,
+      ),
     );
   }
 
@@ -281,7 +281,7 @@ export class AccountApi {
    */
   async deleteReturnPolicy(returnPolicyId: string): Promise<void> {
     return await withApiError('Failed to delete return policy', () =>
-      this.client.delete(`${this.basePath}/return_policy/${returnPolicyId}`)
+      this.client.delete(`${this.basePath}/return_policy/${returnPolicyId}`),
     );
   }
 
@@ -294,7 +294,7 @@ export class AccountApi {
    */
   async createCustomPolicy(policy: CustomPolicyCreateRequest): Promise<CustomPolicy> {
     return await withApiError('Failed to create custom policy', () =>
-      this.client.post<CustomPolicy>(`${this.basePath}/custom_policy`, policy)
+      this.client.post<CustomPolicy>(`${this.basePath}/custom_policy`, policy),
     );
   }
 
@@ -303,10 +303,10 @@ export class AccountApi {
    */
   async updateCustomPolicy(
     customPolicyId: string,
-    policy: CustomPolicyCreateRequest
+    policy: CustomPolicyCreateRequest,
   ): Promise<void> {
     return await withApiError('Failed to update custom policy', () =>
-      this.client.put(`${this.basePath}/custom_policy/${customPolicyId}`, policy)
+      this.client.put(`${this.basePath}/custom_policy/${customPolicyId}`, policy),
     );
   }
 
@@ -315,7 +315,7 @@ export class AccountApi {
    */
   async deleteCustomPolicy(customPolicyId: string): Promise<void> {
     return await withApiError('Failed to delete custom policy', () =>
-      this.client.delete(`${this.basePath}/custom_policy/${customPolicyId}`)
+      this.client.delete(`${this.basePath}/custom_policy/${customPolicyId}`),
     );
   }
 
@@ -328,7 +328,7 @@ export class AccountApi {
    */
   async getKyc(): Promise<KycResponse> {
     return await withApiError('Failed to get kyc', () =>
-      this.client.get<KycResponse>(`${this.basePath}/kyc`)
+      this.client.get<KycResponse>(`${this.basePath}/kyc`),
     );
   }
 
@@ -337,13 +337,13 @@ export class AccountApi {
    */
   async optInToPaymentsProgram(
     marketplaceId: string,
-    paymentsProgramType: string
+    paymentsProgramType: string,
   ): Promise<PaymentsProgramResponse> {
     return await withApiError('Failed to opt in to payments program', () =>
       this.client.post<PaymentsProgramResponse>(
         `${this.basePath}/payments_program/${marketplaceId}/${paymentsProgramType}`,
-        {}
-      )
+        {},
+      ),
     );
   }
 
@@ -352,12 +352,12 @@ export class AccountApi {
    */
   async getPaymentsProgramStatus(
     marketplaceId: string,
-    paymentsProgramType: string
+    paymentsProgramType: string,
   ): Promise<PaymentsProgramResponse> {
     return await withApiError('Failed to get payments program status', () =>
       this.client.get<PaymentsProgramResponse>(
-        `${this.basePath}/payments_program/${marketplaceId}/${paymentsProgramType}`
-      )
+        `${this.basePath}/payments_program/${marketplaceId}/${paymentsProgramType}`,
+      ),
     );
   }
 
@@ -366,7 +366,7 @@ export class AccountApi {
    */
   async getRateTables(): Promise<RateTableResponse> {
     return await withApiError('Failed to get rate tables', () =>
-      this.client.get<RateTableResponse>(`${this.basePath}/rate_table`)
+      this.client.get<RateTableResponse>(`${this.basePath}/rate_table`),
     );
   }
 
@@ -376,10 +376,10 @@ export class AccountApi {
   async createOrReplaceSalesTax(
     countryCode: string,
     jurisdictionId: string,
-    salesTaxBase: SalesTaxBase
+    salesTaxBase: SalesTaxBase,
   ): Promise<void> {
     return await withApiError('Failed to create or replace sales tax', () =>
-      this.client.put(`${this.basePath}/sales_tax/${countryCode}/${jurisdictionId}`, salesTaxBase)
+      this.client.put(`${this.basePath}/sales_tax/${countryCode}/${jurisdictionId}`, salesTaxBase),
     );
   }
 
@@ -390,7 +390,7 @@ export class AccountApi {
     return await withApiError('Failed to bulk create or replace sales tax', () =>
       this.client.post(`${this.basePath}/sales_tax/bulk_create_or_replace`, {
         requests,
-      })
+      }),
     );
   }
 
@@ -399,7 +399,7 @@ export class AccountApi {
    */
   async deleteSalesTax(countryCode: string, jurisdictionId: string): Promise<void> {
     return await withApiError('Failed to delete sales tax', () =>
-      this.client.delete(`${this.basePath}/sales_tax/${countryCode}/${jurisdictionId}`)
+      this.client.delete(`${this.basePath}/sales_tax/${countryCode}/${jurisdictionId}`),
     );
   }
 
@@ -408,7 +408,7 @@ export class AccountApi {
    */
   async getSalesTax(countryCode: string, jurisdictionId: string): Promise<SalesTax> {
     return await withApiError('Failed to get sales tax', () =>
-      this.client.get<SalesTax>(`${this.basePath}/sales_tax/${countryCode}/${jurisdictionId}`)
+      this.client.get<SalesTax>(`${this.basePath}/sales_tax/${countryCode}/${jurisdictionId}`),
     );
   }
 
@@ -420,7 +420,7 @@ export class AccountApi {
     return await withApiError('Failed to get sales taxes', () =>
       this.client.get<SalesTaxes>(`${this.basePath}/sales_tax`, {
         country_code: countryCode,
-      })
+      }),
     );
   }
 
@@ -430,7 +430,7 @@ export class AccountApi {
   async getSubscription(limitType?: string): Promise<SubscriptionResponse> {
     const params = limitType ? { limit: limitType } : undefined;
     return await withApiError('Failed to get subscription', () =>
-      this.client.get<SubscriptionResponse>(`${this.basePath}/subscription`, params)
+      this.client.get<SubscriptionResponse>(`${this.basePath}/subscription`, params),
     );
   }
 
@@ -439,7 +439,7 @@ export class AccountApi {
    */
   async optInToProgram(request: OptInToProgramRequest): Promise<void> {
     return await withApiError('Failed to opt in to program', () =>
-      this.client.post(`${this.basePath}/program/opt_in`, request)
+      this.client.post(`${this.basePath}/program/opt_in`, request),
     );
   }
 
@@ -448,7 +448,7 @@ export class AccountApi {
    */
   async optOutOfProgram(request: OptInToProgramRequest): Promise<void> {
     return await withApiError('Failed to opt out of program', () =>
-      this.client.post(`${this.basePath}/program/opt_out`, request)
+      this.client.post(`${this.basePath}/program/opt_out`, request),
     );
   }
 
@@ -457,7 +457,7 @@ export class AccountApi {
    */
   async getOptedInPrograms(): Promise<Programs> {
     return await withApiError('Failed to get opted in programs', () =>
-      this.client.get<Programs>(`${this.basePath}/program`)
+      this.client.get<Programs>(`${this.basePath}/program`),
     );
   }
 
@@ -469,7 +469,7 @@ export class AccountApi {
    */
   async getAdvertisingEligibility(
     marketplaceId: string,
-    programTypes?: string
+    programTypes?: string,
   ): Promise<SellerEligibilityMultiProgramResponse> {
     const params = programTypes ? { program_types: programTypes } : undefined;
     return await withApiError('Failed to get advertising eligibility', () =>
@@ -480,8 +480,8 @@ export class AccountApi {
           headers: {
             'X-EBAY-C-MARKETPLACE-ID': marketplaceId,
           },
-        }
-      )
+        },
+      ),
     );
   }
 
@@ -493,12 +493,12 @@ export class AccountApi {
    */
   async getPaymentsProgram(
     marketplaceId: string,
-    paymentsProgramType: string
+    paymentsProgramType: string,
   ): Promise<PaymentsProgramResponse> {
     return await withApiError('Failed to get payments program', () =>
       this.client.get<PaymentsProgramResponse>(
-        `${this.basePath}/payments_program/${marketplaceId}/${paymentsProgramType}`
-      )
+        `${this.basePath}/payments_program/${marketplaceId}/${paymentsProgramType}`,
+      ),
     );
   }
 
@@ -510,12 +510,12 @@ export class AccountApi {
    */
   async getPaymentsProgramOnboarding(
     marketplaceId: string,
-    paymentsProgramType: string
+    paymentsProgramType: string,
   ): Promise<PaymentsProgramOnboardingResponse> {
     return await withApiError('Failed to get payments program onboarding', () =>
       this.client.get<PaymentsProgramOnboardingResponse>(
-        `${this.basePath}/payments_program/${marketplaceId}/${paymentsProgramType}/onboarding`
-      )
+        `${this.basePath}/payments_program/${marketplaceId}/${paymentsProgramType}/onboarding`,
+      ),
     );
   }
 }

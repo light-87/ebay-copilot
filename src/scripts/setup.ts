@@ -85,10 +85,12 @@ const DEVELOPER_LINKEDIN = 'https://www.linkedin.com/in/yosef-hayim-sabag/';
 function printWizardBanner(): void {
   console.log(LOGO);
   console.log(
-    ui.bold.white('            MCP Server Setup Wizard by ') + ebay.blue.bold(DEVELOPER_NAME)
+    ui.bold.white('            MCP Server Setup Wizard by ') + ebay.blue.bold(DEVELOPER_NAME),
   );
   console.log(
-    ui.dim('              Contact the developer: ') + ebay.blue.underline(DEVELOPER_LINKEDIN) + '\n'
+    ui.dim('              Contact the developer: ') +
+      ebay.blue.underline(DEVELOPER_LINKEDIN) +
+      '\n',
   );
 }
 
@@ -146,7 +148,7 @@ async function exchangeAuthorizationCode(
   clientId: string,
   clientSecret: string,
   redirectUri: string,
-  environment: 'sandbox' | 'production'
+  environment: 'sandbox' | 'production',
 ): Promise<TokenExchangeResult> {
   const baseUrl =
     environment === 'production' ? 'https://api.ebay.com' : 'https://api.sandbox.ebay.com';
@@ -175,7 +177,7 @@ async function exchangeAuthorizationCode(
 async function getAppAccessToken(
   clientId: string,
   clientSecret: string,
-  environment: 'sandbox' | 'production'
+  environment: 'sandbox' | 'production',
 ): Promise<string> {
   const baseUrl =
     environment === 'production' ? 'https://api.ebay.com' : 'https://api.sandbox.ebay.com';
@@ -199,7 +201,7 @@ async function verifyRefreshToken(
   refreshToken: string,
   clientId: string,
   clientSecret: string,
-  environment: 'sandbox' | 'production'
+  environment: 'sandbox' | 'production',
 ): Promise<{ accessToken: string; userInfo: EbayUserInfo }> {
   const baseUrl =
     environment === 'production' ? 'https://api.ebay.com' : 'https://api.sandbox.ebay.com';
@@ -230,7 +232,7 @@ async function verifyRefreshToken(
 
 async function fetchEbayUserInfo(
   accessToken: string,
-  environment: 'sandbox' | 'production'
+  environment: 'sandbox' | 'production',
 ): Promise<EbayUserInfo> {
   const identityBase =
     environment === 'production' ? 'https://apiz.ebay.com' : 'https://apiz.sandbox.ebay.com';
@@ -273,7 +275,7 @@ function isClaudeDesktopInstalled(): boolean {
  */
 function updateClaudeDesktopConfig(
   envConfig: Record<string, string>,
-  environment: string
+  environment: string,
 ): { success: boolean; configPath: string; error?: string; details?: string } {
   const configPath = getClaudeDesktopConfigPath();
   if (!existsSync(dirname(configPath)))
@@ -369,7 +371,7 @@ EBAY_USER_REFRESH_TOKEN=${quoteEnvValue(envConfig.EBAY_USER_REFRESH_TOKEN || '')
 EBAY_USER_ACCESS_TOKEN=${quoteEnvValue(envConfig.EBAY_USER_ACCESS_TOKEN || '')}
 EBAY_APP_ACCESS_TOKEN=${quoteEnvValue(envConfig.EBAY_APP_ACCESS_TOKEN || '')}
 `,
-    'utf-8'
+    'utf-8',
   );
 }
 
@@ -393,7 +395,7 @@ function showBox(title: string, content: string[]): void {
   const width = 54;
   const line = '─'.repeat(width);
   console.log(
-    `  ${ui.dim('┌─')} ${ui.bold(title)} ${ui.dim('─'.repeat(width - title.length - 2))}┐`
+    `  ${ui.dim('┌─')} ${ui.bold(title)} ${ui.dim('─'.repeat(width - title.length - 2))}┐`,
   );
   for (const item of content) {
     const displayItem = item.length > width - 2 ? item.slice(0, width - 5) + '...' : item;
@@ -470,7 +472,7 @@ async function completeOAuthWithCode(
     environment: 'sandbox' | 'production';
     answers: Record<string, string>;
   },
-  tokens: { refreshToken?: string; accessToken?: string; appAccessToken?: string }
+  tokens: { refreshToken?: string; accessToken?: string; appAccessToken?: string },
 ): Promise<void> {
   const { clientId, clientSecret, redirectUri, environment, answers } = params;
   const stopSpinner = showSetupProgress('Exchanging authorization code for tokens');
@@ -480,7 +482,7 @@ async function completeOAuthWithCode(
       clientId,
       clientSecret,
       redirectUri,
-      environment
+      environment,
     );
     stopSpinner();
     showSuccess('Authorization code exchanged successfully!');
@@ -504,7 +506,7 @@ async function completeOAuthWithCode(
     }
     showInfo(`Access token expires in: ${Math.floor(result.expiresIn / 60)} minutes`);
     showInfo(
-      `Refresh token expires in: ${Math.floor(result.refreshTokenExpiresIn / 60 / 60 / 24)} days`
+      `Refresh token expires in: ${Math.floor(result.refreshTokenExpiresIn / 60 / 60 / 24)} days`,
     );
     if (isClaudeDesktopInstalled()) {
       const r = updateClaudeDesktopConfig(
@@ -513,7 +515,7 @@ async function completeOAuthWithCode(
           EBAY_USER_REFRESH_TOKEN: tokens.refreshToken ?? '',
           EBAY_USER_ACCESS_TOKEN: tokens.accessToken ?? '',
         },
-        environment
+        environment,
       );
       if (r.success) {
         showSuccess('Claude Desktop config updated.');
@@ -780,7 +782,7 @@ export async function runSetup(): Promise<void> {
                 existingConfig.EBAY_USER_REFRESH_TOKEN,
                 clientId,
                 clientSecret,
-                environment
+                environment,
               );
               stopSpinner();
               showSuccess('Refresh token verified!');
@@ -791,7 +793,7 @@ export async function runSetup(): Promise<void> {
                 tokens.appAccessToken = await getAppAccessToken(
                   clientId,
                   clientSecret,
-                  environment
+                  environment,
                 );
                 showSuccess('App access token obtained.');
               } catch {
@@ -803,7 +805,7 @@ export async function runSetup(): Promise<void> {
                     ...(a as Record<string, string>),
                     EBAY_USER_REFRESH_TOKEN: tokens.refreshToken ?? '',
                   },
-                  environment
+                  environment,
                 );
                 if (r.success) {
                   showSuccess('Claude Desktop config updated.');
@@ -844,7 +846,7 @@ export async function runSetup(): Promise<void> {
                 '',
                 "The tunnel forwards eBay's redirect here, where the code is captured.",
                 'Override the local port with EBAY_OAUTH_CALLBACK_PORT.',
-              ].join('\n')
+              ].join('\n'),
             );
             const authUrl = getOAuthAuthorizationUrl(
               clientId,
@@ -852,11 +854,11 @@ export async function runSetup(): Promise<void> {
               environment,
               undefined,
               undefined,
-              state
+              state,
             );
             let server: Server | undefined;
             const stopSpinner = showSetupProgress(
-              'Waiting for eBay to redirect back (up to 5 min)'
+              'Waiting for eBay to redirect back (up to 5 min)',
             );
             try {
               const started = await startCallbackServer(callbackPort, 300000, {
@@ -871,7 +873,7 @@ export async function runSetup(): Promise<void> {
               stopSpinner();
               if (!result.code)
                 throw new Error(
-                  result.errorDescription ?? result.error ?? 'No authorization code received'
+                  result.errorDescription ?? result.error ?? 'No authorization code received',
                 );
               showSuccess('Authorization code captured automatically!');
               await completeOAuthWithCode(
@@ -883,7 +885,7 @@ export async function runSetup(): Promise<void> {
                   environment,
                   answers: a as Record<string, string>,
                 },
-                tokens
+                tokens,
               );
               context.setNextStep(finalStepId);
             } catch (error) {
@@ -930,7 +932,7 @@ export async function runSetup(): Promise<void> {
             rawToken,
             clientId,
             clientSecret,
-            environment
+            environment,
           );
           stopSpinner();
           showSuccess('Refresh token verified!');
@@ -945,7 +947,7 @@ export async function runSetup(): Promise<void> {
           if (isClaudeDesktopInstalled()) {
             const r = updateClaudeDesktopConfig(
               { ...(a as Record<string, string>), EBAY_USER_REFRESH_TOKEN: rawToken },
-              environment
+              environment,
             );
             if (r.success) {
               showSuccess('Claude Desktop config updated.');
@@ -974,7 +976,7 @@ export async function runSetup(): Promise<void> {
             environment,
             answers: a as Record<string, string>,
           },
-          tokens
+          tokens,
         );
         context.setNextStep(finalStepId);
       }
@@ -1070,7 +1072,7 @@ export async function runSetup(): Promise<void> {
 
   console.log(ui.dim('  Documentation: ') + ui.info('https://github.com/YosefHayim/ebay-mcp'));
   console.log(
-    ui.dim('  Get Help:      ') + ui.info('https://github.com/YosefHayim/ebay-mcp/issues\n')
+    ui.dim('  Get Help:      ') + ui.info('https://github.com/YosefHayim/ebay-mcp/issues\n'),
   );
 
   // Optional: offer to install agent skills (Codex / Claude Code / Cursor) so the

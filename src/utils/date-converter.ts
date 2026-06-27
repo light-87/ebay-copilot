@@ -64,7 +64,7 @@ export function convertToTimestamp(dateInput: string | Date | number): number {
     const parsed = Date.parse(dateInput);
     if (isNaN(parsed)) {
       throw new Error(
-        `Invalid date format: ${dateInput}. Supported formats: ISO 8601, Unix timestamp, or relative time (e.g., "in 2 hours")`
+        `Invalid date format: ${dateInput}. Supported formats: ISO 8601, Unix timestamp, or relative time (e.g., "in 2 hours")`,
       );
     }
 
@@ -159,7 +159,7 @@ export interface TokenExpiryValidation {
  */
 export function validateTokenExpiry(
   accessTokenExpiry: number,
-  refreshTokenExpiry: number
+  refreshTokenExpiry: number,
 ): TokenExpiryValidation {
   const warnings: string[] = [];
   const recommendations: string[] = [];

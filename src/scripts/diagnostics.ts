@@ -73,7 +73,7 @@ async function checkApiConnectivity(): Promise<{ canReachEbay: boolean; error?: 
  * Test eBay API authentication
  */
 async function testEbayAuthentication(
-  config: EbayConfig
+  config: EbayConfig,
 ): Promise<{ success: boolean; error?: string; userInfo?: unknown }> {
   try {
     const api = new EbaySellerApi(config);
@@ -103,7 +103,7 @@ function displayHeader(): void {
 ║              eBay MCP Server Diagnostics                     ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
-  `)
+  `),
   );
   console.log(chalk.gray(`Run date: ${new Date().toISOString()}\n`));
 }
@@ -135,14 +135,14 @@ async function displayUpdateStatus(): Promise<void> {
     const info = await getUpdateInfo();
     if (info) {
       console.log(
-        `  ${chalk.gray('Latest:')}    ${chalk.green(info.latest)} ${chalk.yellow(`(run \`npm i -g ${info.name}\` to update)`)}`
+        `  ${chalk.gray('Latest:')}    ${chalk.green(info.latest)} ${chalk.yellow(`(run \`npm i -g ${info.name}\` to update)`)}`,
       );
     } else {
       console.log(`  ${chalk.gray('Latest:')}    ${chalk.green('up to date')}`);
     }
   } catch {
     console.log(
-      `  ${chalk.gray('Latest:')}    ${chalk.dim('update check unavailable (offline?)')}`
+      `  ${chalk.gray('Latest:')}    ${chalk.dim('update check unavailable (offline?)')}`,
     );
   }
 

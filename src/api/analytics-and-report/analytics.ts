@@ -23,7 +23,7 @@ export class AnalyticsApi {
     dimension: string,
     filter: string,
     metric: string,
-    sort?: string
+    sort?: string,
   ): Promise<Report> {
     // Input validation
     if (!dimension || typeof dimension !== 'string') {
@@ -47,7 +47,7 @@ export class AnalyticsApi {
     if (sort) params.sort = sort;
 
     return await withApiError('Failed to get traffic report', () =>
-      this.client.get<Report>(`${this.basePath}/traffic_report`, params)
+      this.client.get<Report>(`${this.basePath}/traffic_report`, params),
     );
   }
 
@@ -58,7 +58,7 @@ export class AnalyticsApi {
    */
   async findSellerStandardsProfiles() {
     return await withApiError('Failed to find seller standards profiles', () =>
-      this.client.get(`${this.basePath}/seller_standards_profile`)
+      this.client.get(`${this.basePath}/seller_standards_profile`),
     );
   }
 
@@ -78,8 +78,8 @@ export class AnalyticsApi {
 
     return await withApiError('Failed to get seller standards profile', () =>
       this.client.get<StandardsProfile>(
-        `${this.basePath}/seller_standards_profile/${program}/${cycle}`
-      )
+        `${this.basePath}/seller_standards_profile/${program}/${cycle}`,
+      ),
     );
   }
 
@@ -91,7 +91,7 @@ export class AnalyticsApi {
   async getCustomerServiceMetric(
     customerServiceMetricType: string,
     evaluationType: string,
-    evaluationMarketplaceId: string
+    evaluationMarketplaceId: string,
   ): Promise<GetCustomerServiceMetricResponse> {
     // Input validation
     if (!customerServiceMetricType || typeof customerServiceMetricType !== 'string') {
@@ -111,8 +111,8 @@ export class AnalyticsApi {
     return await withApiError('Failed to get customer service metric', () =>
       this.client.get<GetCustomerServiceMetricResponse>(
         `${this.basePath}/customer_service_metric/${customerServiceMetricType}/${evaluationType}`,
-        params
-      )
+        params,
+      ),
     );
   }
 }

@@ -87,7 +87,7 @@ export class HttpError extends Error {
       data?: unknown;
       headers?: Record<string, string>;
       isTimeout?: boolean;
-    }
+    },
   ) {
     super(message);
     this.name = 'HttpError';
@@ -230,7 +230,7 @@ function parseErrorData(text: string): unknown {
  * @typeParam T - Shape of the decoded success body.
  */
 export async function httpRequest<T = unknown>(
-  options: HttpRequestOptions
+  options: HttpRequestOptions,
 ): Promise<HttpResponse<T>> {
   const { method = 'GET', responseType = 'json', timeoutMs } = options;
   const url = buildUrl(options.url, options.baseUrl, options.params);

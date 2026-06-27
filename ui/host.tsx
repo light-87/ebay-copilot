@@ -20,12 +20,16 @@
  */
 
 import './styles.css';
-import { useState, type ReactNode } from 'react';
-import { createRoot } from 'react-dom/client';
 import type { App } from '@modelcontextprotocol/ext-apps/react';
 import { useApp, useHostStyles } from '@modelcontextprotocol/ext-apps/react';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import type { ToolCallRef, ViewArchetype, ViewModelByArchetype } from '../src/tools/ui/view-models';
+import { type ReactNode, useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import type {
+  ToolCallRef,
+  ViewArchetype,
+  ViewModelByArchetype,
+} from '../src/tools/ui/view-models.ts';
 
 /**
  * Narrows a raw tool result to the view model for `archetype`, or `null` if the
@@ -35,7 +39,7 @@ import type { ToolCallRef, ViewArchetype, ViewModelByArchetype } from '../src/to
  */
 function extractView<A extends ViewArchetype>(
   result: CallToolResult,
-  archetype: A
+  archetype: A,
 ): ViewModelByArchetype[A] | null {
   const structured = result.structuredContent;
   if (
@@ -107,17 +111,17 @@ export function AppShell({
   children: ReactNode;
 }): ReactNode {
   if (error) {
-    return <div className="state state--error">Unable to load view: {error.message}</div>;
+    return <div class="state state--error">Unable to load view: {error.message}</div>;
   }
   if (!isConnected) {
-    return <div className="state">Connecting…</div>;
+    return <div class="state">Connecting…</div>;
   }
   return children;
 }
 
 /** Placeholder shown when the app is connected but no view model has arrived yet. */
 export function EmptyState({ label }: { label: string }): ReactNode {
-  return <div className="state">{label}</div>;
+  return <div class="state">{label}</div>;
 }
 
 /** Turns a {@link ToolCallRef} into a concise natural-language instruction. */
@@ -153,7 +157,7 @@ export function drill(app: App | null, ref: ToolCallRef): void {
 export async function runServerTool<A extends ViewArchetype>(
   app: App | null,
   ref: ToolCallRef,
-  archetype: A
+  archetype: A,
 ): Promise<ViewModelByArchetype[A] | null> {
   if (!app) {
     return null;

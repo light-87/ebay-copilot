@@ -89,7 +89,7 @@ export function createDefaultRefreshTokenExpiry(now = Date.now()): number {
 export function createAppAccessTokenExpiry(expiresInSeconds: number, now = Date.now()): number {
   return createExpiryTimestamp(
     Math.max(0, expiresInSeconds - APP_ACCESS_TOKEN_EXPIRY_BUFFER_SECONDS),
-    now
+    now,
   );
 }
 
@@ -153,7 +153,7 @@ export interface CreateStoredUserTokensFromResponseInput {
  * Build stored token data from an eBay token endpoint response.
  */
 export function createStoredUserTokensFromResponse(
-  input: CreateStoredUserTokensFromResponseInput
+  input: CreateStoredUserTokensFromResponseInput,
 ): StoredTokenData {
   const now = input.now ?? Date.now();
   const previousTokens = input.previousTokens;

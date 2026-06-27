@@ -50,7 +50,7 @@ export function generateAuthUrl(
   clientId: string,
   redirectUri: string,
   environment: 'sandbox' | 'production',
-  scopes?: string[]
+  scopes?: string[],
 ): string {
   return getOAuthAuthorizationUrl(clientId, redirectUri, environment, scopes);
 }
@@ -140,7 +140,7 @@ function renderCallbackPage(success: boolean, detail = ''): string {
 export async function startCallbackServer(
   port = 3000,
   timeoutMs = 300000,
-  options: CallbackServerOptions = {}
+  options: CallbackServerOptions = {},
 ): Promise<{ server: Server; codePromise: Promise<OAuthCallbackResult> }> {
   const callbackPath = options.path ?? '/oauth/callback';
   const { expectedState } = options;
@@ -175,7 +175,7 @@ export async function startCallbackServer(
       if (expectedState && state !== expectedState) {
         res.writeHead(400, { 'Content-Type': 'text/html' });
         res.end(
-          renderCallbackPage(false, 'State mismatch — the request may have been tampered with.')
+          renderCallbackPage(false, 'State mismatch — the request may have been tampered with.'),
         );
         settle({
           error: 'invalid_state',
@@ -212,7 +212,7 @@ export async function startCallbackServer(
             error: 'timeout',
             errorDescription: 'OAuth callback timeout - no response received',
           }),
-        timeoutMs
+        timeoutMs,
       );
       // Don't let the timeout alone keep the process alive; the listening server does.
       timer.unref();
@@ -226,7 +226,7 @@ export async function startCallbackServer(
  */
 export async function interactiveOAuthFlow(
   config: EbayConfig,
-  scopes?: string[]
+  scopes?: string[],
 ): Promise<string | null> {
   console.log(chalk.bold.cyan('\n🔐 Interactive OAuth Flow\n'));
 
@@ -237,8 +237,8 @@ export async function interactiveOAuthFlow(
   if (!isLocalhost) {
     console.log(
       chalk.yellow(
-        '⚠️  Your redirect URI is not localhost. Interactive flow requires localhost callback.\n'
-      )
+        '⚠️  Your redirect URI is not localhost. Interactive flow requires localhost callback.\n',
+      ),
     );
     return null;
   }
@@ -271,7 +271,7 @@ export async function interactiveOAuthFlow(
 
   if (result.error) {
     console.log(
-      chalk.red(`\n✗ Authorization failed: ${result.errorDescription || result.error}\n`)
+      chalk.red(`\n✗ Authorization failed: ${result.errorDescription || result.error}\n`),
     );
     return null;
   }
@@ -292,7 +292,7 @@ export function displayManualOAuthInstructions(
   clientId: string,
   redirectUri: string,
   environment: 'sandbox' | 'production',
-  scopes?: string[]
+  scopes?: string[],
 ): void {
   const authUrl = generateAuthUrl(clientId, redirectUri, environment, scopes);
 
@@ -370,7 +370,7 @@ export function displayFirstTimeDeveloperGuide(): void {
 
   console.log(chalk.bold.yellow('Step 2: Create an Application\n'));
   console.log(
-    chalk.gray('  1. Go to: ') + chalk.blue.underline('https://developer.ebay.com/my/keys')
+    chalk.gray('  1. Go to: ') + chalk.blue.underline('https://developer.ebay.com/my/keys'),
   );
   console.log(chalk.gray('  2. Click "Create Application"'));
   console.log(chalk.gray('  3. Fill in application details (name, description)'));

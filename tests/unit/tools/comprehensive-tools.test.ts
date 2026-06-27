@@ -440,7 +440,7 @@ describe('Comprehensive Tools Coverage', () => {
       expect(mockApi.account.createOrReplaceSalesTax).toHaveBeenCalledWith(
         'US',
         'CA',
-        salesTaxBase
+        salesTaxBase,
       );
     });
 
@@ -534,7 +534,7 @@ describe('Comprehensive Tools Coverage', () => {
       });
       expect(mockApi.inventory.createOrReplaceInventoryItem).toHaveBeenCalledWith(
         'SKU123',
-        inventoryItem
+        inventoryItem,
       );
     });
 
@@ -581,7 +581,7 @@ describe('Comprehensive Tools Coverage', () => {
       });
       expect(mockApi.inventory.createOrReplaceProductCompatibility).toHaveBeenCalledWith(
         'SKU123',
-        compatibility
+        compatibility,
       );
     });
 
@@ -613,7 +613,7 @@ describe('Comprehensive Tools Coverage', () => {
       });
       expect(mockApi.inventory.createOrReplaceInventoryItemGroup).toHaveBeenCalledWith(
         'GROUP123',
-        inventoryItemGroup
+        inventoryItemGroup,
       );
     });
 
@@ -650,7 +650,7 @@ describe('Comprehensive Tools Coverage', () => {
       });
       expect(mockApi.inventory.createOrReplaceInventoryLocation).toHaveBeenCalledWith(
         'LOC123',
-        location
+        location,
       );
     });
 
@@ -687,7 +687,7 @@ describe('Comprehensive Tools Coverage', () => {
       });
       expect(mockApi.inventory.updateLocationDetails).toHaveBeenCalledWith(
         'LOC123',
-        locationDetails
+        locationDetails,
       );
     });
 
@@ -800,7 +800,7 @@ describe('Comprehensive Tools Coverage', () => {
       });
       expect(mockApi.fulfillment.createShippingFulfillment).toHaveBeenCalledWith(
         'ORDER123',
-        fulfillment
+        fulfillment,
       );
     });
 
@@ -864,7 +864,7 @@ describe('Comprehensive Tools Coverage', () => {
       });
       expect(mockApi.marketing.updateCampaignIdentification).toHaveBeenCalledWith(
         'CAMP123',
-        updateData
+        updateData,
       );
     });
 
@@ -894,7 +894,7 @@ describe('Comprehensive Tools Coverage', () => {
         10,
         5,
         'RUNNING',
-        'ORDER_DISCOUNT'
+        'ORDER_DISCOUNT',
       );
     });
   });
@@ -907,7 +907,7 @@ describe('Comprehensive Tools Coverage', () => {
       expect(mockApi.negotiation.getOffersToBuyers).toHaveBeenCalledWith(
         'test',
         undefined,
-        undefined
+        undefined,
       );
     });
 
@@ -972,7 +972,7 @@ describe('Comprehensive Tools Coverage', () => {
         undefined,
         undefined,
         undefined,
-        'EBAY_US'
+        'EBAY_US',
       );
     });
   });
@@ -990,7 +990,7 @@ describe('Comprehensive Tools Coverage', () => {
         'LISTING',
         'test',
         'CLICK_THROUGH_RATE',
-        undefined
+        undefined,
       );
     });
 
@@ -1010,7 +1010,7 @@ describe('Comprehensive Tools Coverage', () => {
       });
       expect(mockApi.analytics.getSellerStandardsProfile).toHaveBeenCalledWith(
         'CUSTOMER_SERVICE',
-        'CURRENT'
+        'CURRENT',
       );
     });
 
@@ -1025,7 +1025,7 @@ describe('Comprehensive Tools Coverage', () => {
       expect(mockApi.analytics.getCustomerServiceMetric).toHaveBeenCalledWith(
         'INQUIRY_RESPONSE',
         'CURRENT',
-        'EBAY_US'
+        'EBAY_US',
       );
     });
   });
@@ -1034,14 +1034,14 @@ describe('Comprehensive Tools Coverage', () => {
     it('ebay_get_automotive_parts_compatibility_policies', async () => {
       const mockResponse = { policies: [] };
       vi.mocked(mockApi.metadata.getAutomotivePartsCompatibilityPolicies).mockResolvedValue(
-        mockResponse
+        mockResponse,
       );
       await executeTool(mockApi, 'ebay_get_automotive_parts_compatibility_policies', {
         marketplaceId: 'EBAY_US',
       });
       expect(mockApi.metadata.getAutomotivePartsCompatibilityPolicies).toHaveBeenCalledWith(
         'EBAY_US',
-        undefined
+        undefined,
       );
     });
 
@@ -1057,14 +1057,14 @@ describe('Comprehensive Tools Coverage', () => {
     it('ebay_get_extended_producer_responsibility_policies', async () => {
       const mockResponse = { policies: [] };
       vi.mocked(mockApi.metadata.getExtendedProducerResponsibilityPolicies).mockResolvedValue(
-        mockResponse
+        mockResponse,
       );
       await executeTool(mockApi, 'ebay_get_extended_producer_responsibility_policies', {
         marketplaceId: 'EBAY_US',
       });
       expect(mockApi.metadata.getExtendedProducerResponsibilityPolicies).toHaveBeenCalledWith(
         'EBAY_US',
-        undefined
+        undefined,
       );
     });
 
@@ -1094,7 +1094,7 @@ describe('Comprehensive Tools Coverage', () => {
       });
       expect(mockApi.metadata.getListingStructurePolicies).toHaveBeenCalledWith(
         'EBAY_US',
-        undefined
+        undefined,
       );
     });
 
@@ -1106,7 +1106,7 @@ describe('Comprehensive Tools Coverage', () => {
       });
       expect(mockApi.metadata.getNegotiatedPricePolicies).toHaveBeenCalledWith(
         'EBAY_US',
-        undefined
+        undefined,
       );
     });
 
@@ -1136,7 +1136,7 @@ describe('Comprehensive Tools Coverage', () => {
       });
       expect(mockApi.metadata.getShippingCostTypePolicies).toHaveBeenCalledWith(
         'EBAY_US',
-        undefined
+        undefined,
       );
     });
 
@@ -1200,7 +1200,7 @@ describe('Comprehensive Tools Coverage', () => {
       vi.mocked(mockApi.metadata.getCompatibilitiesBySpecification).mockResolvedValue(mockResponse);
       await executeTool(mockApi, 'ebay_get_compatibilities_by_specification', { specification });
       expect(mockApi.metadata.getCompatibilitiesBySpecification).toHaveBeenCalledWith(
-        specification
+        specification,
       );
     });
 
@@ -1224,7 +1224,7 @@ describe('Comprehensive Tools Coverage', () => {
       const mockResponse = { values: [] };
       const data = { categoryTreeId: '0' };
       vi.mocked(mockApi.metadata.getMultiCompatibilityPropertyValues).mockResolvedValue(
-        mockResponse
+        mockResponse,
       );
       await executeTool(mockApi, 'ebay_get_multi_compatibility_property_values', { data });
       expect(mockApi.metadata.getMultiCompatibilityPropertyValues).toHaveBeenCalledWith(data);
@@ -1305,7 +1305,7 @@ describe('Comprehensive Tools Coverage', () => {
       expect(mockApi.compliance.getListingViolations).toHaveBeenCalledWith(
         'PRODUCT_ADOPTION',
         undefined,
-        undefined
+        undefined,
       );
     });
 
@@ -1316,7 +1316,7 @@ describe('Comprehensive Tools Coverage', () => {
         complianceType: 'PRODUCT_ADOPTION',
       });
       expect(mockApi.compliance.getListingViolationsSummary).toHaveBeenCalledWith(
-        'PRODUCT_ADOPTION'
+        'PRODUCT_ADOPTION',
       );
     });
 

@@ -101,7 +101,7 @@ class EndpointTester {
     // Validate config
     if (!config.clientId || !config.clientSecret) {
       throw new Error(
-        'Missing eBay credentials. Please set EBAY_CLIENT_ID and EBAY_CLIENT_SECRET in .env'
+        'Missing eBay credentials. Please set EBAY_CLIENT_ID and EBAY_CLIENT_SECRET in .env',
       );
     }
 
@@ -114,7 +114,7 @@ class EndpointTester {
     console.log(
       this.api.hasUserTokens()
         ? '✅ Using user tokens (high rate limits)'
-        : '⚠️  Using app tokens (1k req/day limit)'
+        : '⚠️  Using app tokens (1k req/day limit)',
     );
   }
 
@@ -127,7 +127,7 @@ class EndpointTester {
     endpoint: string,
     method: string,
     testFn: () => Promise<unknown>,
-    params?: unknown
+    params?: unknown,
   ): Promise<void> {
     const startTime = Date.now();
     const maxRetries = 2;
@@ -363,7 +363,7 @@ class EndpointTester {
       'getFulfillmentPolicies',
       'GET /sell/account/v1/fulfillment_policy',
       () => this.api.account.getFulfillmentPolicies('EBAY_US'),
-      { marketplace_id: 'EBAY_US' }
+      { marketplace_id: 'EBAY_US' },
     );
 
     // CREATE fulfillment policy
@@ -397,7 +397,7 @@ class EndpointTester {
         createdFulfillmentPolicyId = result.fulfillmentPolicyId;
         return result;
       },
-      testFulfillmentPolicy
+      testFulfillmentPolicy,
     );
 
     // READ created policy
@@ -407,7 +407,7 @@ class EndpointTester {
         'getFulfillmentPolicy (created)',
         'GET /sell/account/v1/fulfillment_policy/{fulfillmentPolicyId}',
         () => this.api.account.getFulfillmentPolicy(createdFulfillmentPolicyId!),
-        { fulfillmentPolicyId: createdFulfillmentPolicyId }
+        { fulfillmentPolicyId: createdFulfillmentPolicyId },
       );
 
       // UPDATE policy
@@ -420,7 +420,7 @@ class EndpointTester {
             ...testFulfillmentPolicy,
             name: `Updated Fulfillment ${Date.now()}`,
           }),
-        { fulfillmentPolicyId: createdFulfillmentPolicyId }
+        { fulfillmentPolicyId: createdFulfillmentPolicyId },
       );
 
       // DELETE policy
@@ -429,7 +429,7 @@ class EndpointTester {
         'deleteFulfillmentPolicy',
         'DELETE /sell/account/v1/fulfillment_policy/{fulfillmentPolicyId}',
         () => this.api.account.deleteFulfillmentPolicy(createdFulfillmentPolicyId!),
-        { fulfillmentPolicyId: createdFulfillmentPolicyId }
+        { fulfillmentPolicyId: createdFulfillmentPolicyId },
       );
     }
 
@@ -439,7 +439,7 @@ class EndpointTester {
       'getPaymentPolicies',
       'GET /sell/account/v1/payment_policy',
       () => this.api.account.getPaymentPolicies('EBAY_US'),
-      { marketplace_id: 'EBAY_US' }
+      { marketplace_id: 'EBAY_US' },
     );
 
     // CREATE payment policy
@@ -464,7 +464,7 @@ class EndpointTester {
         createdPaymentPolicyId = result.paymentPolicyId;
         return result;
       },
-      testPaymentPolicy
+      testPaymentPolicy,
     );
 
     if (createdPaymentPolicyId) {
@@ -473,7 +473,7 @@ class EndpointTester {
         'getPaymentPolicy (created)',
         'GET /sell/account/v1/payment_policy/{payment_policy_id}',
         () => this.api.account.getPaymentPolicy(createdPaymentPolicyId!),
-        { payment_policy_id: createdPaymentPolicyId }
+        { payment_policy_id: createdPaymentPolicyId },
       );
 
       await this.testEndpoint(
@@ -485,7 +485,7 @@ class EndpointTester {
             ...testPaymentPolicy,
             name: `Updated Payment ${Date.now()}`,
           }),
-        { payment_policy_id: createdPaymentPolicyId }
+        { payment_policy_id: createdPaymentPolicyId },
       );
 
       await this.testEndpoint(
@@ -493,7 +493,7 @@ class EndpointTester {
         'deletePaymentPolicy',
         'DELETE /sell/account/v1/payment_policy/{payment_policy_id}',
         () => this.api.account.deletePaymentPolicy(createdPaymentPolicyId!),
-        { payment_policy_id: createdPaymentPolicyId }
+        { payment_policy_id: createdPaymentPolicyId },
       );
     }
 
@@ -503,7 +503,7 @@ class EndpointTester {
       'getReturnPolicies',
       'GET /sell/account/v1/return_policy',
       () => this.api.account.getReturnPolicies('EBAY_US'),
-      { marketplace_id: 'EBAY_US' }
+      { marketplace_id: 'EBAY_US' },
     );
 
     const testReturnPolicy = {
@@ -526,7 +526,7 @@ class EndpointTester {
         createdReturnPolicyId = result.returnPolicyId;
         return result;
       },
-      testReturnPolicy
+      testReturnPolicy,
     );
 
     if (createdReturnPolicyId) {
@@ -535,7 +535,7 @@ class EndpointTester {
         'getReturnPolicy (created)',
         'GET /sell/account/v1/return_policy/{return_policy_id}',
         () => this.api.account.getReturnPolicy(createdReturnPolicyId!),
-        { return_policy_id: createdReturnPolicyId }
+        { return_policy_id: createdReturnPolicyId },
       );
 
       await this.testEndpoint(
@@ -547,7 +547,7 @@ class EndpointTester {
             ...testReturnPolicy,
             name: `Updated Return ${Date.now()}`,
           }),
-        { return_policy_id: createdReturnPolicyId }
+        { return_policy_id: createdReturnPolicyId },
       );
 
       await this.testEndpoint(
@@ -555,7 +555,7 @@ class EndpointTester {
         'deleteReturnPolicy',
         'DELETE /sell/account/v1/return_policy/{return_policy_id}',
         () => this.api.account.deleteReturnPolicy(createdReturnPolicyId!),
-        { return_policy_id: createdReturnPolicyId }
+        { return_policy_id: createdReturnPolicyId },
       );
     }
 
@@ -565,7 +565,7 @@ class EndpointTester {
       'getCustomPolicies',
       'GET /sell/account/v1/custom_policy',
       () => this.api.account.getCustomPolicies(),
-      { policy_types: undefined }
+      { policy_types: undefined },
     );
 
     const testCustomPolicy = {
@@ -585,7 +585,7 @@ class EndpointTester {
         createdCustomPolicyId = result.customPolicyId;
         return result;
       },
-      testCustomPolicy
+      testCustomPolicy,
     );
 
     if (createdCustomPolicyId) {
@@ -594,7 +594,7 @@ class EndpointTester {
         'getCustomPolicy (created)',
         'GET /sell/account/v1/custom_policy/{custom_policy_id}',
         () => this.api.account.getCustomPolicy(createdCustomPolicyId!),
-        { custom_policy_id: createdCustomPolicyId }
+        { custom_policy_id: createdCustomPolicyId },
       );
 
       await this.testEndpoint(
@@ -606,7 +606,7 @@ class EndpointTester {
             ...testCustomPolicy,
             description: 'Updated custom policy',
           }),
-        { custom_policy_id: createdCustomPolicyId }
+        { custom_policy_id: createdCustomPolicyId },
       );
     }
 
@@ -616,7 +616,7 @@ class EndpointTester {
       'getSalesTaxes',
       'GET /sell/account/v1/sales_tax',
       () => this.api.account.getSalesTaxes('US'),
-      { country_code: 'US' }
+      { country_code: 'US' },
     );
 
     await this.testEndpoint(
@@ -628,7 +628,7 @@ class EndpointTester {
           salesTaxPercentage: '7.25',
           shippingAndHandlingTaxed: false,
         }),
-      { country_code: 'US', jurisdiction_id: 'CA', tax: '7.25%' }
+      { country_code: 'US', jurisdiction_id: 'CA', tax: '7.25%' },
     );
 
     await this.testEndpoint(
@@ -636,7 +636,7 @@ class EndpointTester {
       'getSalesTax',
       'GET /sell/account/v1/sales_tax/{countryCode}/{jurisdictionId}',
       () => this.api.account.getSalesTax('US', 'CA'),
-      { country_code: 'US', jurisdiction_id: 'CA' }
+      { country_code: 'US', jurisdiction_id: 'CA' },
     );
 
     await this.testEndpoint(
@@ -644,7 +644,7 @@ class EndpointTester {
       'deleteSalesTax',
       'DELETE /sell/account/v1/sales_tax/{countryCode}/{jurisdictionId}',
       () => this.api.account.deleteSalesTax('US', 'CA'),
-      { country_code: 'US', jurisdiction_id: 'CA' }
+      { country_code: 'US', jurisdiction_id: 'CA' },
     );
 
     // Programs (2 endpoints)
@@ -652,7 +652,7 @@ class EndpointTester {
       'Account Management',
       'getOptedInPrograms',
       'GET /sell/account/v1/program/get_opted_in_programs',
-      () => this.api.account.getOptedInPrograms()
+      () => this.api.account.getOptedInPrograms(),
     );
 
     // Read-only endpoints
@@ -660,28 +660,28 @@ class EndpointTester {
       'Account Management',
       'getPrivileges',
       'GET /sell/account/v1/privilege',
-      () => this.api.account.getPrivileges()
+      () => this.api.account.getPrivileges(),
     );
 
     await this.testEndpoint(
       'Account Management',
       'getRateTables',
       'GET /sell/account/v1/rate_table',
-      () => this.api.account.getRateTables()
+      () => this.api.account.getRateTables(),
     );
 
     await this.testEndpoint(
       'Account Management',
       'getSubscription',
       'GET /sell/account/v1/subscription',
-      () => this.api.account.getSubscription()
+      () => this.api.account.getSubscription(),
     );
 
     await this.testEndpoint(
       'Account Management',
       'getKYC',
       'GET /sell/account/v1/kyc [DEPRECATED]',
-      () => this.api.account.getKyc()
+      () => this.api.account.getKyc(),
     );
 
     await this.testEndpoint(
@@ -689,7 +689,7 @@ class EndpointTester {
       'getAdvertisingEligibility',
       'GET /sell/account/v1/advertising_eligibility',
       () => this.api.account.getAdvertisingEligibility('EBAY_US'),
-      { marketplace_id: 'EBAY_US' }
+      { marketplace_id: 'EBAY_US' },
     );
 
     await this.testEndpoint(
@@ -697,7 +697,7 @@ class EndpointTester {
       'getPaymentsProgram',
       'GET /sell/account/v1/payments_program/{marketplace_id}/{payments_program_type} [DEPRECATED]',
       () => this.api.account.getPaymentsProgram('EBAY_US', 'EBAY_PAYMENTS'),
-      { marketplace_id: 'EBAY_US', payments_program_type: 'EBAY_PAYMENTS' }
+      { marketplace_id: 'EBAY_US', payments_program_type: 'EBAY_PAYMENTS' },
     );
 
     await this.testEndpoint(
@@ -705,7 +705,7 @@ class EndpointTester {
       'getPaymentsProgramOnboarding',
       'GET /sell/account/v1/payments_program/{marketplace_id}/{payments_program_type}/onboarding [DEPRECATED]',
       () => this.api.account.getPaymentsProgramOnboarding('EBAY_US', 'EBAY_PAYMENTS'),
-      { marketplace_id: 'EBAY_US', payments_program_type: 'EBAY_PAYMENTS' }
+      { marketplace_id: 'EBAY_US', payments_program_type: 'EBAY_PAYMENTS' },
     );
 
     // Test with existing policies if available
@@ -715,7 +715,7 @@ class EndpointTester {
         'getFulfillmentPolicy (existing)',
         'GET /sell/account/v1/fulfillment_policy/{fulfillmentPolicyId}',
         () => this.api.account.getFulfillmentPolicy(this.collectedIds.fulfillmentPolicyId!),
-        { fulfillmentPolicyId: this.collectedIds.fulfillmentPolicyId }
+        { fulfillmentPolicyId: this.collectedIds.fulfillmentPolicyId },
       );
     }
 
@@ -725,7 +725,7 @@ class EndpointTester {
         'getPaymentPolicy (existing)',
         'GET /sell/account/v1/payment_policy/{payment_policy_id}',
         () => this.api.account.getPaymentPolicy(this.collectedIds.paymentPolicyId!),
-        { payment_policy_id: this.collectedIds.paymentPolicyId }
+        { payment_policy_id: this.collectedIds.paymentPolicyId },
       );
     }
 
@@ -735,7 +735,7 @@ class EndpointTester {
         'getReturnPolicy (existing)',
         'GET /sell/account/v1/return_policy/{return_policy_id}',
         () => this.api.account.getReturnPolicy(this.collectedIds.returnPolicyId!),
-        { return_policy_id: this.collectedIds.returnPolicyId }
+        { return_policy_id: this.collectedIds.returnPolicyId },
       );
     }
 
@@ -751,7 +751,7 @@ class EndpointTester {
       'getInventoryItems',
       'GET /sell/inventory/v1/inventory_item',
       () => this.api.inventory.getInventoryItems(5, 0),
-      { limit: 5, offset: 0 }
+      { limit: 5, offset: 0 },
     );
 
     // Test CREATE, UPDATE, DELETE flow with test data
@@ -779,7 +779,7 @@ class EndpointTester {
       'createOrReplaceInventoryItem',
       'PUT /sell/inventory/v1/inventory_item/{sku}',
       () => this.api.inventory.createOrReplaceInventoryItem(testSku, testInventoryItem),
-      { sku: testSku }
+      { sku: testSku },
     );
 
     // READ created item
@@ -788,7 +788,7 @@ class EndpointTester {
       'getInventoryItem (created)',
       'GET /sell/inventory/v1/inventory_item/{sku}',
       () => this.api.inventory.getInventoryItem(testSku),
-      { sku: testSku }
+      { sku: testSku },
     );
 
     // UPDATE inventory item
@@ -801,7 +801,7 @@ class EndpointTester {
           ...testInventoryItem,
           availability: { shipToLocationAvailability: { quantity: 20 } },
         }),
-      { sku: testSku, quantity: 20 }
+      { sku: testSku, quantity: 20 },
     );
 
     // Bulk operations
@@ -810,7 +810,7 @@ class EndpointTester {
       'bulkCreateOrReplaceInventoryItem',
       'POST /sell/inventory/v1/bulk_create_or_replace_inventory_item',
       () => this.api.inventory.bulkCreateOrReplaceInventoryItem({ requests: [] }),
-      { requests: [] }
+      { requests: [] },
     );
 
     await this.testEndpoint(
@@ -818,7 +818,7 @@ class EndpointTester {
       'bulkGetInventoryItem',
       'POST /sell/inventory/v1/bulk_get_inventory_item',
       () => this.api.inventory.bulkGetInventoryItem({ requests: [] }),
-      { requests: [] }
+      { requests: [] },
     );
 
     await this.testEndpoint(
@@ -826,7 +826,7 @@ class EndpointTester {
       'bulkUpdatePriceQuantity',
       'POST /sell/inventory/v1/bulk_update_price_quantity',
       () => this.api.inventory.bulkUpdatePriceQuantity({ requests: [] }),
-      { requests: [] }
+      { requests: [] },
     );
 
     // Product Compatibility (3 endpoints)
@@ -835,7 +835,7 @@ class EndpointTester {
       'getProductCompatibility',
       'GET /sell/inventory/v1/inventory_item/{sku}/product_compatibility',
       () => this.api.inventory.getProductCompatibility(testSku),
-      { sku: testSku }
+      { sku: testSku },
     );
 
     await this.testEndpoint(
@@ -846,7 +846,7 @@ class EndpointTester {
         this.api.inventory.createOrReplaceProductCompatibility(testSku, {
           compatibleProducts: [],
         }),
-      { sku: testSku }
+      { sku: testSku },
     );
 
     await this.testEndpoint(
@@ -854,7 +854,7 @@ class EndpointTester {
       'deleteProductCompatibility',
       'DELETE /sell/inventory/v1/inventory_item/{sku}/product_compatibility',
       () => this.api.inventory.deleteProductCompatibility(testSku),
-      { sku: testSku }
+      { sku: testSku },
     );
 
     // Inventory Item Groups (3 endpoints)
@@ -868,7 +868,7 @@ class EndpointTester {
           title: 'Test Group',
           variantSKUs: [testSku],
         }),
-      { inventoryItemGroupKey: testGroupKey }
+      { inventoryItemGroupKey: testGroupKey },
     );
 
     await this.testEndpoint(
@@ -876,7 +876,7 @@ class EndpointTester {
       'getInventoryItemGroup',
       'GET /sell/inventory/v1/inventory_item_group/{inventoryItemGroupKey}',
       () => this.api.inventory.getInventoryItemGroup(testGroupKey),
-      { inventoryItemGroupKey: testGroupKey }
+      { inventoryItemGroupKey: testGroupKey },
     );
 
     await this.testEndpoint(
@@ -884,7 +884,7 @@ class EndpointTester {
       'deleteInventoryItemGroup',
       'DELETE /sell/inventory/v1/inventory_item_group/{inventoryItemGroupKey}',
       () => this.api.inventory.deleteInventoryItemGroup(testGroupKey),
-      { inventoryItemGroupKey: testGroupKey }
+      { inventoryItemGroupKey: testGroupKey },
     );
 
     // Test with collected SKU if available
@@ -894,7 +894,7 @@ class EndpointTester {
         'getInventoryItem (existing)',
         'GET /sell/inventory/v1/inventory_item/{sku}',
         () => this.api.inventory.getInventoryItem(this.collectedIds.inventoryItemSku!),
-        { sku: this.collectedIds.inventoryItemSku }
+        { sku: this.collectedIds.inventoryItemSku },
       );
     }
 
@@ -904,7 +904,7 @@ class EndpointTester {
       'getInventoryLocations',
       'GET /sell/inventory/v1/location',
       () => this.api.inventory.getInventoryLocations(5, 0),
-      { limit: 5, offset: 0 }
+      { limit: 5, offset: 0 },
     );
 
     const testLocationKey = `TEST-LOC-${Date.now()}`;
@@ -929,7 +929,7 @@ class EndpointTester {
       'createOrReplaceInventoryLocation',
       'POST /sell/inventory/v1/location/{merchantLocationKey}',
       () => this.api.inventory.createOrReplaceInventoryLocation(testLocationKey, testLocation),
-      { merchantLocationKey: testLocationKey }
+      { merchantLocationKey: testLocationKey },
     );
 
     // READ location
@@ -938,7 +938,7 @@ class EndpointTester {
       'getInventoryLocation (created)',
       'GET /sell/inventory/v1/location/{merchantLocationKey}',
       () => this.api.inventory.getInventoryLocation(testLocationKey),
-      { merchantLocationKey: testLocationKey }
+      { merchantLocationKey: testLocationKey },
     );
 
     // UPDATE location details
@@ -950,7 +950,7 @@ class EndpointTester {
         this.api.inventory.updateLocationDetails(testLocationKey, {
           name: 'Updated Test Warehouse',
         }),
-      { merchantLocationKey: testLocationKey }
+      { merchantLocationKey: testLocationKey },
     );
 
     // DISABLE location
@@ -959,7 +959,7 @@ class EndpointTester {
       'disableInventoryLocation',
       'POST /sell/inventory/v1/location/{merchantLocationKey}/disable',
       () => this.api.inventory.disableInventoryLocation(testLocationKey),
-      { merchantLocationKey: testLocationKey }
+      { merchantLocationKey: testLocationKey },
     );
 
     // ENABLE location
@@ -968,7 +968,7 @@ class EndpointTester {
       'enableInventoryLocation',
       'POST /sell/inventory/v1/location/{merchantLocationKey}/enable',
       () => this.api.inventory.enableInventoryLocation(testLocationKey),
-      { merchantLocationKey: testLocationKey }
+      { merchantLocationKey: testLocationKey },
     );
 
     // DELETE location
@@ -977,7 +977,7 @@ class EndpointTester {
       'deleteInventoryLocation',
       'DELETE /sell/inventory/v1/location/{merchantLocationKey}',
       () => this.api.inventory.deleteInventoryLocation(testLocationKey),
-      { merchantLocationKey: testLocationKey }
+      { merchantLocationKey: testLocationKey },
     );
 
     // Test with collected location if available
@@ -987,7 +987,7 @@ class EndpointTester {
         'getInventoryLocation (existing)',
         'GET /sell/inventory/v1/location/{merchantLocationKey}',
         () => this.api.inventory.getInventoryLocation(this.collectedIds.inventoryLocationKey!),
-        { merchantLocationKey: this.collectedIds.inventoryLocationKey }
+        { merchantLocationKey: this.collectedIds.inventoryLocationKey },
       );
     }
 
@@ -997,7 +997,7 @@ class EndpointTester {
       'getOffers',
       'GET /sell/inventory/v1/offer',
       () => this.api.inventory.getOffers(undefined, 'EBAY_US', 5),
-      { marketplaceId: 'EBAY_US', limit: 5 }
+      { marketplaceId: 'EBAY_US', limit: 5 },
     );
 
     // Test CREATE offer (requires policy IDs from account)
@@ -1035,7 +1035,7 @@ class EndpointTester {
           createdOfferId = result.offerId;
           return result;
         },
-        testOffer
+        testOffer,
       );
 
       // UPDATE offer if created
@@ -1049,7 +1049,7 @@ class EndpointTester {
               ...testOffer,
               pricingSummary: { price: { value: '19.99', currency: 'USD' } },
             }),
-          { offerId: createdOfferId, newPrice: '19.99' }
+          { offerId: createdOfferId, newPrice: '19.99' },
         );
 
         // GET created offer
@@ -1058,7 +1058,7 @@ class EndpointTester {
           'getOffer (created)',
           'GET /sell/inventory/v1/offer/{offerId}',
           () => this.api.inventory.getOffer(createdOfferId!),
-          { offerId: createdOfferId }
+          { offerId: createdOfferId },
         );
 
         // PUBLISH offer
@@ -1067,7 +1067,7 @@ class EndpointTester {
           'publishOffer',
           'POST /sell/inventory/v1/offer/{offerId}/publish',
           () => this.api.inventory.publishOffer(createdOfferId!),
-          { offerId: createdOfferId }
+          { offerId: createdOfferId },
         );
 
         // WITHDRAW offer
@@ -1076,7 +1076,7 @@ class EndpointTester {
           'withdrawOffer',
           'POST /sell/inventory/v1/offer/{offerId}/withdraw',
           () => this.api.inventory.withdrawOffer(createdOfferId!),
-          { offerId: createdOfferId }
+          { offerId: createdOfferId },
         );
 
         // GET listing fees
@@ -1085,7 +1085,7 @@ class EndpointTester {
           'getListingFees',
           'POST /sell/inventory/v1/offer/get_listing_fees',
           () => this.api.inventory.getListingFees([createdOfferId!]),
-          { offerIds: [createdOfferId] }
+          { offerIds: [createdOfferId] },
         );
 
         // DELETE offer
@@ -1094,7 +1094,7 @@ class EndpointTester {
           'deleteOffer',
           'DELETE /sell/inventory/v1/offer/{offerId}',
           () => this.api.inventory.deleteOffer(createdOfferId!),
-          { offerId: createdOfferId }
+          { offerId: createdOfferId },
         );
       }
     }
@@ -1105,7 +1105,7 @@ class EndpointTester {
       'bulkCreateOffer',
       'POST /sell/inventory/v1/bulk_create_offer',
       () => this.api.inventory.bulkCreateOffer({ requests: [] }),
-      { requests: [] }
+      { requests: [] },
     );
 
     await this.testEndpoint(
@@ -1113,7 +1113,7 @@ class EndpointTester {
       'bulkPublishOffer',
       'POST /sell/inventory/v1/bulk_publish_offer',
       () => this.api.inventory.bulkPublishOffer({ requests: [] }),
-      { requests: [] }
+      { requests: [] },
     );
 
     await this.testEndpoint(
@@ -1125,7 +1125,7 @@ class EndpointTester {
           inventoryItemGroupKey: testGroupKey,
           marketplaceId: 'EBAY_US',
         }),
-      { inventoryItemGroupKey: testGroupKey }
+      { inventoryItemGroupKey: testGroupKey },
     );
 
     await this.testEndpoint(
@@ -1137,7 +1137,7 @@ class EndpointTester {
           inventoryItemGroupKey: testGroupKey,
           marketplaceId: 'EBAY_US',
         }),
-      { inventoryItemGroupKey: testGroupKey }
+      { inventoryItemGroupKey: testGroupKey },
     );
 
     // Bulk migrate listing
@@ -1146,7 +1146,7 @@ class EndpointTester {
       'bulkMigrateListing',
       'POST /sell/inventory/v1/bulk_migrate_listing',
       () => this.api.inventory.bulkMigrateListing({ requests: [] }),
-      { requests: [] }
+      { requests: [] },
     );
 
     // Listing locations
@@ -1158,9 +1158,9 @@ class EndpointTester {
         () =>
           this.api.inventory.getListingLocations(
             'test-listing-id',
-            this.collectedIds.inventoryItemSku!
+            this.collectedIds.inventoryItemSku!,
           ),
-        { listingId: 'test-listing-id', sku: this.collectedIds.inventoryItemSku }
+        { listingId: 'test-listing-id', sku: this.collectedIds.inventoryItemSku },
       );
     }
 
@@ -1171,7 +1171,7 @@ class EndpointTester {
         'getOffer (existing)',
         'GET /sell/inventory/v1/offer/{offerId}',
         () => this.api.inventory.getOffer(this.collectedIds.offerId!),
-        { offerId: this.collectedIds.offerId }
+        { offerId: this.collectedIds.offerId },
       );
     }
 
@@ -1181,7 +1181,7 @@ class EndpointTester {
       'deleteInventoryItem (cleanup)',
       'DELETE /sell/inventory/v1/inventory_item/{sku}',
       () => this.api.inventory.deleteInventoryItem(testSku),
-      { sku: testSku }
+      { sku: testSku },
     );
 
     console.log('');
@@ -1196,7 +1196,7 @@ class EndpointTester {
       'getOrders',
       'GET /sell/fulfillment/v1/order',
       () => this.api.fulfillment.getOrders({ limit: 5 }),
-      { limit: 5 }
+      { limit: 5 },
     );
 
     // Test with order if we have an ID
@@ -1206,7 +1206,7 @@ class EndpointTester {
         'getOrder',
         'GET /sell/fulfillment/v1/order/{orderId}',
         () => this.api.fulfillment.getOrder(this.collectedIds.orderId!),
-        { orderId: this.collectedIds.orderId }
+        { orderId: this.collectedIds.orderId },
       );
 
       // Shipping Fulfillments
@@ -1215,7 +1215,7 @@ class EndpointTester {
         'getShippingFulfillments',
         'GET /sell/fulfillment/v1/order/{orderId}/shipping_fulfillment',
         () => this.api.fulfillment.getShippingFulfillments(this.collectedIds.orderId!),
-        { orderId: this.collectedIds.orderId }
+        { orderId: this.collectedIds.orderId },
       );
 
       // CREATE shipping fulfillment
@@ -1238,12 +1238,12 @@ class EndpointTester {
         async () => {
           const result = await this.api.fulfillment.createShippingFulfillment(
             this.collectedIds.orderId!,
-            testFulfillment
+            testFulfillment,
           );
           createdFulfillmentId = result.fulfillmentId;
           return result;
         },
-        { orderId: this.collectedIds.orderId, ...testFulfillment }
+        { orderId: this.collectedIds.orderId, ...testFulfillment },
       );
 
       if (createdFulfillmentId) {
@@ -1255,9 +1255,9 @@ class EndpointTester {
           () =>
             this.api.fulfillment.getShippingFulfillment(
               this.collectedIds.orderId!,
-              createdFulfillmentId!
+              createdFulfillmentId!,
             ),
-          { orderId: this.collectedIds.orderId, fulfillmentId: createdFulfillmentId }
+          { orderId: this.collectedIds.orderId, fulfillmentId: createdFulfillmentId },
         );
       }
 
@@ -1267,7 +1267,7 @@ class EndpointTester {
         'getCancellationRequests',
         'GET /sell/fulfillment/v1/order/{orderId}/cancellation',
         () => this.api.fulfillment.getCancellationRequests(this.collectedIds.orderId!),
-        { orderId: this.collectedIds.orderId }
+        { orderId: this.collectedIds.orderId },
       );
 
       // Issue refund
@@ -1280,7 +1280,7 @@ class EndpointTester {
             reasonForRefund: 'BUYER_CANCEL',
             refundItems: [],
           }),
-        { orderId: this.collectedIds.orderId, reason: 'BUYER_CANCEL' }
+        { orderId: this.collectedIds.orderId, reason: 'BUYER_CANCEL' },
       );
     }
 
@@ -1290,7 +1290,7 @@ class EndpointTester {
       'getPaymentDisputeSummaries',
       'GET /sell/fulfillment/v1/payment_dispute_summary',
       () => this.api.dispute.getPaymentDisputeSummaries({ limit: 5 }),
-      { limit: 5 }
+      { limit: 5 },
     );
 
     if (this.collectedIds.paymentDisputeId) {
@@ -1299,7 +1299,7 @@ class EndpointTester {
         'getPaymentDispute',
         'GET /sell/fulfillment/v1/payment_dispute/{payment_dispute_id}',
         () => this.api.dispute.getPaymentDispute(this.collectedIds.paymentDisputeId!),
-        { payment_dispute_id: this.collectedIds.paymentDisputeId }
+        { payment_dispute_id: this.collectedIds.paymentDisputeId },
       );
 
       await this.testEndpoint(
@@ -1307,7 +1307,7 @@ class EndpointTester {
         'getActivities',
         'GET /sell/fulfillment/v1/payment_dispute/{payment_dispute_id}/activity',
         () => this.api.dispute.getActivities(this.collectedIds.paymentDisputeId!),
-        { payment_dispute_id: this.collectedIds.paymentDisputeId }
+        { payment_dispute_id: this.collectedIds.paymentDisputeId },
       );
 
       // Respond to dispute
@@ -1325,7 +1325,7 @@ class EndpointTester {
               countryCode: 'US',
             },
           } as any),
-        { payment_dispute_id: this.collectedIds.paymentDisputeId }
+        { payment_dispute_id: this.collectedIds.paymentDisputeId },
       );
 
       await this.testEndpoint(
@@ -1334,7 +1334,7 @@ class EndpointTester {
         'POST /sell/fulfillment/v1/payment_dispute/{payment_dispute_id}/accept',
         () =>
           this.api.fulfillment.acceptPaymentDispute(this.collectedIds.paymentDisputeId!, {} as any),
-        { payment_dispute_id: this.collectedIds.paymentDisputeId }
+        { payment_dispute_id: this.collectedIds.paymentDisputeId },
       );
 
       await this.testEndpoint(
@@ -1346,7 +1346,7 @@ class EndpointTester {
             evidenceType: 'PROOF_OF_DELIVERY',
             files: [],
           } as any),
-        { payment_dispute_id: this.collectedIds.paymentDisputeId }
+        { payment_dispute_id: this.collectedIds.paymentDisputeId },
       );
 
       await this.testEndpoint(
@@ -1358,7 +1358,7 @@ class EndpointTester {
             evidenceId: 'test-evidence-id',
             files: [],
           } as any),
-        { payment_dispute_id: this.collectedIds.paymentDisputeId }
+        { payment_dispute_id: this.collectedIds.paymentDisputeId },
       );
 
       await this.testEndpoint(
@@ -1367,7 +1367,7 @@ class EndpointTester {
         'POST /sell/fulfillment/v1/payment_dispute/{payment_dispute_id}/upload_evidence_file',
         () =>
           this.api.fulfillment.uploadEvidenceFile(this.collectedIds.paymentDisputeId!, {} as any),
-        { payment_dispute_id: this.collectedIds.paymentDisputeId }
+        { payment_dispute_id: this.collectedIds.paymentDisputeId },
       );
     }
 
@@ -1383,7 +1383,7 @@ class EndpointTester {
       'getCampaigns',
       'GET /sell/marketing/v1/ad_campaign',
       () => this.api.marketing.getCampaigns({ limit: 5 }),
-      { limit: 5 }
+      { limit: 5 },
     );
 
     // CREATE campaign
@@ -1407,7 +1407,7 @@ class EndpointTester {
         createdCampaignId = result.campaignId;
         return result;
       },
-      testCampaign
+      testCampaign,
     );
 
     if (createdCampaignId) {
@@ -1417,7 +1417,7 @@ class EndpointTester {
         'getCampaign (created)',
         'GET /sell/marketing/v1/ad_campaign/{campaign_id}',
         () => this.api.marketing.getCampaign(createdCampaignId!),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       // UPDATE campaign identification
@@ -1429,7 +1429,7 @@ class EndpointTester {
           this.api.marketing.updateCampaignIdentification(createdCampaignId!, {
             campaignName: `Updated Campaign ${Date.now()}`,
           }),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       // Update campaign budget
@@ -1441,7 +1441,7 @@ class EndpointTester {
           this.api.marketing.updateCampaignBudget(createdCampaignId!, {
             budget: { value: '100.00', currency: 'USD' },
           }),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       // Update bidding strategy
@@ -1453,7 +1453,7 @@ class EndpointTester {
           this.api.marketing.updateBiddingStrategy(createdCampaignId!, {
             bidPercentage: '7.5',
           }),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       // Ad Groups management
@@ -1462,7 +1462,7 @@ class EndpointTester {
         'getAdGroups',
         'GET /sell/marketing/v1/ad_campaign/{campaign_id}/ad_group',
         () => this.api.marketing.getAdGroups(createdCampaignId!, { limit: 5 }),
-        { campaign_id: createdCampaignId, limit: 5 }
+        { campaign_id: createdCampaignId, limit: 5 },
       );
 
       // CREATE ad group
@@ -1479,7 +1479,7 @@ class EndpointTester {
           createdAdGroupId = result.adGroupId;
           return result;
         },
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       if (createdAdGroupId) {
@@ -1489,7 +1489,7 @@ class EndpointTester {
           'getAdGroup',
           'GET /sell/marketing/v1/ad_campaign/{campaign_id}/ad_group/{ad_group_id}',
           () => this.api.marketing.getAdGroup(createdCampaignId!, createdAdGroupId!),
-          { campaign_id: createdCampaignId, ad_group_id: createdAdGroupId }
+          { campaign_id: createdCampaignId, ad_group_id: createdAdGroupId },
         );
 
         // UPDATE ad group
@@ -1501,7 +1501,7 @@ class EndpointTester {
             this.api.marketing.updateAdGroup(createdCampaignId!, createdAdGroupId!, {
               adGroupName: `Updated Ad Group ${Date.now()}`,
             }),
-          { campaign_id: createdCampaignId, ad_group_id: createdAdGroupId }
+          { campaign_id: createdCampaignId, ad_group_id: createdAdGroupId },
         );
 
         // Suggest bids
@@ -1510,7 +1510,7 @@ class EndpointTester {
           'suggestBids',
           'POST /sell/marketing/v1/ad_campaign/{campaign_id}/ad_group/{ad_group_id}/suggest_bids',
           () => this.api.marketing.suggestBids(createdCampaignId!, createdAdGroupId!, {} as any),
-          { campaign_id: createdCampaignId, ad_group_id: createdAdGroupId }
+          { campaign_id: createdCampaignId, ad_group_id: createdAdGroupId },
         );
 
         // Suggest keywords
@@ -1522,7 +1522,7 @@ class EndpointTester {
             this.api.marketing.suggestKeywords(createdCampaignId!, createdAdGroupId!, {
               adGroupId: createdAdGroupId,
             }),
-          { campaign_id: createdCampaignId, ad_group_id: createdAdGroupId }
+          { campaign_id: createdCampaignId, ad_group_id: createdAdGroupId },
         );
       }
 
@@ -1532,7 +1532,7 @@ class EndpointTester {
         'getAds',
         'GET /sell/marketing/v1/ad_campaign/{campaign_id}/ad',
         () => this.api.marketing.getAds(createdCampaignId!, { limit: 5 }),
-        { campaign_id: createdCampaignId, limit: 5 }
+        { campaign_id: createdCampaignId, limit: 5 },
       );
 
       // Bulk operations for ads
@@ -1544,7 +1544,7 @@ class EndpointTester {
           this.api.marketing.bulkCreateAdsByInventoryReference(createdCampaignId!, {
             requests: [],
           }),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       await this.testEndpoint(
@@ -1555,7 +1555,7 @@ class EndpointTester {
           this.api.marketing.bulkUpdateAdsBidByInventoryReference(createdCampaignId!, {
             requests: [],
           }),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       await this.testEndpoint(
@@ -1563,7 +1563,7 @@ class EndpointTester {
         'bulkUpdateAdsStatus',
         'POST /sell/marketing/v1/ad_campaign/{campaign_id}/bulk_update_ads_status',
         () => this.api.marketing.bulkUpdateAdsStatus(createdCampaignId!, { requests: [] }),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       await this.testEndpoint(
@@ -1574,7 +1574,7 @@ class EndpointTester {
           this.api.marketing.bulkDeleteAdsByInventoryReference(createdCampaignId!, {
             requests: [],
           }),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       // Keywords management
@@ -1583,7 +1583,7 @@ class EndpointTester {
         'getKeywords',
         'GET /sell/marketing/v1/ad_campaign/{campaign_id}/keyword',
         () => this.api.marketing.getKeywords(createdCampaignId!, { limit: 5 }),
-        { campaign_id: createdCampaignId, limit: 5 }
+        { campaign_id: createdCampaignId, limit: 5 },
       );
 
       await this.testEndpoint(
@@ -1591,7 +1591,7 @@ class EndpointTester {
         'bulkCreateKeyword',
         'POST /sell/marketing/v1/ad_campaign/{campaign_id}/bulk_create_keyword',
         () => this.api.marketing.bulkCreateKeyword(createdCampaignId!, { keywords: [] }),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       await this.testEndpoint(
@@ -1599,7 +1599,7 @@ class EndpointTester {
         'bulkUpdateKeyword',
         'POST /sell/marketing/v1/ad_campaign/{campaign_id}/bulk_update_keyword',
         () => this.api.marketing.bulkUpdateKeyword(createdCampaignId!, { keywords: [] }),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       // Negative keywords
@@ -1608,7 +1608,7 @@ class EndpointTester {
         'getNegativeKeywords',
         'GET /sell/marketing/v1/negative_keyword',
         () => this.api.marketing.getNegativeKeywords(createdCampaignId, undefined, undefined, 5),
-        { campaign_ids: createdCampaignId, limit: 5 }
+        { campaign_ids: createdCampaignId, limit: 5 },
       );
 
       await this.testEndpoint(
@@ -1616,7 +1616,7 @@ class EndpointTester {
         'bulkCreateNegativeKeyword',
         'POST /sell/marketing/v1/bulk_create_negative_keyword',
         () => this.api.marketing.bulkCreateNegativeKeywords({ requests: [] }),
-        {}
+        {},
       );
 
       await this.testEndpoint(
@@ -1624,7 +1624,7 @@ class EndpointTester {
         'bulkUpdateNegativeKeyword',
         'POST /sell/marketing/v1/bulk_update_negative_keyword',
         () => this.api.marketing.bulkUpdateNegativeKeywords({ requests: [] }),
-        {}
+        {},
       );
 
       // Campaign state management
@@ -1633,7 +1633,7 @@ class EndpointTester {
         'pauseCampaign',
         'POST /sell/marketing/v1/ad_campaign/{campaign_id}/pause',
         () => this.api.marketing.pauseCampaign(createdCampaignId!),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       await this.testEndpoint(
@@ -1641,7 +1641,7 @@ class EndpointTester {
         'resumeCampaign',
         'POST /sell/marketing/v1/ad_campaign/{campaign_id}/resume',
         () => this.api.marketing.resumeCampaign(createdCampaignId!),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       await this.testEndpoint(
@@ -1649,7 +1649,7 @@ class EndpointTester {
         'endCampaign',
         'POST /sell/marketing/v1/ad_campaign/{campaign_id}/end',
         () => this.api.marketing.endCampaign(createdCampaignId!),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
 
       // DELETE campaign
@@ -1658,7 +1658,7 @@ class EndpointTester {
         'deleteCampaign',
         'DELETE /sell/marketing/v1/ad_campaign/{campaign_id}',
         () => this.api.marketing.deleteCampaign(createdCampaignId!),
-        { campaign_id: createdCampaignId }
+        { campaign_id: createdCampaignId },
       );
     }
 
@@ -1672,7 +1672,7 @@ class EndpointTester {
           inventoryReferenceId: 'test-id',
           inventoryReferenceType: 'INVENTORY_ITEM',
         } as any),
-      { referenceId: 'test-id' }
+      { referenceId: 'test-id' },
     );
 
     await this.testEndpoint(
@@ -1680,7 +1680,7 @@ class EndpointTester {
       'getCampaignByName',
       'GET /sell/marketing/v1/ad_campaign/get_campaign_by_name',
       () => this.api.marketing.getCampaignByName('Test Campaign', 'EBAY_US'),
-      { campaignName: 'Test Campaign', marketplace_id: 'EBAY_US' }
+      { campaignName: 'Test Campaign', marketplace_id: 'EBAY_US' },
     );
 
     await this.testEndpoint(
@@ -1688,7 +1688,7 @@ class EndpointTester {
       'suggestBudget',
       'POST /sell/marketing/v1/ad_campaign/suggest_budget',
       () => this.api.marketing.suggestBudget({ marketplaceId: 'EBAY_US' } as any),
-      { marketplace_id: 'EBAY_US' }
+      { marketplace_id: 'EBAY_US' },
     );
 
     // Promotions (30+ endpoints)
@@ -1697,7 +1697,7 @@ class EndpointTester {
       'getPromotions',
       'GET /sell/marketing/v1/promotion',
       () => this.api.marketing.getPromotions('EBAY_US', 5),
-      { marketplace_id: 'EBAY_US', limit: 5 }
+      { marketplace_id: 'EBAY_US', limit: 5 },
     );
 
     await this.testEndpoint(
@@ -1705,7 +1705,7 @@ class EndpointTester {
       'getPromotionSummaryReport',
       'GET /sell/marketing/v1/promotion_summary_report',
       () => this.api.marketing.getPromotionSummaryReport('EBAY_US'),
-      { marketplace_id: 'EBAY_US' }
+      { marketplace_id: 'EBAY_US' },
     );
 
     await this.testEndpoint(
@@ -1713,7 +1713,7 @@ class EndpointTester {
       'getPromotionReport',
       'GET /sell/marketing/v1/promotion_report',
       () => this.api.marketing.getPromotionReport('EBAY_US'),
-      { marketplace_id: 'EBAY_US' }
+      { marketplace_id: 'EBAY_US' },
     );
 
     // CREATE item promotion
@@ -1745,7 +1745,7 @@ class EndpointTester {
         createdPromotionId = result.promotionId;
         return result;
       },
-      testPromotion
+      testPromotion,
     );
 
     if (createdPromotionId) {
@@ -1754,7 +1754,7 @@ class EndpointTester {
         'getPromotion (created)',
         'GET /sell/marketing/v1/promotion/{promotion_id}',
         () => this.api.marketing.getPromotion(createdPromotionId!),
-        { promotion_id: createdPromotionId }
+        { promotion_id: createdPromotionId },
       );
 
       await this.testEndpoint(
@@ -1762,7 +1762,7 @@ class EndpointTester {
         'getItemPromotion',
         'GET /sell/marketing/v1/item_promotion/{promotion_id}',
         () => this.api.marketing.getItemPromotion(createdPromotionId!),
-        { promotion_id: createdPromotionId }
+        { promotion_id: createdPromotionId },
       );
 
       await this.testEndpoint(
@@ -1774,7 +1774,7 @@ class EndpointTester {
             ...testPromotion,
             name: `Updated Promotion ${Date.now()}`,
           }),
-        { promotion_id: createdPromotionId }
+        { promotion_id: createdPromotionId },
       );
 
       await this.testEndpoint(
@@ -1782,7 +1782,7 @@ class EndpointTester {
         'pausePromotion',
         'POST /sell/marketing/v1/promotion/{promotion_id}/pause',
         () => this.api.marketing.pausePromotion(createdPromotionId!),
-        { promotion_id: createdPromotionId }
+        { promotion_id: createdPromotionId },
       );
 
       await this.testEndpoint(
@@ -1790,7 +1790,7 @@ class EndpointTester {
         'resumePromotion',
         'POST /sell/marketing/v1/promotion/{promotion_id}/resume',
         () => this.api.marketing.resumePromotion(createdPromotionId!),
-        { promotion_id: createdPromotionId }
+        { promotion_id: createdPromotionId },
       );
 
       await this.testEndpoint(
@@ -1798,7 +1798,7 @@ class EndpointTester {
         'deletePromotion',
         'DELETE /sell/marketing/v1/promotion/{promotion_id}',
         () => this.api.marketing.deletePromotion(createdPromotionId!),
-        { promotion_id: createdPromotionId }
+        { promotion_id: createdPromotionId },
       );
     }
 
@@ -1809,7 +1809,7 @@ class EndpointTester {
         'getCampaign (existing)',
         'GET /sell/marketing/v1/ad_campaign/{campaign_id}',
         () => this.api.marketing.getCampaign(this.collectedIds.campaignId!),
-        { campaign_id: this.collectedIds.campaignId }
+        { campaign_id: this.collectedIds.campaignId },
       );
     }
 
@@ -1819,7 +1819,7 @@ class EndpointTester {
         'getPromotion (existing)',
         'GET /sell/marketing/v1/promotion/{promotion_id}',
         () => this.api.marketing.getPromotion(this.collectedIds.promotionId!),
-        { promotion_id: this.collectedIds.promotionId }
+        { promotion_id: this.collectedIds.promotionId },
       );
     }
 
@@ -1834,13 +1834,13 @@ class EndpointTester {
       'getTrafficReport',
       'GET /sell/analytics/v1/traffic_report',
       () => this.api.analytics.getTrafficReport('LISTING_ID', 'filter', 'CLICK_THROUGH_RATE'),
-      { dimension: 'LISTING_ID', filter: 'filter', metric: 'CLICK_THROUGH_RATE' }
+      { dimension: 'LISTING_ID', filter: 'filter', metric: 'CLICK_THROUGH_RATE' },
     );
     await this.testEndpoint(
       'Analytics',
       'getSellerStandardsProfile',
       'GET /sell/analytics/v1/seller_standards_profile',
-      () => this.api.analytics.getSellerStandardsProfile('COMPLIANCE', 'CURRENT')
+      () => this.api.analytics.getSellerStandardsProfile('COMPLIANCE', 'CURRENT'),
     );
     await this.testEndpoint(
       'Analytics',
@@ -1852,13 +1852,13 @@ class EndpointTester {
         customerServiceMetricType: 'ITEM_NOT_AS_DESCRIBED',
         evaluationType: 'CURRENT',
         evaluationMarketplaceId: 'EBAY_US',
-      }
+      },
     );
     await this.testEndpoint(
       'Analytics',
       'findSellerStandardsProfiles',
       'GET /sell/analytics/v1/seller_standards_profile/find',
-      () => this.api.analytics.findSellerStandardsProfiles()
+      () => this.api.analytics.findSellerStandardsProfiles(),
     );
 
     console.log('');
@@ -1872,28 +1872,28 @@ class EndpointTester {
       'getAutomotivePartsCompatibilityPolicies',
       'GET /sell/metadata/v1/automotive_parts_compatibility_policy',
       () => this.api.metadata.getAutomotivePartsCompatibilityPolicies('EBAY_US'),
-      { marketplace_id: 'EBAY_US' }
+      { marketplace_id: 'EBAY_US' },
     );
     await this.testEndpoint(
       'Metadata',
       'getListingStructurePolicies',
       'GET /sell/metadata/v1/marketplace/{marketplace_id}/listing_structure_policy',
       () => this.api.metadata.getListingStructurePolicies('EBAY_US'),
-      { marketplace_id: 'EBAY_US' }
+      { marketplace_id: 'EBAY_US' },
     );
     await this.testEndpoint(
       'Metadata',
       'getReturnPolicies',
       'GET /sell/metadata/v1/marketplace/{marketplace_id}/return_policy',
       () => this.api.metadata.getReturnPolicies('EBAY_US'),
-      { marketplace_id: 'EBAY_US' }
+      { marketplace_id: 'EBAY_US' },
     );
     await this.testEndpoint(
       'Metadata',
       'getExtendedProducerResponsibilityPolicies',
       'GET /sell/metadata/v1/marketplace/{marketplace_id}/extended_producer_responsibility_policy',
       () => this.api.metadata.getExtendedProducerResponsibilityPolicies('EBAY_US'),
-      { marketplace_id: 'EBAY_US' }
+      { marketplace_id: 'EBAY_US' },
     );
 
     console.log('');
@@ -1907,35 +1907,35 @@ class EndpointTester {
       'getCategoryTree',
       'GET /commerce/taxonomy/v1/category_tree/{category_tree_id}',
       () => this.api.taxonomy.getCategoryTree('0'),
-      { category_tree_id: '0' }
+      { category_tree_id: '0' },
     );
     await this.testEndpoint(
       'Taxonomy',
       'getCategorySubtree',
       'GET /commerce/taxonomy/v1/category_tree/{category_tree_id}/get_category_subtree',
       () => this.api.taxonomy.getCategorySubtree('0', '1'),
-      { category_tree_id: '0', category_id: '1' }
+      { category_tree_id: '0', category_id: '1' },
     );
     await this.testEndpoint(
       'Taxonomy',
       'getCategorySuggestions',
       'GET /commerce/taxonomy/v1/category_tree/{category_tree_id}/get_category_suggestions',
       () => this.api.taxonomy.getCategorySuggestions('0', 'laptop'),
-      { category_tree_id: '0', q: 'laptop' }
+      { category_tree_id: '0', q: 'laptop' },
     );
     await this.testEndpoint(
       'Taxonomy',
       'getItemAspectsForCategory',
       'GET /commerce/taxonomy/v1/category_tree/{category_tree_id}/get_item_aspects_for_category',
       () => this.api.taxonomy.getItemAspectsForCategory('0', '1'),
-      { category_tree_id: '0', category_id: '1' }
+      { category_tree_id: '0', category_id: '1' },
     );
     await this.testEndpoint(
       'Taxonomy',
       'getDefaultCategoryTreeId',
       'GET /commerce/taxonomy/v1/get_default_category_tree_id',
       () => this.api.taxonomy.getDefaultCategoryTreeId('EBAY_US'),
-      { marketplace_id: 'EBAY_US' }
+      { marketplace_id: 'EBAY_US' },
     );
 
     console.log('');
@@ -1946,7 +1946,7 @@ class EndpointTester {
 
     // Identity API (1 endpoint)
     await this.testEndpoint('Other', 'getUser', 'GET /commerce/identity/v1/user', () =>
-      this.api.identity.getUser()
+      this.api.identity.getUser(),
     );
 
     // Negotiation API (2 endpoints)
@@ -1955,7 +1955,7 @@ class EndpointTester {
       'getOffersToBuyers',
       'GET /sell/negotiation/v1/offer',
       () => this.api.negotiation.getOffersToBuyers(undefined, 5),
-      { limit: 5 }
+      { limit: 5 },
     );
 
     // Compliance API (1 endpoint)
@@ -1964,7 +1964,7 @@ class EndpointTester {
       'getListingViolations',
       'GET /sell/compliance/v1/listing_violation',
       () => this.api.compliance.getListingViolations(undefined, undefined, 5),
-      { limit: 5 }
+      { limit: 5 },
     );
 
     console.log('');
@@ -2162,7 +2162,7 @@ class EndpointTester {
     console.log(`\n📊 Results:`);
     console.log(`  Total:   ${summary.totalTests}`);
     console.log(
-      `  ✅ Pass:  ${summary.passed} (${((summary.passed / totalTests) * 100).toFixed(1)}%)`
+      `  ✅ Pass:  ${summary.passed} (${((summary.passed / totalTests) * 100).toFixed(1)}%)`,
     );
     console.log(`  ❌ Fail:  ${summary.failed}`);
     console.log(`  ⏭️  Skip:  ${summary.skipped}`);

@@ -41,7 +41,7 @@ export const translateSchema = z.object({
         invalid_type_error: 'text must be an array',
         description:
           'Array of text to translate (max 1000 chars for ITEM_TITLE, 20,000 for ITEM_DESCRIPTION)',
-      }
+      },
     )
     .optional(),
 });

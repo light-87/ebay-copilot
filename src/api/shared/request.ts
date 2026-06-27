@@ -11,7 +11,7 @@ export type QueryParams = Record<string, string | number>;
  */
 export async function withApiError<T>(
   failureMessage: string,
-  operation: () => Promise<T>
+  operation: () => Promise<T>,
 ): Promise<T> {
   try {
     return await operation();
@@ -105,7 +105,7 @@ export function optionalNonNegativeNumberParam(value: unknown, name: string): nu
 export function buildValidatedPaginatedParams(
   filter?: string,
   limit?: number,
-  offset?: number
+  offset?: number,
 ): QueryParams {
   const params: QueryParams = {};
   const validatedFilter = optionalStringParam(filter, 'filter');
@@ -153,10 +153,10 @@ export async function getWithApiError<T = unknown>(
   client: EbayApiClient,
   path: string,
   failureMessage: string,
-  params?: QueryParams
+  params?: QueryParams,
 ): Promise<T> {
   return await withApiError(failureMessage, () =>
-    params === undefined ? client.get<T>(path) : client.get<T>(path, params)
+    params === undefined ? client.get<T>(path) : client.get<T>(path, params),
   );
 }
 
@@ -167,7 +167,7 @@ export async function postWithApiError<T = unknown>(
   client: EbayApiClient,
   path: string,
   failureMessage: string,
-  body?: unknown
+  body?: unknown,
 ): Promise<T> {
   return await withApiError(failureMessage, () => client.post<T>(path, body));
 }
@@ -179,7 +179,7 @@ export async function putWithApiError<T = unknown>(
   client: EbayApiClient,
   path: string,
   failureMessage: string,
-  body?: unknown
+  body?: unknown,
 ): Promise<T> {
   return await withApiError(failureMessage, () => client.put<T>(path, body));
 }
@@ -190,7 +190,7 @@ export async function putWithApiError<T = unknown>(
 export async function deleteWithApiError<T = unknown>(
   client: EbayApiClient,
   path: string,
-  failureMessage: string
+  failureMessage: string,
 ): Promise<T> {
   return await withApiError(failureMessage, () => client.delete<T>(path));
 }

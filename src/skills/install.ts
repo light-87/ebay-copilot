@@ -83,7 +83,7 @@ export interface ApplyResult {
  */
 export function applyWrite(
   plan: WritePlan,
-  options: { dryRun?: boolean; force?: boolean } = {}
+  options: { dryRun?: boolean; force?: boolean } = {},
 ): ApplyResult {
   const isNoop = plan.action === 'unchanged';
   const isBlockedForeign = plan.action === 'skip-foreign' && !options.force;

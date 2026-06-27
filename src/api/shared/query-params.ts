@@ -6,7 +6,7 @@ import type { QueryParams } from './request.js';
 export function buildTruthyPaginatedParams(
   filter?: string,
   limit?: number,
-  offset?: number
+  offset?: number,
 ): QueryParams {
   const params: QueryParams = {};
 

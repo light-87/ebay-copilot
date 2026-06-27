@@ -158,7 +158,7 @@ describe('EbayApiClient Unit Tests', () => {
         .reply(429, { error: 'Rate limit exceeded' }, { 'retry-after': '60' });
 
       await expect(apiClient.get('/sell/inventory/v1/test')).rejects.toThrow(
-        /eBay API rate limit exceeded.*60 seconds/
+        /eBay API rate limit exceeded.*60 seconds/,
       );
     });
 
@@ -168,7 +168,7 @@ describe('EbayApiClient Unit Tests', () => {
         .reply(429, { error: 'Rate limit exceeded' });
 
       await expect(apiClient.get('/sell/inventory/v1/test')).rejects.toThrow(
-        /eBay API rate limit exceeded.*60 seconds/
+        /eBay API rate limit exceeded.*60 seconds/,
       );
     });
   });
@@ -276,14 +276,14 @@ describe('EbayApiClient Unit Tests', () => {
         {
           'x-ebay-c-ratelimit-remaining': '4500',
           'x-ebay-c-ratelimit-limit': '5000',
-        }
+        },
       );
 
       await apiClient.get('/sell/inventory/v1/test');
 
       // Check that rate limit info was logged (could be in detailed debug format)
       const rateLimitCalls = apiHttpSpy.mock.calls.filter(
-        (call) => (call[1] as { rateLimit?: string } | undefined)?.rateLimit === '4500/5000'
+        (call) => (call[1] as { rateLimit?: string } | undefined)?.rateLimit === '4500/5000',
       );
       expect(rateLimitCalls.length).toBeGreaterThan(0);
 
@@ -301,7 +301,7 @@ describe('EbayApiClient Unit Tests', () => {
 
       // Should not have been called with rate limit message
       const rateLimitCalls = apiHttpSpy.mock.calls.filter(
-        (call) => (call[1] as { rateLimit?: string } | undefined)?.rateLimit
+        (call) => (call[1] as { rateLimit?: string } | undefined)?.rateLimit,
       );
       expect(rateLimitCalls).toHaveLength(0);
 
@@ -326,7 +326,7 @@ describe('EbayApiClient Unit Tests', () => {
         'new-access-token',
         'new-refresh-token',
         Date.now() + 7200000,
-        Date.now() + 47304000000
+        Date.now() + 47304000000,
       );
 
       expect(mockOAuthClient.setUserTokens).toHaveBeenCalled();

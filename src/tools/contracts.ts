@@ -47,7 +47,7 @@ function isZodLikeSchema(schema: unknown): boolean {
 
 /** Validates tool contracts for unique names, descriptions, input schemas, and output schemas. */
 export function validateToolContracts(
-  contracts: ToolContract[] = getToolContracts()
+  contracts: ToolContract[] = getToolContracts(),
 ): ToolContractValidation {
   const seenNames = new Set<string>();
   const duplicateContracts = new Set<string>();

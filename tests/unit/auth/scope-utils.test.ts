@@ -20,7 +20,7 @@ describe('Scope Utils', () => {
           'https://api.ebay.com/oauth/api_scope/sell.inventory',
           'https://api.ebay.com/oauth/api_scope/sell.fulfillment',
         ],
-        'production'
+        'production',
       );
 
       expect(result.isValid).toBe(true);
@@ -34,7 +34,7 @@ describe('Scope Utils', () => {
           'https://api.ebay.com/oauth/api_scope/sell.inventory',
           'https://api.ebay.com/oauth/api_scope/invalid.scope',
         ],
-        'production'
+        'production',
       );
 
       expect(result.isValid).toBe(false);
@@ -48,7 +48,7 @@ describe('Scope Utils', () => {
           'https://api.ebay.com/oauth/api_scope/sell.inventory',
           'https://api.ebay.com/oauth/api_scope/buy.order.readonly',
         ],
-        'sandbox'
+        'sandbox',
       );
 
       expect(result.validScopes).toContain('https://api.ebay.com/oauth/api_scope/sell.inventory');
@@ -61,10 +61,10 @@ describe('Scope Utils', () => {
 
       expect(requirement).toBeDefined();
       expect(requirement?.requiredScopes).toContain(
-        'https://api.ebay.com/oauth/api_scope/sell.inventory.readonly'
+        'https://api.ebay.com/oauth/api_scope/sell.inventory.readonly',
       );
       expect(requirement?.minimumScope).toBe(
-        'https://api.ebay.com/oauth/api_scope/sell.inventory.readonly'
+        'https://api.ebay.com/oauth/api_scope/sell.inventory.readonly',
       );
     });
 
@@ -73,7 +73,7 @@ describe('Scope Utils', () => {
 
       expect(requirement).toBeDefined();
       expect(requirement?.requiredScopes).toContain(
-        'https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly'
+        'https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly',
       );
     });
 
@@ -98,7 +98,7 @@ describe('Scope Utils', () => {
       expect(requirement).toBeDefined();
       expect(requirement?.optionalScopes).toBeDefined();
       expect(requirement?.optionalScopes).toContain(
-        'https://api.ebay.com/oauth/api_scope/sell.account'
+        'https://api.ebay.com/oauth/api_scope/sell.account',
       );
     });
   });
@@ -155,7 +155,7 @@ describe('Scope Utils', () => {
 
       // Sell inventory should be in both
       expect(diff.inBothEnvironments).toContain(
-        'https://api.ebay.com/oauth/api_scope/sell.inventory'
+        'https://api.ebay.com/oauth/api_scope/sell.inventory',
       );
     });
 
@@ -181,7 +181,7 @@ describe('Scope Utils', () => {
   describe('formatScopeForDisplay', () => {
     it('should remove common eBay prefix', () => {
       const formatted = formatScopeForDisplay(
-        'https://api.ebay.com/oauth/api_scope/sell.inventory'
+        'https://api.ebay.com/oauth/api_scope/sell.inventory',
       );
 
       expect(formatted).toBe('api_scope/sell.inventory');
@@ -208,7 +208,7 @@ describe('Scope Utils', () => {
       expect(grouped.sell).toContain('https://api.ebay.com/oauth/api_scope/sell.inventory');
       expect(grouped.buy).toContain('https://api.ebay.com/oauth/api_scope/buy.order.readonly');
       expect(grouped.commerce).toContain(
-        'https://api.ebay.com/oauth/api_scope/commerce.identity.readonly'
+        'https://api.ebay.com/oauth/api_scope/commerce.identity.readonly',
       );
       expect(grouped.other).toContain('custom:scope');
     });
@@ -226,10 +226,10 @@ describe('Scope Utils', () => {
   describe('isScopeReadonly', () => {
     it('should identify readonly scopes', () => {
       expect(isScopeReadonly('https://api.ebay.com/oauth/api_scope/sell.inventory.readonly')).toBe(
-        true
+        true,
       );
       expect(
-        isScopeReadonly('https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly')
+        isScopeReadonly('https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly'),
       ).toBe(true);
     });
 
@@ -242,7 +242,7 @@ describe('Scope Utils', () => {
   describe('getWriteScope', () => {
     it('should convert readonly scope to write scope', () => {
       const writeScope = getWriteScope(
-        'https://api.ebay.com/oauth/api_scope/sell.inventory.readonly'
+        'https://api.ebay.com/oauth/api_scope/sell.inventory.readonly',
       );
 
       expect(writeScope).toBe('https://api.ebay.com/oauth/api_scope/sell.inventory');
@@ -264,7 +264,7 @@ describe('Scope Utils', () => {
 
     it('should return null for readonly scope', () => {
       const readonlyScope = getReadonlyScope(
-        'https://api.ebay.com/oauth/api_scope/sell.inventory.readonly'
+        'https://api.ebay.com/oauth/api_scope/sell.inventory.readonly',
       );
 
       expect(readonlyScope).toBeNull();
@@ -280,15 +280,15 @@ describe('Scope Utils', () => {
   describe('getScopeDescription', () => {
     it('should return description for known scopes', () => {
       expect(getScopeDescription('https://api.ebay.com/oauth/api_scope/sell.inventory')).toBe(
-        'View and manage your inventory and offers'
+        'View and manage your inventory and offers',
       );
 
       expect(
-        getScopeDescription('https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly')
+        getScopeDescription('https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly'),
       ).toBe('View your order fulfillments');
 
       expect(
-        getScopeDescription('https://api.ebay.com/oauth/api_scope/commerce.identity.readonly')
+        getScopeDescription('https://api.ebay.com/oauth/api_scope/commerce.identity.readonly'),
       ).toBe('View basic user information from eBay account');
     });
 

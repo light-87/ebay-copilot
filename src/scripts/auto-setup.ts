@@ -116,17 +116,17 @@ function getAutoSetupConfigPaths(): Record<string, string> {
   if (os === 'darwin') {
     paths.cline = join(
       home,
-      'Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json'
+      'Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json',
     );
   } else if (os === 'win32') {
     paths.cline = join(
       home,
-      'AppData/Roaming/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json'
+      'AppData/Roaming/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json',
     );
   } else {
     paths.cline = join(
       home,
-      '.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json'
+      '.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json',
     );
   }
 
@@ -152,17 +152,17 @@ function getAutoSetupConfigPaths(): Record<string, string> {
   if (os === 'darwin') {
     paths.roocode = join(
       home,
-      'Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json'
+      'Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json',
     );
   } else if (os === 'win32') {
     paths.roocode = join(
       home,
-      'AppData/Roaming/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json'
+      'AppData/Roaming/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json',
     );
   } else {
     paths.roocode = join(
       home,
-      '.config/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json'
+      '.config/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json',
     );
   }
 
@@ -293,7 +293,7 @@ function updateClientConfig(client: MCPClient, serverConfig: MCPServerConfig): b
 
         // Check if eBay server already exists and update/add
         const existingIndex = mcpServers.findIndex(
-          (server) => server.command === 'node' && server.args?.[0]?.includes('ebay-mcp')
+          (server) => server.command === 'node' && server.args?.[0]?.includes('ebay-mcp'),
         );
         if (existingIndex >= 0) {
           mcpServers[existingIndex] = serverConfig;
@@ -372,7 +372,7 @@ function validateAutoSetupEnvironment(): { valid: boolean; errors: string[]; war
 
   if (!process.env.EBAY_REDIRECT_URI) {
     warnings.push(
-      'EBAY_REDIRECT_URI is not set - user OAuth flow will not work. This is required for 10k-50k req/day rate limits.'
+      'EBAY_REDIRECT_URI is not set - user OAuth flow will not work. This is required for 10k-50k req/day rate limits.',
     );
   }
 
@@ -421,7 +421,7 @@ function main(): void {
   if (detectedClients.length === 0) {
     printWarning('No MCP clients detected on this system');
     printInfo(
-      'Supported clients: Claude Desktop, Cline, Continue.dev, Zed, Cursor, Windsurf, Roo Code, Claude Code CLI, Amazon Q'
+      'Supported clients: Claude Desktop, Cline, Continue.dev, Zed, Cursor, Windsurf, Roo Code, Claude Code CLI, Amazon Q',
     );
     printInfo('Install a client and run this script again');
   } else {
@@ -471,7 +471,7 @@ function main(): void {
     printInfo('No configurations generated (no MCP clients detected)');
     print('\n📝 To complete setup:', 'cyan');
     print(
-      '  1. Install an MCP client (Claude Desktop, Cline, Cursor, Zed, Windsurf, Continue.dev, Roo Code, Claude Code CLI, or Amazon Q)'
+      '  1. Install an MCP client (Claude Desktop, Cline, Cursor, Zed, Windsurf, Continue.dev, Roo Code, Claude Code CLI, or Amazon Q)',
     );
     print('  2. Run: npm run auto-setup');
   }

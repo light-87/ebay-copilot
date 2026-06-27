@@ -60,13 +60,13 @@ describe('Communication APIs', () => {
 
         expect(client.post).toHaveBeenCalledWith(
           '/sell/negotiation/v1/send_offer_to_interested_buyers',
-          offerData
+          offerData,
         );
       });
 
       it('should throw error when offerData is missing', async () => {
         await expect(api.sendOfferToInterestedBuyers(undefined as any)).rejects.toThrow(
-          'offerData is required'
+          'offerData is required',
         );
       });
     });
@@ -168,13 +168,13 @@ describe('Communication APIs', () => {
 
         expect(client.post).toHaveBeenCalledWith(
           '/commerce/message/v1/update_conversation',
-          updateData
+          updateData,
         );
       });
 
       it('should throw error when updateData is missing', async () => {
         await expect(api.updateConversation(undefined as any)).rejects.toThrow(
-          'updateData is required'
+          'updateData is required',
         );
       });
     });
@@ -189,13 +189,13 @@ describe('Communication APIs', () => {
 
         expect(client.post).toHaveBeenCalledWith(
           '/commerce/message/v1/bulk_update_conversation',
-          updateData
+          updateData,
         );
       });
 
       it('should throw error when updateData is missing', async () => {
         await expect(api.bulkUpdateConversation(undefined as any)).rejects.toThrow(
-          'updateData is required'
+          'updateData is required',
         );
       });
     });
@@ -259,7 +259,7 @@ describe('Communication APIs', () => {
         vi.mocked(client.post).mockRejectedValue(new Error('API Error'));
 
         await expect(api.updateConversation({ read: true })).rejects.toThrow(
-          'Failed to update conversation'
+          'Failed to update conversation',
         );
       });
 
@@ -267,7 +267,7 @@ describe('Communication APIs', () => {
         vi.mocked(client.post).mockRejectedValue(new Error('API Error'));
 
         await expect(api.bulkUpdateConversation({ ids: ['123'] })).rejects.toThrow(
-          'Failed to bulk update conversation'
+          'Failed to bulk update conversation',
         );
       });
 
@@ -277,13 +277,13 @@ describe('Communication APIs', () => {
 
       it('should validate limit parameter type', async () => {
         await expect(api.getConversations(undefined, 0)).rejects.toThrow(
-          'limit must be a positive number'
+          'limit must be a positive number',
         );
       });
 
       it('should validate offset parameter type', async () => {
         await expect(api.getConversations(undefined, undefined, -1)).rejects.toThrow(
-          'offset must be a non-negative number'
+          'offset must be a non-negative number',
         );
       });
     });
@@ -365,7 +365,7 @@ describe('Communication APIs', () => {
 
       it('should throw error when feedbackData is missing', async () => {
         await expect(api.leaveFeedbackForBuyer(undefined as any)).rejects.toThrow(
-          'feedbackData is required'
+          'feedbackData is required',
         );
       });
     });
@@ -385,13 +385,13 @@ describe('Communication APIs', () => {
 
       it('should throw error when feedbackId is missing', async () => {
         await expect(api.respondToFeedback('', 'response')).rejects.toThrow(
-          'feedbackId is required'
+          'feedbackId is required',
         );
       });
 
       it('should throw error when responseText is missing', async () => {
         await expect(api.respondToFeedback('feedback123', '')).rejects.toThrow(
-          'responseText is required'
+          'responseText is required',
         );
       });
     });
@@ -486,13 +486,13 @@ describe('Communication APIs', () => {
 
         expect(client.post).toHaveBeenCalledWith(
           '/commerce/notification/v1/destination',
-          destination
+          destination,
         );
       });
 
       it('should throw error when destination is missing', async () => {
         await expect(api.createDestination(undefined as any)).rejects.toThrow(
-          'destination is required'
+          'destination is required',
         );
       });
     });
@@ -507,19 +507,19 @@ describe('Communication APIs', () => {
 
         expect(client.put).toHaveBeenCalledWith(
           '/commerce/notification/v1/destination/dest123',
-          destination
+          destination,
         );
       });
 
       it('should throw error when destinationId is missing', async () => {
         await expect(api.updateDestination('', {} as any)).rejects.toThrow(
-          'destinationId is required'
+          'destinationId is required',
         );
       });
 
       it('should throw error when destination data is missing', async () => {
         await expect(api.updateDestination('dest123', undefined as any)).rejects.toThrow(
-          'destination is required'
+          'destination is required',
         );
       });
     });
@@ -571,13 +571,13 @@ describe('Communication APIs', () => {
 
         expect(client.post).toHaveBeenCalledWith(
           '/commerce/notification/v1/subscription',
-          subscription
+          subscription,
         );
       });
 
       it('should throw error when subscription is missing', async () => {
         await expect(api.createSubscription(undefined as any)).rejects.toThrow(
-          'subscription is required'
+          'subscription is required',
         );
       });
     });
@@ -607,19 +607,19 @@ describe('Communication APIs', () => {
 
         expect(client.put).toHaveBeenCalledWith(
           '/commerce/notification/v1/subscription/sub123',
-          subscription
+          subscription,
         );
       });
 
       it('should throw error when subscriptionId is missing', async () => {
         await expect(api.updateSubscription('', {} as any)).rejects.toThrow(
-          'subscriptionId is required'
+          'subscriptionId is required',
         );
       });
 
       it('should throw error when subscription data is missing', async () => {
         await expect(api.updateSubscription('sub123', undefined as any)).rejects.toThrow(
-          'subscription is required'
+          'subscription is required',
         );
       });
     });
@@ -647,7 +647,7 @@ describe('Communication APIs', () => {
 
         expect(client.post).toHaveBeenCalledWith(
           '/commerce/notification/v1/subscription/sub123/disable',
-          {}
+          {},
         );
       });
 
@@ -665,7 +665,7 @@ describe('Communication APIs', () => {
 
         expect(client.post).toHaveBeenCalledWith(
           '/commerce/notification/v1/subscription/sub123/enable',
-          {}
+          {},
         );
       });
 
@@ -683,7 +683,7 @@ describe('Communication APIs', () => {
 
         expect(client.post).toHaveBeenCalledWith(
           '/commerce/notification/v1/subscription/sub123/test',
-          {}
+          {},
         );
       });
 
@@ -740,19 +740,19 @@ describe('Communication APIs', () => {
 
         expect(client.post).toHaveBeenCalledWith(
           '/commerce/notification/v1/subscription/sub123/filter',
-          filter
+          filter,
         );
       });
 
       it('should throw error when subscriptionId is missing', async () => {
         await expect(api.createSubscriptionFilter('', {} as any)).rejects.toThrow(
-          'subscriptionId is required'
+          'subscriptionId is required',
         );
       });
 
       it('should throw error when filter is missing', async () => {
         await expect(api.createSubscriptionFilter('sub123', undefined as any)).rejects.toThrow(
-          'filter is required'
+          'filter is required',
         );
       });
     });
@@ -765,19 +765,19 @@ describe('Communication APIs', () => {
         await api.getSubscriptionFilter('sub123', 'filter123');
 
         expect(client.get).toHaveBeenCalledWith(
-          '/commerce/notification/v1/subscription/sub123/filter/filter123'
+          '/commerce/notification/v1/subscription/sub123/filter/filter123',
         );
       });
 
       it('should throw error when subscriptionId is missing', async () => {
         await expect(api.getSubscriptionFilter('', 'filter123')).rejects.toThrow(
-          'subscriptionId is required'
+          'subscriptionId is required',
         );
       });
 
       it('should throw error when filterId is missing', async () => {
         await expect(api.getSubscriptionFilter('sub123', '')).rejects.toThrow(
-          'filterId is required'
+          'filterId is required',
         );
       });
     });
@@ -789,19 +789,19 @@ describe('Communication APIs', () => {
         await api.deleteSubscriptionFilter('sub123', 'filter123');
 
         expect(client.delete).toHaveBeenCalledWith(
-          '/commerce/notification/v1/subscription/sub123/filter/filter123'
+          '/commerce/notification/v1/subscription/sub123/filter/filter123',
         );
       });
 
       it('should throw error when subscriptionId is missing', async () => {
         await expect(api.deleteSubscriptionFilter('', 'filter123')).rejects.toThrow(
-          'subscriptionId is required'
+          'subscriptionId is required',
         );
       });
 
       it('should throw error when filterId is missing', async () => {
         await expect(api.deleteSubscriptionFilter('sub123', '')).rejects.toThrow(
-          'filterId is required'
+          'filterId is required',
         );
       });
     });

@@ -34,7 +34,7 @@ describe('HTTP MCP transport', () => {
 
     expect(getHttpServerUrl(config)).toBe('http://127.0.0.1:3000');
     expect(getAuthServerMetadataUrl(config)).toBe(
-      'http://localhost:8080/realms/master/.well-known/openid-configuration'
+      'http://localhost:8080/realms/master/.well-known/openid-configuration',
     );
 
     expect(
@@ -43,7 +43,7 @@ describe('HTTP MCP transport', () => {
           ...config.oauth,
           authServerUrl: 'https://auth.example.test',
         },
-      })
+      }),
     ).toBe('https://auth.example.test/.well-known/oauth-authorization-server');
   });
 

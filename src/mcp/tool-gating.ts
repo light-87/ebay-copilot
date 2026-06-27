@@ -137,7 +137,7 @@ function parseCursor(cursor: string | undefined): number {
  *   never be disabled and are excluded from `activeCount`.
  */
 export function createToolGatingController(
-  handles: Map<string, RegisteredTool>
+  handles: Map<string, RegisteredTool>,
 ): ToolGatingController {
   const activeCount = (): number => [...handles.values()].filter((handle) => handle.enabled).length;
 
@@ -173,7 +173,7 @@ export function createToolGatingController(
           families: CATALOG.families.map((row) => ({
             ...row,
             enabledCount: [...handles.entries()].filter(
-              ([name, handle]) => CATALOG.familyByToolName.get(name) === row.key && handle.enabled
+              ([name, handle]) => CATALOG.familyByToolName.get(name) === row.key && handle.enabled,
             ).length,
           })),
           hint: 'Call list_ebay_tools with { family } or { query } to list tools, then enable_ebay_tools.',
@@ -254,7 +254,7 @@ export function registerMetaTools(server: McpServer, controller: ToolGatingContr
           .describe(`Max rows per page (default ${DEFAULT_LIST_LIMIT}, max ${MAX_LIST_LIMIT}).`),
       },
     },
-    (args) => toToolResult(controller.list(args))
+    (args) => toToolResult(controller.list(args)),
   );
 
   server.registerTool(
@@ -269,7 +269,7 @@ export function registerMetaTools(server: McpServer, controller: ToolGatingContr
           .describe('Exact tool names to enable, as returned by list_ebay_tools.'),
       },
     },
-    ({ names }) => toToolResult(controller.enable(names))
+    ({ names }) => toToolResult(controller.enable(names)),
   );
 
   server.registerTool(
@@ -281,6 +281,6 @@ export function registerMetaTools(server: McpServer, controller: ToolGatingContr
         names: z.array(z.string()).min(1).describe('Exact tool names to disable.'),
       },
     },
-    ({ names }) => toToolResult(controller.disable(names))
+    ({ names }) => toToolResult(controller.disable(names)),
   );
 }

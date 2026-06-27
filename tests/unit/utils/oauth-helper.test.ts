@@ -49,7 +49,9 @@ describe('startCallbackServer', () => {
     const { server, codePromise } = await startCallbackServer(0);
     track(server);
     const raw = 'v^1.1#i^1+abc/def';
-    await fetch(`http://localhost:${portOf(server)}/oauth/callback?code=${encodeURIComponent(raw)}`);
+    await fetch(
+      `http://localhost:${portOf(server)}/oauth/callback?code=${encodeURIComponent(raw)}`,
+    );
 
     await expect(codePromise).resolves.toMatchObject({ code: raw });
   });
@@ -58,7 +60,7 @@ describe('startCallbackServer', () => {
     const { server, codePromise } = await startCallbackServer(0);
     track(server);
     const response = await fetch(
-      `http://localhost:${portOf(server)}/oauth/callback?error=access_denied&error_description=User%20declined`
+      `http://localhost:${portOf(server)}/oauth/callback?error=access_denied&error_description=User%20declined`,
     );
 
     expect(response.status).toBe(400);
@@ -73,7 +75,7 @@ describe('startCallbackServer', () => {
     track(server);
     const payload = '<script>alert(1)</script>';
     const response = await fetch(
-      `http://localhost:${portOf(server)}/oauth/callback?error=access_denied&error_description=${encodeURIComponent(payload)}`
+      `http://localhost:${portOf(server)}/oauth/callback?error=access_denied&error_description=${encodeURIComponent(payload)}`,
     );
     const body = await response.text();
 

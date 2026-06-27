@@ -152,7 +152,7 @@ export const leaveFeedbackForBuyerSchema = z.object({
       {
         invalid_type_error: 'images must be an array',
         description: 'Array of up to 5 images',
-      }
+      },
     )
     .max(5, 'Maximum 5 images allowed')
     .optional(),
@@ -187,7 +187,7 @@ export const leaveFeedbackForBuyerSchema = z.object({
       {
         invalid_type_error: 'seller_ratings must be an array',
         description: 'Array of seller performance ratings',
-      }
+      },
     )
     .optional(),
   transaction_id: z

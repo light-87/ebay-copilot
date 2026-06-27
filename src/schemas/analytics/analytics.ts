@@ -192,25 +192,25 @@ export function getAnalyticsJsonSchemas() {
     // Customer Service Metrics
     getCustomerServiceMetricInput: zodToJsonSchema(
       getCustomerServiceMetricInputSchema,
-      'getCustomerServiceMetricInput'
+      'getCustomerServiceMetricInput',
     ),
     getCustomerServiceMetricOutput: zodToJsonSchema(
       getCustomerServiceMetricResponseSchema,
-      'getCustomerServiceMetricOutput'
+      'getCustomerServiceMetricOutput',
     ),
 
     // Seller Standards Profiles
     findSellerStandardsProfilesOutput: zodToJsonSchema(
       findSellerStandardsProfilesResponseSchema,
-      'findSellerStandardsProfilesOutput'
+      'findSellerStandardsProfilesOutput',
     ),
     getSellerStandardsProfileInput: zodToJsonSchema(
       getSellerStandardsProfileInputSchema,
-      'getSellerStandardsProfileInput'
+      'getSellerStandardsProfileInput',
     ),
     getSellerStandardsProfileOutput: zodToJsonSchema(
       standardsProfileSchema,
-      'getSellerStandardsProfileOutput'
+      'getSellerStandardsProfileOutput',
     ),
 
     // Traffic Reports

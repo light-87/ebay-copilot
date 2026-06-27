@@ -30,7 +30,7 @@ export class NegotiationApi {
     const queryParams = buildPaginatedQueryParams(filter, limit, offset);
 
     return await withApiError('Failed to find eligible items', () =>
-      this.client.get(eligibleItemsPath, queryParams)
+      this.client.get(eligibleItemsPath, queryParams),
     );
   }
 
@@ -45,7 +45,7 @@ export class NegotiationApi {
     }
 
     return await withApiError('Failed to send offer to interested buyers', () =>
-      this.client.post(`${this.basePath}/send_offer_to_interested_buyers`, offerData)
+      this.client.post(`${this.basePath}/send_offer_to_interested_buyers`, offerData),
     );
   }
 
@@ -62,7 +62,7 @@ export class NegotiationApi {
       this.client,
       `${this.basePath}/offer`,
       params,
-      'Failed to get offers to buyers'
+      'Failed to get offers to buyers',
     );
   }
 
@@ -86,7 +86,7 @@ export class NegotiationApi {
     return await getPathWithContextError(
       this.client,
       `${this.basePath}/offer/${offerId}`,
-      'Failed to get offer'
+      'Failed to get offer',
     );
   }
 }

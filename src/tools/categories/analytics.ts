@@ -81,7 +81,7 @@ export const analyticsEntries: ToolEntry[] = [
       api.analytics.getCustomerServiceMetric(
         args.customerServiceMetricType,
         args.evaluationType,
-        args.evaluationMarketplaceId
+        args.evaluationMarketplaceId,
       ),
     ui: { archetype: 'chart', map: mapCustomerServiceMetricToChart },
   }),

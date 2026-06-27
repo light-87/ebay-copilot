@@ -100,7 +100,7 @@ function sendUnauthorized(
     error?: string;
     error_description?: string;
     scope?: string;
-  }
+  },
 ): void {
   // Build WWW-Authenticate header per RFC 6750
   let authenticateValue = `Bearer realm="${realm}", resource_metadata="${resourceMetadataUrl}"`;

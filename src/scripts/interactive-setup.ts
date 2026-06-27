@@ -107,16 +107,16 @@ function showInteractiveHelp() {
   console.log(chalk.yellow('  --help, -h           ') + chalk.gray('Show this help message'));
   console.log(chalk.yellow('  --diagnose, -d       ') + chalk.gray('Run system diagnostics'));
   console.log(
-    chalk.yellow('  --first-time, -f     ') + chalk.gray('Show first-time developer guide')
+    chalk.yellow('  --first-time, -f     ') + chalk.gray('Show first-time developer guide'),
   );
   console.log(
-    chalk.yellow('  --skip-checks        ') + chalk.gray('Skip pre-flight security checks')
+    chalk.yellow('  --skip-checks        ') + chalk.gray('Skip pre-flight security checks'),
   );
   console.log(
-    chalk.yellow('  --env=ENV            ') + chalk.gray('Set environment (sandbox|production)')
+    chalk.yellow('  --env=ENV            ') + chalk.gray('Set environment (sandbox|production)'),
   );
   console.log(
-    chalk.yellow('  (no options)         ') + chalk.gray('Run interactive setup wizard\n')
+    chalk.yellow('  (no options)         ') + chalk.gray('Run interactive setup wizard\n'),
   );
   console.log(chalk.white('Examples:'));
   console.log(chalk.gray('  npx ebay-mcp                     # Interactive wizard'));
@@ -216,7 +216,7 @@ LOG_LEVEL=${config.LOG_LEVEL || 'info'}
 
 async function acquireRefreshToken(
   config: EbayConfig,
-  useInteractiveFlow: boolean
+  useInteractiveFlow: boolean,
 ): Promise<string | null> {
   if (useInteractiveFlow) {
     console.log(chalk.bold.cyan('\n🔐 Starting Interactive OAuth Flow\n'));
@@ -239,7 +239,7 @@ async function acquireRefreshToken(
       return tokenData.refresh_token;
     } catch (error) {
       console.log(
-        chalk.red(`✗ Failed to exchange code: ${getErrorMessage(error, String(error))}\n`)
+        chalk.red(`✗ Failed to exchange code: ${getErrorMessage(error, String(error))}\n`),
       );
       return null;
     }
@@ -249,7 +249,7 @@ async function acquireRefreshToken(
       config.clientId,
       config.redirectUri || 'http://localhost:3000/oauth/callback',
       config.environment,
-      getRecommendedScopes(config.environment)
+      getRecommendedScopes(config.environment),
     );
 
     const response = await prompts({
@@ -410,7 +410,7 @@ async function detectAndConfigureLLMClients(): Promise<void> {
         ' ' +
         chalk.white(statusText) +
         ' '.repeat(boxWidth - 23) +
-        chalk.gray('│')
+        chalk.gray('│'),
     );
 
     // Config status line
@@ -426,7 +426,7 @@ async function detectAndConfigureLLMClients(): Promise<void> {
         ' ' +
         configText +
         ' '.repeat(boxWidth - configPadding) +
-        chalk.gray('│')
+        chalk.gray('│'),
     );
 
     // Path line (truncated if too long)
@@ -440,7 +440,7 @@ async function detectAndConfigureLLMClients(): Promise<void> {
         chalk.gray('Path:      ') +
         chalk.dim(displayPath) +
         ' '.repeat(boxWidth - displayPath.length - 13) +
-        chalk.gray('│')
+        chalk.gray('│'),
     );
 
     console.log(chalk.gray('└' + '─'.repeat(boxWidth - 1) + '┘\n'));
@@ -451,14 +451,14 @@ async function detectAndConfigureLLMClients(): Promise<void> {
   console.log(
     chalk.gray('  💡 Recommended: Select clients that are ') +
       chalk.yellow('not configured') +
-      chalk.gray(' yet')
+      chalk.gray(' yet'),
   );
   console.log(
     chalk.gray('  📝 Use ') +
       chalk.cyan('Space') +
       chalk.gray(' to select, ') +
       chalk.cyan('Enter') +
-      chalk.gray(' to confirm\n')
+      chalk.gray(' to confirm\n'),
   );
 
   const response = await prompts({
@@ -514,17 +514,17 @@ async function detectAndConfigureLLMClients(): Promise<void> {
   console.log(
     chalk.gray('  1. ') +
       chalk.white('Restart') +
-      chalk.gray(' your LLM client(s) to load the new configuration')
+      chalk.gray(' your LLM client(s) to load the new configuration'),
   );
   console.log(
     chalk.gray('  2. The ') +
       chalk.cyan('eBay MCP server') +
-      chalk.gray(' should appear in the MCP tools list')
+      chalk.gray(' should appear in the MCP tools list'),
   );
   console.log(
     chalk.gray('  3. Try asking: ') +
       chalk.cyan('"Show me my eBay user information"') +
-      chalk.gray('\n')
+      chalk.gray('\n'),
   );
 }
 
@@ -610,15 +610,15 @@ function displayQuickStart(): void {
   console.log(chalk.bold.white('Resources:\n'));
   console.log(
     chalk.gray('  📖 Documentation: ') +
-      chalk.blue.underline('https://github.com/YosefHayim/ebay-mcp#readme')
+      chalk.blue.underline('https://github.com/YosefHayim/ebay-mcp#readme'),
   );
   console.log(
     chalk.gray('  🐛 Report Issues:  ') +
-      chalk.blue.underline('https://github.com/YosefHayim/ebay-mcp/issues')
+      chalk.blue.underline('https://github.com/YosefHayim/ebay-mcp/issues'),
   );
   console.log(
     chalk.gray('  💬 Get Support:    ') +
-      chalk.blue.underline('https://github.com/YosefHayim/ebay-mcp/discussions\n')
+      chalk.blue.underline('https://github.com/YosefHayim/ebay-mcp/discussions\n'),
   );
 }
 
@@ -840,7 +840,7 @@ async function runInteractiveSetup(args: CLIArgs) {
     }
   } else {
     console.log(
-      chalk.yellow('\n⚠️  No refresh token configured. Some APIs will not be available.\n')
+      chalk.yellow('\n⚠️  No refresh token configured. Some APIs will not be available.\n'),
     );
   }
 
@@ -848,18 +848,18 @@ async function runInteractiveSetup(args: CLIArgs) {
   console.log(chalk.bold.cyan('\n📋 Configuration Review:\n'));
   console.log(`  ${chalk.gray('Client ID:')} ${config.EBAY_CLIENT_ID}`);
   console.log(
-    `  ${chalk.gray('Client Secret:')} ${'*'.repeat(Math.min(config.EBAY_CLIENT_SECRET.length, 20))}`
+    `  ${chalk.gray('Client Secret:')} ${'*'.repeat(Math.min(config.EBAY_CLIENT_SECRET.length, 20))}`,
   );
   console.log(`  ${chalk.gray('Redirect URI:')} ${config.EBAY_REDIRECT_URI}`);
   console.log(`  ${chalk.gray('Environment:')} ${chalk.bold(config.EBAY_ENVIRONMENT)}`);
   console.log(
-    `  ${chalk.gray('User Refresh Token:')} ${config.EBAY_USER_REFRESH_TOKEN ? chalk.green('✓ Configured') : chalk.yellow('✗ Not set')}`
+    `  ${chalk.gray('User Refresh Token:')} ${config.EBAY_USER_REFRESH_TOKEN ? chalk.green('✓ Configured') : chalk.yellow('✗ Not set')}`,
   );
   console.log(
-    `  ${chalk.gray('User Access Token:')} ${config.EBAY_USER_ACCESS_TOKEN ? chalk.green('✓ Generated') : chalk.yellow('✗ Not generated')}`
+    `  ${chalk.gray('User Access Token:')} ${config.EBAY_USER_ACCESS_TOKEN ? chalk.green('✓ Generated') : chalk.yellow('✗ Not generated')}`,
   );
   console.log(
-    `  ${chalk.gray('App Access Token:')} ${config.EBAY_APP_ACCESS_TOKEN ? chalk.green('✓ Generated') : chalk.yellow('✗ Not generated')}\n`
+    `  ${chalk.gray('App Access Token:')} ${config.EBAY_APP_ACCESS_TOKEN ? chalk.green('✓ Generated') : chalk.yellow('✗ Not generated')}\n`,
   );
 
   const confirmation = await prompts({

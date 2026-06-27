@@ -29,7 +29,7 @@ describe('DisputeApi', () => {
       const result = await disputeApi.getPaymentDispute('DISPUTE-123');
 
       expect(mockClient.get).toHaveBeenCalledWith(
-        '/sell/fulfillment/v1/payment_dispute/DISPUTE-123'
+        '/sell/fulfillment/v1/payment_dispute/DISPUTE-123',
       );
       expect(result).toEqual(mockDispute);
     });
@@ -43,7 +43,7 @@ describe('DisputeApi', () => {
       const result = await disputeApi.fetchEvidenceContent(
         'DISPUTE-123',
         'EVIDENCE-456',
-        'FILE-789'
+        'FILE-789',
       );
 
       expect(mockClient.get).toHaveBeenCalledWith(
@@ -51,7 +51,7 @@ describe('DisputeApi', () => {
         {
           evidence_id: 'EVIDENCE-456',
           file_id: 'FILE-789',
-        }
+        },
       );
       expect(result).toEqual(mockBuffer);
     });
@@ -68,7 +68,7 @@ describe('DisputeApi', () => {
       const result = await disputeApi.getActivities('DISPUTE-123');
 
       expect(mockClient.get).toHaveBeenCalledWith(
-        '/sell/fulfillment/v1/payment_dispute/DISPUTE-123/activity'
+        '/sell/fulfillment/v1/payment_dispute/DISPUTE-123/activity',
       );
       expect(result).toEqual(mockActivity);
     });
@@ -87,7 +87,7 @@ describe('DisputeApi', () => {
 
       expect(mockClient.get).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/payment_dispute_summary',
-        undefined
+        undefined,
       );
       expect(result).toEqual(mockSummaries);
     });
@@ -111,7 +111,7 @@ describe('DisputeApi', () => {
 
       expect(mockClient.get).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/payment_dispute_summary',
-        params
+        params,
       );
       expect(result).toEqual(mockSummaries);
     });
@@ -125,7 +125,7 @@ describe('DisputeApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/payment_dispute/DISPUTE-123/contest',
-        undefined
+        undefined,
       );
     });
 
@@ -146,7 +146,7 @@ describe('DisputeApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/payment_dispute/DISPUTE-123/contest',
-        body
+        body,
       );
     });
   });
@@ -159,7 +159,7 @@ describe('DisputeApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/payment_dispute/DISPUTE-123/accept',
-        undefined
+        undefined,
       );
     });
 
@@ -180,7 +180,7 @@ describe('DisputeApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/payment_dispute/DISPUTE-123/accept',
-        body
+        body,
       );
     });
   });
@@ -200,7 +200,7 @@ describe('DisputeApi', () => {
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/payment_dispute/DISPUTE-123/upload_evidence_file',
         buffer,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        { headers: { 'Content-Type': 'multipart/form-data' } },
       );
       expect(result).toEqual(mockFileEvidence);
     });
@@ -224,7 +224,7 @@ describe('DisputeApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/payment_dispute/DISPUTE-123/add_evidence',
-        body
+        body,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -243,7 +243,7 @@ describe('DisputeApi', () => {
 
       expect(mockClient.post).toHaveBeenCalledWith(
         '/sell/fulfillment/v1/payment_dispute/DISPUTE-123/update_evidence',
-        body
+        body,
       );
     });
   });

@@ -32,7 +32,7 @@ describe('AnalyticsApi', () => {
       const result = await api.getTrafficReport(
         'LISTING',
         'listingId:123',
-        'CLICK_THROUGH_RATE,IMPRESSION'
+        'CLICK_THROUGH_RATE,IMPRESSION',
       );
 
       expect(result).toEqual(mockResponse);
@@ -45,19 +45,19 @@ describe('AnalyticsApi', () => {
 
     it('should throw error when dimension is missing', async () => {
       await expect(api.getTrafficReport('' as any, 'filter', 'metric')).rejects.toThrow(
-        'dimension is required'
+        'dimension is required',
       );
     });
 
     it('should throw error when filter is missing', async () => {
       await expect(api.getTrafficReport('LISTING', '' as any, 'metric')).rejects.toThrow(
-        'filter is required'
+        'filter is required',
       );
     });
 
     it('should throw error when metric is missing', async () => {
       await expect(api.getTrafficReport('LISTING', 'filter', '' as any)).rejects.toThrow(
-        'metric is required'
+        'metric is required',
       );
     });
 
@@ -77,7 +77,7 @@ describe('AnalyticsApi', () => {
 
     it('should throw error when sort is not a string', async () => {
       await expect(api.getTrafficReport('LISTING', 'filter', 'metric', 123 as any)).rejects.toThrow(
-        'sort must be a string when provided'
+        'sort must be a string when provided',
       );
     });
 
@@ -85,7 +85,7 @@ describe('AnalyticsApi', () => {
       vi.mocked(client.get).mockRejectedValue(new Error('Service Unavailable'));
 
       await expect(api.getTrafficReport('LISTING', 'filter', 'metric')).rejects.toThrow(
-        'Failed to get traffic report: Service Unavailable'
+        'Failed to get traffic report: Service Unavailable',
       );
     });
   });
@@ -115,7 +115,7 @@ describe('AnalyticsApi', () => {
       vi.mocked(client.get).mockRejectedValue(new Error('API Error'));
 
       await expect(api.findSellerStandardsProfiles()).rejects.toThrow(
-        'Failed to find seller standards profiles: API Error'
+        'Failed to find seller standards profiles: API Error',
       );
     });
   });
@@ -133,19 +133,19 @@ describe('AnalyticsApi', () => {
 
       expect(result).toEqual(mockResponse);
       expect(client.get).toHaveBeenCalledWith(
-        '/sell/analytics/v1/seller_standards_profile/CUSTOMER_SERVICE/CURRENT'
+        '/sell/analytics/v1/seller_standards_profile/CUSTOMER_SERVICE/CURRENT',
       );
     });
 
     it('should throw error when program is missing', async () => {
       await expect(api.getSellerStandardsProfile('' as any, 'CURRENT')).rejects.toThrow(
-        'program is required'
+        'program is required',
       );
     });
 
     it('should throw error when cycle is missing', async () => {
       await expect(api.getSellerStandardsProfile('CUSTOMER_SERVICE', '' as any)).rejects.toThrow(
-        'cycle is required'
+        'cycle is required',
       );
     });
 
@@ -153,7 +153,7 @@ describe('AnalyticsApi', () => {
       vi.mocked(client.get).mockRejectedValue(new Error('Not Found'));
 
       await expect(api.getSellerStandardsProfile('CUSTOMER_SERVICE', 'CURRENT')).rejects.toThrow(
-        'Failed to get seller standards profile: Not Found'
+        'Failed to get seller standards profile: Not Found',
       );
     });
   });
@@ -177,25 +177,25 @@ describe('AnalyticsApi', () => {
         '/sell/analytics/v1/customer_service_metric/TRANSACTION/CURRENT',
         {
           evaluation_marketplace_id: 'EBAY_US',
-        }
+        },
       );
     });
 
     it('should throw error when customerServiceMetricType is missing', async () => {
       await expect(api.getCustomerServiceMetric('' as any, 'CURRENT', 'EBAY_US')).rejects.toThrow(
-        'customerServiceMetricType is required'
+        'customerServiceMetricType is required',
       );
     });
 
     it('should throw error when evaluationType is missing', async () => {
       await expect(
-        api.getCustomerServiceMetric('TRANSACTION', '' as any, 'EBAY_US')
+        api.getCustomerServiceMetric('TRANSACTION', '' as any, 'EBAY_US'),
       ).rejects.toThrow('evaluationType is required');
     });
 
     it('should throw error when evaluationMarketplaceId is missing', async () => {
       await expect(
-        api.getCustomerServiceMetric('TRANSACTION', 'CURRENT', '' as any)
+        api.getCustomerServiceMetric('TRANSACTION', 'CURRENT', '' as any),
       ).rejects.toThrow('evaluationMarketplaceId is required');
     });
 
@@ -203,7 +203,7 @@ describe('AnalyticsApi', () => {
       vi.mocked(client.get).mockRejectedValue(new Error('Unauthorized'));
 
       await expect(
-        api.getCustomerServiceMetric('TRANSACTION', 'CURRENT', 'EBAY_US')
+        api.getCustomerServiceMetric('TRANSACTION', 'CURRENT', 'EBAY_US'),
       ).rejects.toThrow('Failed to get customer service metric: Unauthorized');
     });
   });

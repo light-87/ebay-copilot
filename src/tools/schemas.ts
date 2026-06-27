@@ -345,7 +345,7 @@ export const productCompatibilitySchema = z
               .optional(),
             notes: z.string().optional(),
           })
-          .passthrough()
+          .passthrough(),
       )
       .optional(),
   })
@@ -370,7 +370,7 @@ export const inventoryItemGroupSchema = z
                 name: z.string(),
                 values: z.array(z.string()),
               })
-              .passthrough()
+              .passthrough(),
           )
           .optional(),
       })
@@ -416,11 +416,11 @@ export const locationSchema = z
                     open: z.string().optional(),
                     close: z.string().optional(),
                   })
-                  .passthrough()
+                  .passthrough(),
               )
               .optional(),
           })
-          .passthrough()
+          .passthrough(),
       )
       .optional(),
     phone: z.string().optional(),
@@ -436,11 +436,11 @@ export const locationSchema = z
                     open: z.string().optional(),
                     close: z.string().optional(),
                   })
-                  .passthrough()
+                  .passthrough(),
               )
               .optional(),
           })
-          .passthrough()
+          .passthrough(),
       )
       .optional(),
   })
@@ -484,7 +484,7 @@ export const shippingFulfillmentSchema = z
           lineItemId: z.string(),
           quantity: z.number().optional(),
         })
-        .passthrough()
+        .passthrough(),
     ),
     shippedDate: z.string().optional(),
     shippingCarrierCode: z.string().optional(),
@@ -512,7 +512,7 @@ export const campaignCriterionSchema = z
             maxPrice: amountSchema.optional(),
             minPrice: amountSchema.optional(),
           })
-          .passthrough()
+          .passthrough(),
       )
       .optional(),
   })
@@ -562,7 +562,7 @@ export const messageDataSchema = z
             mediaUrl: z.string().optional(),
             mediaType: z.string().optional(),
           })
-          .passthrough()
+          .passthrough(),
       )
       .optional(),
     emailCopyToSender: z.boolean().optional(),
@@ -588,7 +588,7 @@ export const notificationConfigSchema = z
             endpoint: z.string().optional(),
             format: z.string().optional(),
           })
-          .passthrough()
+          .passthrough(),
       )
       .optional(),
   })
@@ -619,7 +619,7 @@ export const compatibilitySpecificationSchema = z
             name: z.string(),
             value: z.string(),
           })
-          .passthrough()
+          .passthrough(),
       )
       .optional(),
   })
@@ -655,7 +655,7 @@ export const veroReportDataSchema = z
       z.object({
         itemId: z.string(),
         reportingReason: z.string(),
-      })
+      }),
     ),
     rightsOwnerEmail: z.string().email().optional(),
     message: z.string().optional(),
@@ -721,7 +721,7 @@ export const bulkInventoryItemRequestSchema = z
           condition: z.string().optional(),
           conditionDescription: z.string().optional(),
         })
-        .passthrough()
+        .passthrough(),
     ),
   })
   .passthrough();
@@ -736,7 +736,7 @@ export const bulkPriceQuantityRequestSchema = z
           pricingSummary: pricingSchema.optional(),
           availableQuantity: z.number().optional(),
         })
-        .passthrough()
+        .passthrough(),
     ),
   })
   .passthrough();
@@ -756,7 +756,7 @@ export const bulkPublishRequestSchema = z
         .object({
           offerId: z.string(),
         })
-        .passthrough()
+        .passthrough(),
     ),
   })
   .passthrough();
@@ -769,7 +769,7 @@ export const bulkMigrateRequestSchema = z
         .object({
           listingId: z.string(),
         })
-        .passthrough()
+        .passthrough(),
     ),
   })
   .passthrough();
@@ -784,7 +784,7 @@ export const bulkSalesTaxRequestSchema = z
           jurisdictionId: z.string(),
           salesTaxBase: salesTaxBaseSchema,
         })
-        .passthrough()
+        .passthrough(),
     ),
   })
   .passthrough();
@@ -804,7 +804,7 @@ export const listingFeesRequestSchema = z
           marketplaceId: z.string().optional(),
           format: z.nativeEnum(FormatType).optional(),
         })
-        .passthrough()
+        .passthrough(),
     ),
   })
   .passthrough();
@@ -826,7 +826,7 @@ export const offerToBuyersSchema = z
             availableQuantity: z.number().optional(),
             price: amountSchema.optional(),
           })
-          .passthrough()
+          .passthrough(),
       )
       .optional(),
   })

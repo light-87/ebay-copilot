@@ -44,7 +44,7 @@ function resolvePath(
   layer: SkillLayer,
   scope: SkillScope,
   cwd: string,
-  home: string
+  home: string,
 ): string {
   const base = scope === 'project' ? cwd : home;
   switch (provider) {
@@ -73,7 +73,7 @@ export function detectProvider(
   provider: SkillProvider,
   scope: SkillScope,
   cwd: string,
-  home: string
+  home: string,
 ): boolean {
   switch (provider) {
     case 'claude':
@@ -104,7 +104,7 @@ export function resolveTargets(
   layers: readonly SkillLayer[],
   scope: SkillScope,
   cwd: string = process.cwd(),
-  home: string = homedir()
+  home: string = homedir(),
 ): SkillTarget[] {
   const targets: SkillTarget[] = [];
   for (const provider of providers) {

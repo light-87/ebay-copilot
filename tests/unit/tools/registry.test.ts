@@ -18,7 +18,7 @@ describe('tool registry', () => {
     expect(validation.missingHandlers).toEqual([]);
     expect(entries).toHaveLength(definitions.length);
     expect(entries.map((entry) => entry.definition.name)).toEqual(
-      definitions.map((definition) => definition.name)
+      definitions.map((definition) => definition.name),
     );
   });
 
@@ -52,7 +52,7 @@ describe('tool registry', () => {
 
   it('keeps the legacy unknown-tool error', async () => {
     await expect(executeTool({} as never, 'unknown_tool', {})).rejects.toThrow(
-      'Unknown tool: unknown_tool'
+      'Unknown tool: unknown_tool',
     );
   });
 });

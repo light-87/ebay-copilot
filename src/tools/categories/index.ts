@@ -53,7 +53,7 @@ export const toolCategories: ToolCategory[] = [
  * {@link toolCategories}.
  */
 export const registeredEntries: ToolEntry[] = toolCategories.flatMap(
-  (category) => category.entries
+  (category) => category.entries,
 );
 
 /**

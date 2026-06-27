@@ -162,7 +162,7 @@ describe('TokenVerifier', () => {
       await verifier.initialize();
 
       await expect(verifier.verifyToken('test-token')).rejects.toThrow(
-        'Token introspection failed: Invalid token'
+        'Token introspection failed: Invalid token',
       );
     });
 
@@ -183,7 +183,7 @@ describe('TokenVerifier', () => {
       await verifier.initialize();
 
       await expect(verifier.verifyToken('test-token')).rejects.toThrow(
-        'Introspection endpoint not available'
+        'Introspection endpoint not available',
       );
     });
   });
@@ -283,7 +283,7 @@ describe('TokenVerifier', () => {
       await verifier.initialize();
 
       await expect(verifier.verifyToken('test-jwt-token')).rejects.toThrow(
-        /Missing required scopes/
+        /Missing required scopes/,
       );
     });
 
@@ -318,7 +318,7 @@ describe('TokenVerifier', () => {
       await verifier.initialize();
 
       await expect(verifier.verifyToken('invalid-jwt')).rejects.toThrow(
-        'JWT verification failed: Invalid signature'
+        'JWT verification failed: Invalid signature',
       );
     });
 
@@ -399,7 +399,7 @@ describe('TokenVerifier', () => {
       });
 
       await expect(verifier.verifyToken('test-token')).rejects.toThrow(
-        'Token verifier not initialized'
+        'Token verifier not initialized',
       );
     });
   });

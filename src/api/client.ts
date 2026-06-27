@@ -28,7 +28,7 @@ class RateLimitTracker {
     const now = Date.now();
     // Remove timestamps older than window
     this.requestTimestamps = this.requestTimestamps.filter(
-      (timestamp) => now - timestamp < this.windowMs
+      (timestamp) => now - timestamp < this.windowMs,
     );
     return this.requestTimestamps.length < this.maxRequests;
   }
@@ -40,7 +40,7 @@ class RateLimitTracker {
   getStats(): { current: number; max: number; windowMs: number } {
     const now = Date.now();
     this.requestTimestamps = this.requestTimestamps.filter(
-      (timestamp) => now - timestamp < this.windowMs
+      (timestamp) => now - timestamp < this.windowMs,
     );
     return {
       current: this.requestTimestamps.length,
@@ -99,7 +99,7 @@ export class EbayApiClient {
   private validateAccessToken(): void {
     if (!this.config.clientId || !this.config.clientSecret) {
       throw new Error(
-        'Missing required eBay credentials. Please set EBAY_CLIENT_ID and EBAY_CLIENT_SECRET in your .env file.'
+        'Missing required eBay credentials. Please set EBAY_CLIENT_ID and EBAY_CLIENT_SECRET in your .env file.',
       );
     }
   }
@@ -138,7 +138,7 @@ export class EbayApiClient {
       data?: unknown;
       headers?: Record<string, string>;
       absolute?: boolean;
-    }
+    },
   ): Promise<T> {
     // In proxy auth mode the upstream proxy supplies credentials, so the server
     // neither requires nor validates its own. See EBAY_MCP_DISABLE_AUTH_HEADER.
@@ -165,7 +165,7 @@ export class EbayApiClient {
       if (!this.rateLimitTracker.canMakeRequest()) {
         const stats = this.rateLimitTracker.getStats();
         throw new Error(
-          `Rate limit exceeded: ${stats.current}/${stats.max} requests in ${stats.windowMs}ms window. Please wait before making more requests.`
+          `Rate limit exceeded: ${stats.current}/${stats.max} requests in ${stats.windowMs}ms window. Please wait before making more requests.`,
         );
       }
 
@@ -180,7 +180,7 @@ export class EbayApiClient {
         const token = await this.authClient.getAccessToken();
         if (!token) {
           throw new Error(
-            'Access token is missing. Provide EBAY_USER_REFRESH_TOKEN or valid app credentials, then retry.'
+            'Access token is missing. Provide EBAY_USER_REFRESH_TOKEN or valid app credentials, then retry.',
           );
         }
         headers.Authorization = `Bearer ${token}`;
@@ -204,7 +204,7 @@ export class EbayApiClient {
           response.statusText,
           response.data,
           response.headers['x-ebay-c-ratelimit-remaining'],
-          response.headers['x-ebay-c-ratelimit-limit']
+          response.headers['x-ebay-c-ratelimit-limit'],
         );
 
         return response.data;
@@ -236,7 +236,7 @@ export class EbayApiClient {
               const detail = this.ebayErrorDetail(error.data) ?? 'Invalid access token';
               throw new Error(
                 `${detail}. Token refresh failed: ${reason}. ` +
-                  `Please use the ebay_set_user_tokens_with_expiry tool to provide valid tokens.`
+                  `Please use the ebay_set_user_tokens_with_expiry tool to provide valid tokens.`,
               );
             }
 
@@ -247,7 +247,7 @@ export class EbayApiClient {
           const detail = this.ebayErrorDetail(error.data) ?? 'Invalid access token';
           throw new Error(
             `${detail}. Automatic token refresh failed. ` +
-              `Please use the ebay_set_user_tokens_with_expiry tool to provide valid tokens.`
+              `Please use the ebay_set_user_tokens_with_expiry tool to provide valid tokens.`,
           );
         }
 
@@ -257,7 +257,7 @@ export class EbayApiClient {
           const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : 60000;
           throw new Error(
             `eBay API rate limit exceeded. Retry after ${waitTime / 1000} seconds. ` +
-              `Consider reducing request frequency or upgrading to user tokens for higher limits.`
+              `Consider reducing request frequency or upgrading to user tokens for higher limits.`,
           );
         }
 
@@ -290,7 +290,7 @@ export class EbayApiClient {
   async get<T = unknown>(
     endpoint: string,
     params?: Record<string, unknown>,
-    config?: EbayRequestConfig
+    config?: EbayRequestConfig,
   ): Promise<T> {
     return await this.request<T>('GET', endpoint, {
       params: { ...params, ...config?.params },
@@ -304,7 +304,7 @@ export class EbayApiClient {
   async post<T = unknown>(
     endpoint: string,
     data?: unknown,
-    config?: EbayRequestConfig
+    config?: EbayRequestConfig,
   ): Promise<T> {
     return await this.request<T>('POST', endpoint, {
       data,
@@ -362,7 +362,7 @@ export class EbayApiClient {
     accessToken: string,
     refreshToken: string,
     accessTokenExpiry?: number,
-    refreshTokenExpiry?: number
+    refreshTokenExpiry?: number,
   ): Promise<void> {
     this.authClient.setUserTokens(accessToken, refreshToken, accessTokenExpiry, refreshTokenExpiry);
     return Promise.resolve();

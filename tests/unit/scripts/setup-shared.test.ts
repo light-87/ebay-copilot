@@ -62,7 +62,7 @@ describe('loadExistingConfig', () => {
         `EBAY_USER_REFRESH_TOKEN=${quoteEnvValue(SAMPLE_REFRESH_TOKEN)}`,
         'EBAY_ENVIRONMENT=sandbox',
         'EBAY_CLIENT_ID=your-client-id_here',
-      ].join('\n')
+      ].join('\n'),
     );
 
     const config = loadExistingConfig(dir);

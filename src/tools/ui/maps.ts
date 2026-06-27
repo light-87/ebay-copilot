@@ -450,7 +450,7 @@ export function mapTrafficReportToChart(result: Report): ChartViewModel {
  * key keeps related bars in the same series regardless of dimension ordering.
  */
 export function mapCustomerServiceMetricToChart(
-  result: GetCustomerServiceMetricResponse
+  result: GetCustomerServiceMetricResponse,
 ): ChartViewModel {
   const dimensionMetrics = result.dimensionMetrics ?? [];
   const pointsByMetric = new Map<string, ChartSeries['points']>();

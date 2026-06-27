@@ -100,7 +100,7 @@ function resolveToolUi<Result>(ui: ToolUiSpec<Result>): ResolvedToolUi {
  * so the second parse is idempotent.
  */
 function toDefinition<Shape extends z.ZodRawShape, Result>(
-  spec: ToolSpec<Shape, Result>
+  spec: ToolSpec<Shape, Result>,
 ): ToolEntry['definition'] {
   return {
     name: spec.name,
@@ -114,7 +114,7 @@ function toDefinition<Shape extends z.ZodRawShape, Result>(
 }
 
 export function defineTool<Shape extends z.ZodRawShape, Result>(
-  spec: ToolSpec<Shape, Result>
+  spec: ToolSpec<Shape, Result>,
 ): ToolEntry {
   const schema = z.object(spec.inputSchema);
   // Non-async: `schema.parse` runs synchronously so invalid input rejects via
@@ -145,7 +145,7 @@ export function defineTool<Shape extends z.ZodRawShape, Result>(
  * validated by this factory — the handler is responsible for that.
  */
 export function rawTool<Shape extends z.ZodRawShape, Result>(
-  spec: ToolSpec<Shape, Result>
+  spec: ToolSpec<Shape, Result>,
 ): ToolEntry {
   const handler: ToolHandler = (api, args) =>
     spec.handler(api, args as z.infer<z.ZodObject<Shape>>);

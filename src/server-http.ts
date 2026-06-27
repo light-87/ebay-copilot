@@ -65,7 +65,7 @@ function logStartupUrls(serverUrl: string): void {
   } else {
     console.log('Authorization is DISABLED');
     console.log(
-      'Set OAUTH_ENABLED=true (or remove OAUTH_ENABLED=false) to enable OAuth protection'
+      'Set OAUTH_ENABLED=true (or remove OAUTH_ENABLED=false) to enable OAuth protection',
     );
   }
 }

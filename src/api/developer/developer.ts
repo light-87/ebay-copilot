@@ -41,8 +41,8 @@ export class DeveloperApi {
     return await withApiError('Failed to get rate limits', () =>
       this.client.get<RateLimitsResponse>(
         `${this.analyticsBasePath}/rate_limit/`,
-        Object.keys(params).length > 0 ? params : undefined
-      )
+        Object.keys(params).length > 0 ? params : undefined,
+      ),
     );
   }
 
@@ -58,8 +58,8 @@ export class DeveloperApi {
     return await withApiError('Failed to get user rate limits', () =>
       this.client.get<RateLimitsResponse>(
         `${this.analyticsBasePath}/user_rate_limit/`,
-        Object.keys(params).length > 0 ? params : undefined
-      )
+        Object.keys(params).length > 0 ? params : undefined,
+      ),
     );
   }
 
@@ -74,7 +74,7 @@ export class DeveloperApi {
    */
   async registerClient(clientSettings: ClientSettings): Promise<ClientDetails> {
     return await withApiError('Failed to register client', () =>
-      this.client.post<ClientDetails>(`${this.clientBasePath}/client/register`, clientSettings)
+      this.client.post<ClientDetails>(`${this.clientBasePath}/client/register`, clientSettings),
     );
   }
 
@@ -88,7 +88,7 @@ export class DeveloperApi {
    */
   async getSigningKeys(): Promise<QuerySigningKeysResponse> {
     return await withApiError('Failed to get signing keys', () =>
-      this.client.get<QuerySigningKeysResponse>(`${this.keyBasePath}/signing_key`)
+      this.client.get<QuerySigningKeysResponse>(`${this.keyBasePath}/signing_key`),
     );
   }
 
@@ -98,7 +98,7 @@ export class DeveloperApi {
    */
   async createSigningKey(request?: CreateSigningKeyRequest): Promise<SigningKey> {
     return await withApiError('Failed to create signing key', () =>
-      this.client.post<SigningKey>(`${this.keyBasePath}/signing_key`, request || {})
+      this.client.post<SigningKey>(`${this.keyBasePath}/signing_key`, request || {}),
     );
   }
 
@@ -112,7 +112,7 @@ export class DeveloperApi {
     }
 
     return await withApiError('Failed to get signing key', () =>
-      this.client.get<SigningKey>(`${this.keyBasePath}/signing_key/${signingKeyId}`)
+      this.client.get<SigningKey>(`${this.keyBasePath}/signing_key/${signingKeyId}`),
     );
   }
 }

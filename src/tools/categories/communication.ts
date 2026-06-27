@@ -63,7 +63,7 @@ export const communicationEntries: ToolEntry[] = [
       return api.negotiation.getOffersToBuyers(
         validated.filter,
         validated.limit ? Number(validated.limit) : undefined,
-        validated.offset ? Number(validated.offset) : undefined
+        validated.offset ? Number(validated.offset) : undefined,
       );
     },
   }),
@@ -86,7 +86,7 @@ export const communicationEntries: ToolEntry[] = [
       return api.message.searchMessages(
         undefined,
         validated.limit ? Number(validated.limit) : undefined,
-        validated.offset ? Number(validated.offset) : undefined
+        validated.offset ? Number(validated.offset) : undefined,
       );
     },
   }),
@@ -221,7 +221,7 @@ export const communicationEntries: ToolEntry[] = [
       const validated = getSubscriptionsSchema.parse(args);
       return api.notification.getSubscriptions(
         validated.limit ? Number(validated.limit) : undefined,
-        validated.continuation_token
+        validated.continuation_token,
       );
     },
   }),
@@ -361,7 +361,7 @@ export const communicationEntries: ToolEntry[] = [
       const validated = deleteSubscriptionFilterSchema.parse(args);
       return api.notification.deleteSubscriptionFilter(
         validated.subscription_id,
-        validated.filter_id
+        validated.filter_id,
       );
     },
   }),
@@ -388,7 +388,7 @@ export const communicationEntries: ToolEntry[] = [
       const validated = getTopicsSchema.parse(args);
       return api.notification.getTopics(
         validated.limit ? Number(validated.limit) : undefined,
-        validated.continuation_token
+        validated.continuation_token,
       );
     },
   }),
@@ -414,7 +414,7 @@ export const communicationEntries: ToolEntry[] = [
       return api.message.getConversations(
         undefined,
         validated.limit ? Number(validated.limit) : undefined,
-        validated.offset ? Number(validated.offset) : undefined
+        validated.offset ? Number(validated.offset) : undefined,
       );
     },
   }),
@@ -503,7 +503,7 @@ export const communicationEntries: ToolEntry[] = [
       return api.feedback.getAwaitingFeedback(
         validated.filter,
         validated.limit ? Number(validated.limit) : undefined,
-        validated.offset ? Number(validated.offset) : undefined
+        validated.offset ? Number(validated.offset) : undefined,
       );
     },
   }),
@@ -523,7 +523,7 @@ export const communicationEntries: ToolEntry[] = [
       const validated = respondToFeedbackSchema.parse(args);
       return api.feedback.respondToFeedback(
         validated.feedback_id ?? '',
-        validated.response_text ?? ''
+        validated.response_text ?? '',
       );
     },
   }),
@@ -566,7 +566,7 @@ export const communicationHandlerOnlyEntries: ToolEntry[] = [
       return api.negotiation.findEligibleItems(
         validated.marketplace_id,
         validated.limit ? Number(validated.limit) : undefined,
-        validated.offset ? Number(validated.offset) : undefined
+        validated.offset ? Number(validated.offset) : undefined,
       );
     },
   }),

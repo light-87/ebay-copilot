@@ -858,11 +858,11 @@ export function getMetadataJsonSchemas() {
     // Marketplace Policies
     automotivePartsCompatibilityPolicy: zodToJsonSchema(
       automotivePartsCompatibilityPolicySchema,
-      'automotivePartsCompatibilityPolicy'
+      'automotivePartsCompatibilityPolicy',
     ),
     automotivePartsCompatibilityPolicyResponse: zodToJsonSchema(
       automotivePartsCompatibilityPolicyResponseSchema,
-      'automotivePartsCompatibilityPolicyResponse'
+      'automotivePartsCompatibilityPolicyResponse',
     ),
 
     categoryPolicy: zodToJsonSchema(categoryPolicySchema, 'categoryPolicy'),
@@ -871,7 +871,7 @@ export function getMetadataJsonSchemas() {
     classifiedAdPolicy: zodToJsonSchema(classifiedAdPolicySchema, 'classifiedAdPolicy'),
     classifiedAdPolicyResponse: zodToJsonSchema(
       classifiedAdPolicyResponseSchema,
-      'classifiedAdPolicyResponse'
+      'classifiedAdPolicyResponse',
     ),
 
     currency: zodToJsonSchema(currencySchema, 'currency'),
@@ -879,15 +879,15 @@ export function getMetadataJsonSchemas() {
 
     extendedProducerResponsibility: zodToJsonSchema(
       extendedProducerResponsibilitySchema,
-      'extendedProducerResponsibility'
+      'extendedProducerResponsibility',
     ),
     extendedProducerResponsibilityPolicy: zodToJsonSchema(
       extendedProducerResponsibilityPolicySchema,
-      'extendedProducerResponsibilityPolicy'
+      'extendedProducerResponsibilityPolicy',
     ),
     extendedProducerResponsibilityPolicyResponse: zodToJsonSchema(
       extendedProducerResponsibilityPolicyResponseSchema,
-      'extendedProducerResponsibilityPolicyResponse'
+      'extendedProducerResponsibilityPolicyResponse',
     ),
 
     signalWord: zodToJsonSchema(signalWordSchema, 'signalWord'),
@@ -895,95 +895,95 @@ export function getMetadataJsonSchemas() {
     pictogram: zodToJsonSchema(pictogramSchema, 'pictogram'),
     hazardousMaterialDetailsResponse: zodToJsonSchema(
       hazardousMaterialDetailsResponseSchema,
-      'hazardousMaterialDetailsResponse'
+      'hazardousMaterialDetailsResponse',
     ),
 
     itemCondition: zodToJsonSchema(itemConditionSchema, 'itemCondition'),
     itemConditionDescriptor: zodToJsonSchema(
       itemConditionDescriptorSchema,
-      'itemConditionDescriptor'
+      'itemConditionDescriptor',
     ),
     itemConditionDescriptorConstraint: zodToJsonSchema(
       itemConditionDescriptorConstraintSchema,
-      'itemConditionDescriptorConstraint'
+      'itemConditionDescriptorConstraint',
     ),
     itemConditionDescriptorValue: zodToJsonSchema(
       itemConditionDescriptorValueSchema,
-      'itemConditionDescriptorValue'
+      'itemConditionDescriptorValue',
     ),
     itemConditionDescriptorValueConstraint: zodToJsonSchema(
       itemConditionDescriptorValueConstraintSchema,
-      'itemConditionDescriptorValueConstraint'
+      'itemConditionDescriptorValueConstraint',
     ),
     itemConditionPolicy: zodToJsonSchema(itemConditionPolicySchema, 'itemConditionPolicy'),
     itemConditionPolicyResponse: zodToJsonSchema(
       itemConditionPolicyResponseSchema,
-      'itemConditionPolicyResponse'
+      'itemConditionPolicyResponse',
     ),
 
     listingStructurePolicy: zodToJsonSchema(listingStructurePolicySchema, 'listingStructurePolicy'),
     listingStructurePolicyResponse: zodToJsonSchema(
       listingStructurePolicyResponseSchema,
-      'listingStructurePolicyResponse'
+      'listingStructurePolicyResponse',
     ),
 
     listingDuration: zodToJsonSchema(listingDurationSchema, 'listingDuration'),
     listingTypePolicy: zodToJsonSchema(listingTypePolicySchema, 'listingTypePolicy'),
     listingTypePoliciesResponse: zodToJsonSchema(
       listingTypePoliciesResponseSchema,
-      'listingTypePoliciesResponse'
+      'listingTypePoliciesResponse',
     ),
 
     localListingDistance: zodToJsonSchema(localListingDistanceSchema, 'localListingDistance'),
     motorsListingPolicy: zodToJsonSchema(motorsListingPolicySchema, 'motorsListingPolicy'),
     motorsListingPoliciesResponse: zodToJsonSchema(
       motorsListingPoliciesResponseSchema,
-      'motorsListingPoliciesResponse'
+      'motorsListingPoliciesResponse',
     ),
 
     negotiatedPricePolicy: zodToJsonSchema(negotiatedPricePolicySchema, 'negotiatedPricePolicy'),
     negotiatedPricePolicyResponse: zodToJsonSchema(
       negotiatedPricePolicyResponseSchema,
-      'negotiatedPricePolicyResponse'
+      'negotiatedPricePolicyResponse',
     ),
 
     productSafetyLabelPictogram: zodToJsonSchema(
       productSafetyLabelPictogramSchema,
-      'productSafetyLabelPictogram'
+      'productSafetyLabelPictogram',
     ),
     productSafetyLabelStatement: zodToJsonSchema(
       productSafetyLabelStatementSchema,
-      'productSafetyLabelStatement'
+      'productSafetyLabelStatement',
     ),
     productSafetyLabelsResponse: zodToJsonSchema(
       productSafetyLabelsResponseSchema,
-      'productSafetyLabelsResponse'
+      'productSafetyLabelsResponse',
     ),
 
     regulatoryAttribute: zodToJsonSchema(regulatoryAttributeSchema, 'regulatoryAttribute'),
     regulatoryPolicy: zodToJsonSchema(regulatoryPolicySchema, 'regulatoryPolicy'),
     regulatoryPolicyResponse: zodToJsonSchema(
       regulatoryPolicyResponseSchema,
-      'regulatoryPolicyResponse'
+      'regulatoryPolicyResponse',
     ),
 
     returnPolicyDetails: zodToJsonSchema(returnPolicyDetailsSchema, 'returnPolicyDetails'),
     returnPolicy: zodToJsonSchema(returnPolicyMetadataSchema, 'returnPolicy'),
     returnPolicyResponse: zodToJsonSchema(
       returnPolicyMetadataResponseSchema,
-      'returnPolicyResponse'
+      'returnPolicyResponse',
     ),
 
     shippingPolicy: zodToJsonSchema(shippingPolicySchema, 'shippingPolicy'),
     shippingPoliciesResponse: zodToJsonSchema(
       shippingPoliciesResponseSchema,
-      'shippingPoliciesResponse'
+      'shippingPoliciesResponse',
     ),
 
     siteVisibilityPolicy: zodToJsonSchema(siteVisibilityPolicySchema, 'siteVisibilityPolicy'),
     siteVisibilityPoliciesResponse: zodToJsonSchema(
       siteVisibilityPoliciesResponseSchema,
-      'siteVisibilityPoliciesResponse'
+      'siteVisibilityPoliciesResponse',
     ),
 
     // Compatibility Schemas
@@ -1002,11 +1002,11 @@ export function getMetadataJsonSchemas() {
 
     multiCompatibilityPropertyValuesRequest: zodToJsonSchema(
       multiCompatibilityPropertyValuesRequestSchema,
-      'multiCompatibilityPropertyValuesRequest'
+      'multiCompatibilityPropertyValuesRequest',
     ),
     multiCompatibilityPropertyValuesResponse: zodToJsonSchema(
       multiCompatibilityPropertyValuesResponseSchema,
-      'multiCompatibilityPropertyValuesResponse'
+      'multiCompatibilityPropertyValuesResponse',
     ),
 
     disabledProductFilter: zodToJsonSchema(disabledProductFilterSchema, 'disabledProductFilter'),

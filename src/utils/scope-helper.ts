@@ -116,7 +116,7 @@ export function displayScopeCategories(): void {
  */
 export function verifyScopesCoverage(
   tokenScopes: string[],
-  requiredScopes: string[]
+  requiredScopes: string[],
 ): {
   hasAllRequired: boolean;
   missingScopes: string[];
@@ -140,7 +140,7 @@ export function verifyScopesCoverage(
  */
 export function displayScopeVerification(
   tokenScopes: string[],
-  environment: 'sandbox' | 'production'
+  environment: 'sandbox' | 'production',
 ): void {
   console.log(chalk.bold.cyan('\n🔍 Scope Verification\n'));
 

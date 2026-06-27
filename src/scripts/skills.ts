@@ -60,10 +60,10 @@ function readFlagValue(argv: string[], flag: string): string | undefined {
 function parseFlags(argv: string[]): SkillsFlags {
   const args = argv.filter((arg) => arg !== 'skills');
   const providers = parseList(readFlagValue(args, '--providers')).filter(
-    (value): value is SkillProvider => (ALL_PROVIDERS as readonly string[]).includes(value)
+    (value): value is SkillProvider => (ALL_PROVIDERS as readonly string[]).includes(value),
   );
   const layers = parseList(
-    readFlagValue(args, '--layer') ?? readFlagValue(args, '--layers')
+    readFlagValue(args, '--layer') ?? readFlagValue(args, '--layers'),
   ).filter((value): value is SkillLayer => (ALL_LAYERS as readonly string[]).includes(value));
   return {
     help: args.includes('--help') || args.includes('-h'),
@@ -97,7 +97,7 @@ function printPreview(plans: WritePlan[]): void {
   for (const plan of plans) {
     const { provider, layer, scope } = plan.target;
     console.log(
-      `  ${actionLabel(plan.action).padEnd(28)} ${ui.bold(`${provider}/${layer}`)} ${ui.dim(`(${scope})`)}`
+      `  ${actionLabel(plan.action).padEnd(28)} ${ui.bold(`${provider}/${layer}`)} ${ui.dim(`(${scope})`)}`,
     );
     console.log(`  ${ui.dim('→ ' + plan.target.path)}`);
   }
@@ -145,7 +145,7 @@ function resolveDefaultProviders(scope: SkillScope, cwd: string, home: string): 
  * @param options `argv` overrides process args; `fromSetup` trims the banner.
  */
 export async function runSkillsWizard(
-  options: { argv?: string[]; fromSetup?: boolean } = {}
+  options: { argv?: string[]; fromSetup?: boolean } = {},
 ): Promise<void> {
   const flags = parseFlags(options.argv ?? process.argv.slice(2));
   if (flags.help) {
@@ -161,7 +161,7 @@ export async function runSkillsWizard(
   if (!options.fromSetup) {
     console.log(`\n  ${ebayPalette.blue.bold('eBay MCP')} ${ui.bold('· AI skills installer')}`);
     console.log(
-      `  ${ui.dim(`Generate skills for Codex, Claude Code, and Cursor from ${snapshot.toolCount} live tools.`)}\n`
+      `  ${ui.dim(`Generate skills for Codex, Claude Code, and Cursor from ${snapshot.toolCount} live tools.`)}\n`,
     );
   }
 
@@ -225,7 +225,7 @@ export async function runSkillsWizard(
           initial: flags.global ? 1 : 0,
         },
       ],
-      { onCancel }
+      { onCancel },
     )) as { providers?: SkillProvider[]; layers?: SkillLayer[]; scope?: SkillScope };
 
     if (cancelled) {
@@ -254,13 +254,13 @@ export async function runSkillsWizard(
   const foreign = plans.filter((plan) => plan.action === 'skip-foreign');
   if (foreign.length > 0 && !flags.force) {
     printWarning(
-      `${foreign.length} file(s) exist that this tool did not generate and will be skipped. Re-run with --force to overwrite.`
+      `${foreign.length} file(s) exist that this tool did not generate and will be skipped. Re-run with --force to overwrite.`,
     );
   }
 
   if (!nonInteractive) {
     const writable = plans.filter(
-      (plan) => plan.action !== 'unchanged' && !(plan.action === 'skip-foreign' && !flags.force)
+      (plan) => plan.action !== 'unchanged' && !(plan.action === 'skip-foreign' && !flags.force),
     ).length;
     if (writable === 0) {
       printInfo('Everything is already up to date.');
@@ -274,7 +274,7 @@ export async function runSkillsWizard(
           cancelled = true;
           return false;
         },
-      }
+      },
     )) as { go?: boolean };
     if (cancelled || !go) {
       printWarning('Cancelled — nothing written.');

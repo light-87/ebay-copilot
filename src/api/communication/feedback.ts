@@ -26,7 +26,7 @@ export class FeedbackApi {
       'Failed to get awaiting feedback',
       filter,
       limit,
-      offset
+      offset,
     );
   }
 
@@ -43,7 +43,7 @@ export class FeedbackApi {
     return await withApiError('Failed to get feedback', () =>
       this.client.get(`${this.basePath}/feedback`, {
         transaction_id: transactionId,
-      })
+      }),
     );
   }
 
@@ -56,7 +56,7 @@ export class FeedbackApi {
     return await getPathWithContextError(
       this.client,
       `${this.basePath}/feedback_rating_summary`,
-      'Failed to get feedback rating summary'
+      'Failed to get feedback rating summary',
     );
   }
 
@@ -71,7 +71,7 @@ export class FeedbackApi {
     }
 
     return await withApiError('Failed to leave feedback', () =>
-      this.client.post(`${this.basePath}/feedback`, feedbackData)
+      this.client.post(`${this.basePath}/feedback`, feedbackData),
     );
   }
 
@@ -92,7 +92,7 @@ export class FeedbackApi {
       this.client.post(`${this.basePath}/respond_to_feedback`, {
         feedback_id: feedbackId,
         response_text: responseText,
-      })
+      }),
     );
   }
 

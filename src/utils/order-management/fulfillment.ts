@@ -95,7 +95,7 @@ export const createShippingFulfillmentSchema = z.object({
       {
         invalid_type_error: 'line_items must be an array',
         description: 'Array of line items to fulfill (required)',
-      }
+      },
     )
     .optional(),
   shipped_date: z
@@ -202,7 +202,7 @@ export const issueRefundSchema = z.object({
       {
         invalid_type_error: 'refund_items must be an array',
         description: 'Array of line items to refund',
-      }
+      },
     )
     .optional(),
   order_level_refund_amount: z

@@ -112,14 +112,14 @@ export const createDestinationSchema = z.object({
           .max(80, 'verification_token must be at most 80 characters')
           .regex(
             /^[a-zA-Z0-9_-]+$/,
-            'verification_token can only contain alphanumeric, underscore, and hyphen characters'
+            'verification_token can only contain alphanumeric, underscore, and hyphen characters',
           )
           .optional(),
       },
       {
         invalid_type_error: 'delivery_config must be an object',
         description: 'Delivery configuration with endpoint and verification token',
-      }
+      },
     )
     .optional(),
   name: z
@@ -236,7 +236,7 @@ export const createSubscriptionSchema = z.object({
       {
         invalid_type_error: 'payload must be an object',
         description: 'Payload configuration',
-      }
+      },
     )
     .optional(),
   status: z

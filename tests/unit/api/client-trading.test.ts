@@ -11,7 +11,9 @@ function createMockRestClient(environment = 'production') {
     getConfig: vi.fn().mockReturnValue({ environment }),
     getOAuthClient: vi.fn().mockReturnValue(mockOAuthClient),
     _mockOAuthClient: mockOAuthClient,
-  } as unknown as EbayApiClient & { _mockOAuthClient: { getAccessToken: ReturnType<typeof vi.fn> } };
+  } as unknown as EbayApiClient & {
+    _mockOAuthClient: { getAccessToken: ReturnType<typeof vi.fn> };
+  };
 }
 
 describe('TradingApiClient', () => {
@@ -44,7 +46,7 @@ describe('TradingApiClient', () => {
         `<?xml version="1.0" encoding="utf-8"?>
         <GetMyeBaySellingResponse xmlns="urn:ebay:apis:eBLBaseComponents">
           <Ack>Success</Ack>
-        </GetMyeBaySellingResponse>`
+        </GetMyeBaySellingResponse>`,
       );
 
     const result = await client.execute('GetMyeBaySelling', {});
@@ -63,7 +65,7 @@ describe('TradingApiClient', () => {
         <GetItemResponse xmlns="urn:ebay:apis:eBLBaseComponents">
           <Ack>Success</Ack>
           <Item><ItemID>12345</ItemID></Item>
-        </GetItemResponse>`
+        </GetItemResponse>`,
       );
 
     const result = await client.execute('GetItem', { ItemID: '12345' });
@@ -84,18 +86,14 @@ describe('TradingApiClient', () => {
             <LongMessage>The item ID 99999 is invalid.</LongMessage>
             <SeverityCode>Error</SeverityCode>
           </Errors>
-        </GetItemResponse>`
+        </GetItemResponse>`,
       );
 
-    await expect(client.execute('GetItem', { ItemID: '99999' })).rejects.toThrow(
-      'Invalid item ID'
-    );
+    await expect(client.execute('GetItem', { ItemID: '99999' })).rejects.toThrow('Invalid item ID');
   });
 
   it('should use sandbox URL for sandbox environment', () => {
-    const sandboxClient = new TradingApiClient(
-      createMockRestClient('sandbox')
-    );
+    const sandboxClient = new TradingApiClient(createMockRestClient('sandbox'));
     expect(sandboxClient.getTradingBaseUrl()).toBe('https://api.sandbox.ebay.com');
   });
 
@@ -129,7 +127,7 @@ describe('TradingApiClient', () => {
         .reply(
           200,
           `<?xml version="1.0" encoding="utf-8"?>
-          <GetItemResponse xmlns="urn:ebay:apis:eBLBaseComponents"><Ack>Success</Ack></GetItemResponse>`
+          <GetItemResponse xmlns="urn:ebay:apis:eBLBaseComponents"><Ack>Success</Ack></GetItemResponse>`,
         );
 
       const result = await proxyClient.execute('GetItem', { ItemID: '1' });

@@ -279,13 +279,11 @@ export function displaySecurityResults(results: SecurityCheckResult[]): void {
   if (critical.length > 0) {
     console.log(
       chalk.red.bold(
-        `⚠️  ${critical.length} critical issue(s) found. Please fix before continuing.\n`
-      )
+        `⚠️  ${critical.length} critical issue(s) found. Please fix before continuing.\n`,
+      ),
     );
   } else if (warnings.length > 0) {
-    console.log(
-      chalk.yellow.bold(`⚠️  ${warnings.length} warning(s) found. Recommended to fix.\n`)
-    );
+    console.log(chalk.yellow.bold(`⚠️  ${warnings.length} warning(s) found. Recommended to fix.\n`));
   } else {
     console.log(chalk.green.bold('✅ All security checks passed!\n'));
   }

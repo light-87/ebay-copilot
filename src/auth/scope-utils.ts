@@ -38,7 +38,7 @@ export interface ScopeRequirement {
  */
 export function validateScopesDetailed(
   scopes: string[],
-  environment: 'production' | 'sandbox'
+  environment: 'production' | 'sandbox',
 ): ScopeValidationResult {
   const validation = validateScopes(scopes, environment);
   const validScopeSet = new Set(getDefaultScopes(environment));

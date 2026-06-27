@@ -16,7 +16,7 @@ function byProvider(targets: SkillTarget[]): Record<SkillProvider, SkillTarget> 
 describe('skill targets', () => {
   it('resolves project-local paths and kinds for every provider', () => {
     const targets = byProvider(
-      resolveTargets(['claude', 'cursor', 'codex'], ['using'], 'project', cwd, home)
+      resolveTargets(['claude', 'cursor', 'codex'], ['using'], 'project', cwd, home),
     );
 
     expect(targets.claude.path).toBe(join(cwd, '.claude', 'skills', 'ebay-mcp-using', 'SKILL.md'));
@@ -30,7 +30,7 @@ describe('skill targets', () => {
 
   it('uses the home dir for global claude/codex but keeps cursor project-local', () => {
     const targets = byProvider(
-      resolveTargets(['claude', 'cursor', 'codex'], ['using'], 'global', cwd, home)
+      resolveTargets(['claude', 'cursor', 'codex'], ['using'], 'global', cwd, home),
     );
 
     expect(targets.claude.path).toBe(join(home, '.claude', 'skills', 'ebay-mcp-using', 'SKILL.md'));

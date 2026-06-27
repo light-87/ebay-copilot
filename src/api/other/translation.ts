@@ -20,7 +20,7 @@ export class TranslationApi {
         to,
         translationContext,
         text,
-      })
+      }),
     );
   }
 }

@@ -329,7 +329,7 @@ describe('Tools Layer', () => {
       delete process.env.EBAY_CLIENT_ID;
 
       await expect(executeTool(mockApi, 'ebay_get_oauth_url', {})).rejects.toThrow(
-        'EBAY_CLIENT_ID environment variable is required'
+        'EBAY_CLIENT_ID environment variable is required',
       );
     });
 
@@ -337,7 +337,7 @@ describe('Tools Layer', () => {
       delete process.env.EBAY_REDIRECT_URI;
 
       await expect(executeTool(mockApi, 'ebay_get_oauth_url', {})).rejects.toThrow(
-        'Redirect URI is required'
+        'Redirect URI is required',
       );
     });
 
@@ -377,7 +377,7 @@ describe('Tools Layer', () => {
     it('should clear tokens', async () => {
       const mockClearTokens = vi.fn();
       vi.mocked(mockApi.getAuthClient().getOAuthClient().clearAllTokens).mockImplementation(
-        mockClearTokens
+        mockClearTokens,
       );
 
       const result = await executeTool(mockApi, 'ebay_clear_tokens', {});
@@ -524,7 +524,7 @@ describe('Tools Layer', () => {
       vi.mocked(mockApi.hasUserTokens).mockReturnValue(false);
 
       await expect(executeTool(mockApi, 'ebay_refresh_access_token', {})).rejects.toThrow(
-        'No user tokens available'
+        'No user tokens available',
       );
     });
 
@@ -538,7 +538,7 @@ describe('Tools Layer', () => {
       vi.mocked(mockAuthClient.refreshUserToken).mockImplementation(mockRefreshToken);
 
       await expect(executeTool(mockApi, 'ebay_refresh_access_token', {})).rejects.toThrow(
-        'Failed to refresh access token: Refresh token expired or invalid'
+        'Failed to refresh access token: Refresh token expired or invalid',
       );
     });
 
@@ -580,7 +580,7 @@ describe('Tools Layer', () => {
       await expect(executeTool(mockApi, 'ebay_exchange_authorization_code', {})).rejects.toThrow();
 
       await expect(
-        executeTool(mockApi, 'ebay_exchange_authorization_code', { code: '' })
+        executeTool(mockApi, 'ebay_exchange_authorization_code', { code: '' }),
       ).rejects.toThrow();
     });
 
@@ -618,7 +618,7 @@ describe('Tools Layer', () => {
       await expect(
         executeTool(mockApi, 'ebay_exchange_authorization_code', {
           code: 'invalid-code',
-        })
+        }),
       ).rejects.toThrow('Failed to exchange authorization code: Invalid authorization code');
     });
 
@@ -630,7 +630,7 @@ describe('Tools Layer', () => {
       await expect(
         executeTool(mockApi, 'ebay_exchange_authorization_code', {
           code: 'some-code',
-        })
+        }),
       ).rejects.toThrow('Failed to exchange authorization code: String error message');
     });
   });
@@ -721,7 +721,7 @@ describe('Tools Layer', () => {
 
       expect(mockApi.inventory.createOrReplaceInventoryItem).toHaveBeenCalledWith(
         'TEST-SKU',
-        mockInventoryItem
+        mockInventoryItem,
       );
     });
 
@@ -752,7 +752,7 @@ describe('Tools Layer', () => {
       expect(mockApi.fulfillment.getOrders).toHaveBeenCalledWith(
         'orderfulfillmentstatus:{NOT_STARTED}',
         10,
-        0
+        0,
       );
       expect(result).toBe(mockResponse);
     });
@@ -780,7 +780,7 @@ describe('Tools Layer', () => {
 
       expect(mockApi.fulfillment.createShippingFulfillment).toHaveBeenCalledWith(
         'ORDER123',
-        mockFulfillment
+        mockFulfillment,
       );
     });
 
@@ -851,7 +851,7 @@ describe('Tools Layer', () => {
         'LISTING',
         'listingIds:{123}',
         'CLICK_THROUGH_RATE',
-        '-date'
+        '-date',
       );
       expect(result).toBe(mockResponse);
     });
@@ -867,7 +867,7 @@ describe('Tools Layer', () => {
 
       expect(mockApi.analytics.getSellerStandardsProfile).toHaveBeenCalledWith(
         'CUSTOMER_SERVICE',
-        'CURRENT'
+        'CURRENT',
       );
       expect(result).toBe(mockResponse);
     });
@@ -942,7 +942,7 @@ describe('Tools Layer', () => {
   describe('executeTool - Error Handling', () => {
     it('should throw error for unknown tool', async () => {
       await expect(executeTool(mockApi, 'unknown_tool', {})).rejects.toThrow(
-        'Unknown tool: unknown_tool'
+        'Unknown tool: unknown_tool',
       );
     });
   });

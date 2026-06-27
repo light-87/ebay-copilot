@@ -35,7 +35,7 @@ const consoleFormat = winston.format.combine(
     const metaStr = Object.keys(meta).length ? `\n${JSON.stringify(meta, null, 2)}` : '';
     const stackStr = typeof stack === 'string' ? `\n${stack}` : '';
     return `[${timestamp}] [${level.toUpperCase()}] ${message}${metaStr}${stackStr}`;
-  })
+  }),
 );
 
 /**
@@ -44,7 +44,7 @@ const consoleFormat = winston.format.combine(
 const fileFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
-  winston.format.json()
+  winston.format.json(),
 );
 
 /**
@@ -86,7 +86,7 @@ if (ENABLE_FILE_LOGGING) {
       maxsize: 10 * 1024 * 1024, // 10MB
       maxFiles: 3,
       tailable: true,
-    })
+    }),
   );
 }
 
@@ -158,7 +158,7 @@ export function logRequest(
   method: string,
   url: string,
   params?: Record<string, unknown>,
-  body?: unknown
+  body?: unknown,
 ): void {
   apiLogger.http(`Request: ${method.toUpperCase()} ${url}`, {
     params: params && Object.keys(params).length > 0 ? params : undefined,
@@ -174,7 +174,7 @@ export function logResponse(
   statusText: string,
   data?: unknown,
   rateLimitRemaining?: string,
-  rateLimitTotal?: string
+  rateLimitTotal?: string,
 ): void {
   const meta: Record<string, unknown> = {};
 
@@ -196,7 +196,7 @@ export function logErrorResponse(
   status: number | undefined,
   statusText: string | undefined,
   url: string,
-  errorData?: unknown
+  errorData?: unknown,
 ): void {
   apiLogger.error(`Error Response: ${status || 'N/A'} ${statusText || 'No response'}`, {
     url,
@@ -245,7 +245,7 @@ export function setFileLogging(enabled: boolean): void {
         maxsize: 5 * 1024 * 1024,
         maxFiles: 5,
         tailable: true,
-      })
+      }),
     );
     logger.add(
       new winston.transports.File({
@@ -254,7 +254,7 @@ export function setFileLogging(enabled: boolean): void {
         maxsize: 10 * 1024 * 1024,
         maxFiles: 5,
         tailable: true,
-      })
+      }),
     );
     logger.info('File logging enabled');
   }

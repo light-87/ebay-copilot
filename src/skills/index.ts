@@ -39,7 +39,7 @@ export { planWrite, applyWrite, type ApplyResult } from '@/skills/install.js';
  */
 export function buildSkillDoc(
   layer: SkillLayer,
-  snapshot: RegistrySnapshot = buildRegistrySnapshot()
+  snapshot: RegistrySnapshot = buildRegistrySnapshot(),
 ): SkillDoc {
   return layer === 'using' ? buildUsingDoc(snapshot) : buildContributingDoc(snapshot);
 }
@@ -80,7 +80,7 @@ export function renderSkillTargets(options: BuildPlansOptions): RenderedTarget[]
     options.layers,
     options.scope,
     options.cwd,
-    options.home
+    options.home,
   );
   return targets.map((target) => ({
     target,
@@ -101,6 +101,6 @@ export function renderSkillTargets(options: BuildPlansOptions): RenderedTarget[]
  */
 export function buildSkillPlans(options: BuildPlansOptions): WritePlan[] {
   return renderSkillTargets(options).map((rendered) =>
-    planWrite(rendered.target, rendered.payload)
+    planWrite(rendered.target, rendered.payload),
   );
 }

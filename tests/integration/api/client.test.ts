@@ -2,11 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import nock from 'nock';
 import { EbayApiClient } from '../../../src/api/client.js';
 import type { EbayConfig } from '../../../src/types/ebay.js';
-import {
-  mockEbayApiEndpoint,
-  mockEbayApiError,
-  cleanupMocks,
-} from '../../helpers/mock-http.js';
+import { mockEbayApiEndpoint, mockEbayApiError, cleanupMocks } from '../../helpers/mock-http.js';
 
 // Mock EbayOAuthClient to provide tokens without environment variables
 const mockOAuthClient = {
@@ -95,7 +91,7 @@ describe('EbayApiClient Integration Tests', () => {
         '/sell/inventory/v1/inventory_item?limit=10&offset=0',
         'get',
         'sandbox',
-        mockResponse
+        mockResponse,
       );
 
       const result = await apiClient.get('/sell/inventory/v1/inventory_item', {
@@ -112,11 +108,11 @@ describe('EbayApiClient Integration Tests', () => {
         'get',
         'sandbox',
         'Inventory item not found',
-        404
+        404,
       );
 
       await expect(apiClient.get('/sell/inventory/v1/inventory_item/INVALID-SKU')).rejects.toThrow(
-        'Inventory item not found'
+        'Inventory item not found',
       );
     });
   });
@@ -152,11 +148,11 @@ describe('EbayApiClient Integration Tests', () => {
         'post',
         'sandbox',
         'Missing required field: marketplaceId',
-        400
+        400,
       );
 
       await expect(apiClient.post('/sell/inventory/v1/offer', invalidData)).rejects.toThrow(
-        'Missing required field: marketplaceId'
+        'Missing required field: marketplaceId',
       );
     });
   });
@@ -176,7 +172,7 @@ describe('EbayApiClient Integration Tests', () => {
         'put',
         'sandbox',
         undefined,
-        204
+        204,
       );
 
       await apiClient.put('/sell/inventory/v1/inventory_item/TEST-001', updateData);
@@ -191,11 +187,11 @@ describe('EbayApiClient Integration Tests', () => {
         'put',
         'sandbox',
         'Inventory item not found',
-        404
+        404,
       );
 
       await expect(apiClient.put('/sell/inventory/v1/inventory_item/TEST-001', {})).rejects.toThrow(
-        'Inventory item not found'
+        'Inventory item not found',
       );
     });
   });
@@ -207,7 +203,7 @@ describe('EbayApiClient Integration Tests', () => {
         'delete',
         'sandbox',
         undefined,
-        204
+        204,
       );
 
       await apiClient.delete('/sell/inventory/v1/inventory_item/TEST-001');
@@ -222,11 +218,11 @@ describe('EbayApiClient Integration Tests', () => {
         'delete',
         'sandbox',
         'Cannot delete item with active offers',
-        409
+        409,
       );
 
       await expect(apiClient.delete('/sell/inventory/v1/inventory_item/TEST-001')).rejects.toThrow(
-        'Cannot delete item with active offers'
+        'Cannot delete item with active offers',
       );
     });
   });
@@ -239,7 +235,7 @@ describe('EbayApiClient Integration Tests', () => {
         '/sell/inventory/v1/inventory_item',
         'get',
         'sandbox',
-        mockResponse
+        mockResponse,
       );
 
       // Check that Authorization header is sent
@@ -258,7 +254,7 @@ describe('EbayApiClient Integration Tests', () => {
       await clientWithoutTokens.initialize();
 
       await expect(clientWithoutTokens.get('/sell/inventory/v1/inventory_item')).rejects.toThrow(
-        'Access token is missing'
+        'Access token is missing',
       );
     });
 
@@ -294,7 +290,7 @@ describe('EbayApiClient Integration Tests', () => {
       mockEbayApiEndpoint('/sell/inventory/v1/offer', 'post', 'sandbox', errorResponse, 400);
 
       await expect(apiClient.post('/sell/inventory/v1/offer', {})).rejects.toThrow(
-        'Detailed error message with more context'
+        'Detailed error message with more context',
       );
     });
 

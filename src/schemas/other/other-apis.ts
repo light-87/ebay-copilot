@@ -82,7 +82,7 @@ const complianceDetailSchema = z.object({
         message: z.string().optional(),
         variation: variationDetailsSchema.optional(),
         violationData: z.array(nameValueListSchema).optional(),
-      })
+      }),
     )
     .optional(),
   correctiveRecommendations: correctiveRecommendationsSchema.optional(),
@@ -96,7 +96,7 @@ const complianceSummaryInfoSchema = z.object({
           z.object({
             complianceType: z.string().optional(),
             listingCount: z.number().int().optional(),
-          })
+          }),
         )
         .optional(),
     })
@@ -194,7 +194,7 @@ const veroReportItemsResponseSchema = z.object({
         itemId: z.string().optional(),
         statusCode: z.number().int().optional(),
         statusMessage: z.string().optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -269,7 +269,7 @@ const createShippingQuoteRequestSchema = z.object({
       z.object({
         lineItems: z.array(lineItemInputSchema).optional(),
         orderId: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   shippingDestination: contactSchema.optional(),
@@ -292,7 +292,7 @@ const packageSchema = z.object({
         lineItemId: z.string().optional(),
         orderId: z.string().optional(),
         quantity: z.number().int().optional(),
-      })
+      }),
     )
     .optional(),
   packageDetails: packageDetailsSchema.optional(),
@@ -344,7 +344,7 @@ const shipmentSchema = z.object({
       z.object({
         packageId: z.string().optional(),
         trackingNumber: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   rate: purchasedRateSchema.optional(),
@@ -406,19 +406,19 @@ export function getOtherApisJsonSchemas() {
     // Sell Compliance API
     getComplianceSummaryOutput: zodToJsonSchema(
       complianceSummaryInfoSchema,
-      'getComplianceSummaryOutput'
+      'getComplianceSummaryOutput',
     ),
     getListingViolationsInput: zodToJsonSchema(
       getListingViolationsInputSchema,
-      'getListingViolationsInput'
+      'getListingViolationsInput',
     ),
     getListingViolationsOutput: zodToJsonSchema(
       listingViolationSummaryResponseSchema,
-      'getListingViolationsOutput'
+      'getListingViolationsOutput',
     ),
     suppressViolationInput: zodToJsonSchema(
       suppressViolationRequestSchema,
-      'suppressViolationInput'
+      'suppressViolationInput',
     ),
 
     // Commerce Translation API
@@ -430,21 +430,21 @@ export function getOtherApisJsonSchemas() {
     reportItemsOutput: zodToJsonSchema(veroReportItemsResponseSchema, 'reportItemsOutput'),
     getVeroReportedListingsInput: zodToJsonSchema(
       getVeroReportedListingsInputSchema,
-      'getVeroReportedListingsInput'
+      'getVeroReportedListingsInput',
     ),
     getVeroReportedListingsOutput: zodToJsonSchema(
       veroReportedListingsResponseSchema,
-      'getVeroReportedListingsOutput'
+      'getVeroReportedListingsOutput',
     ),
 
     // Sell eDelivery International Shipping API
     createShippingQuoteInput: zodToJsonSchema(
       createShippingQuoteRequestSchema,
-      'createShippingQuoteInput'
+      'createShippingQuoteInput',
     ),
     createShippingQuoteOutput: zodToJsonSchema(
       createShippingQuoteResponseSchema,
-      'createShippingQuoteOutput'
+      'createShippingQuoteOutput',
     ),
     purchaseLabelInput: zodToJsonSchema(purchaseLabelRequestSchema, 'purchaseLabelInput'),
     purchaseLabelOutput: zodToJsonSchema(purchaseLabelResponseSchema, 'purchaseLabelOutput'),
@@ -467,7 +467,7 @@ export function getOtherApisJsonSchemas() {
     complianceDetail: zodToJsonSchema(complianceDetailSchema, 'complianceDetail'),
     correctiveRecommendations: zodToJsonSchema(
       correctiveRecommendationsSchema,
-      'correctiveRecommendations'
+      'correctiveRecommendations',
     ),
     variationDetails: zodToJsonSchema(variationDetailsSchema, 'variationDetails'),
     nameValueList: zodToJsonSchema(nameValueListSchema, 'nameValueList'),

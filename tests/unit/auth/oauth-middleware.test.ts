@@ -116,7 +116,7 @@ describe('OAuth Middleware', () => {
 
     it('should reject invalid token', async () => {
       (mockVerifier.verifyToken as ReturnType<typeof vi.fn>).mockRejectedValue(
-        new Error('Token expired')
+        new Error('Token expired'),
       );
 
       mockRequest.headers = {

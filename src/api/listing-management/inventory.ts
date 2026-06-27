@@ -39,7 +39,7 @@ export class InventoryApi {
     const params = buildValidatedPaginatedParams(undefined, limit, offset);
 
     return await this.request('Failed to get inventory items', () =>
-      this.client.get<GetInventoryItemsResponse>(`${this.basePath}/inventory_item`, params)
+      this.client.get<GetInventoryItemsResponse>(`${this.basePath}/inventory_item`, params),
     );
   }
 
@@ -51,7 +51,7 @@ export class InventoryApi {
     requireString(sku, 'sku');
 
     return await this.request('Failed to get inventory item', () =>
-      this.client.get<GetInventoryItemResponse>(`${this.basePath}/inventory_item/${sku}`)
+      this.client.get<GetInventoryItemResponse>(`${this.basePath}/inventory_item/${sku}`),
     );
   }
 
@@ -61,13 +61,13 @@ export class InventoryApi {
    */
   async createOrReplaceInventoryItem(
     sku: string,
-    inventoryItem: Record<string, unknown>
+    inventoryItem: Record<string, unknown>,
   ): Promise<void> {
     requireString(sku, 'sku');
     requireObject(inventoryItem, 'inventoryItem');
 
     return await this.request('Failed to create or replace inventory item', () =>
-      this.client.put<void>(`${this.basePath}/inventory_item/${sku}`, inventoryItem)
+      this.client.put<void>(`${this.basePath}/inventory_item/${sku}`, inventoryItem),
     );
   }
 
@@ -79,7 +79,7 @@ export class InventoryApi {
     requireString(sku, 'sku');
 
     return await this.request('Failed to delete inventory item', () =>
-      this.client.delete<void>(`${this.basePath}/inventory_item/${sku}`)
+      this.client.delete<void>(`${this.basePath}/inventory_item/${sku}`),
     );
   }
 
@@ -92,7 +92,7 @@ export class InventoryApi {
     requireObject(requests, 'requests');
 
     return await this.request('Failed to bulk create or replace inventory items', () =>
-      this.client.post(`${this.basePath}/bulk_create_or_replace_inventory_item`, requests)
+      this.client.post(`${this.basePath}/bulk_create_or_replace_inventory_item`, requests),
     );
   }
 
@@ -105,7 +105,7 @@ export class InventoryApi {
     requireObject(requests, 'requests');
 
     return await this.request('Failed to bulk get inventory items', () =>
-      this.client.post(`${this.basePath}/bulk_get_inventory_item`, requests)
+      this.client.post(`${this.basePath}/bulk_get_inventory_item`, requests),
     );
   }
 
@@ -118,7 +118,7 @@ export class InventoryApi {
     requireObject(requests, 'requests');
 
     return await this.request('Failed to bulk update price and quantity', () =>
-      this.client.post(`${this.basePath}/bulk_update_price_quantity`, requests)
+      this.client.post(`${this.basePath}/bulk_update_price_quantity`, requests),
     );
   }
 
@@ -131,7 +131,7 @@ export class InventoryApi {
     requireString(sku, 'sku');
 
     return await this.request('Failed to get product compatibility', () =>
-      this.client.get(`${this.basePath}/inventory_item/${sku}/product_compatibility`)
+      this.client.get(`${this.basePath}/inventory_item/${sku}/product_compatibility`),
     );
   }
 
@@ -142,13 +142,16 @@ export class InventoryApi {
    */
   async createOrReplaceProductCompatibility(
     sku: string,
-    compatibility: Record<string, unknown>
+    compatibility: Record<string, unknown>,
   ): Promise<unknown> {
     requireString(sku, 'sku');
     requireObject(compatibility, 'compatibility');
 
     return await this.request('Failed to create or replace product compatibility', () =>
-      this.client.put(`${this.basePath}/inventory_item/${sku}/product_compatibility`, compatibility)
+      this.client.put(
+        `${this.basePath}/inventory_item/${sku}/product_compatibility`,
+        compatibility,
+      ),
     );
   }
 
@@ -161,7 +164,7 @@ export class InventoryApi {
     requireString(sku, 'sku');
 
     return await this.request('Failed to delete product compatibility', () =>
-      this.client.delete(`${this.basePath}/inventory_item/${sku}/product_compatibility`)
+      this.client.delete(`${this.basePath}/inventory_item/${sku}/product_compatibility`),
     );
   }
 
@@ -174,7 +177,7 @@ export class InventoryApi {
     requireString(inventoryItemGroupKey, 'inventoryItemGroupKey');
 
     return await this.request('Failed to get inventory item group', () =>
-      this.client.get(`${this.basePath}/inventory_item_group/${inventoryItemGroupKey}`)
+      this.client.get(`${this.basePath}/inventory_item_group/${inventoryItemGroupKey}`),
     );
   }
 
@@ -185,7 +188,7 @@ export class InventoryApi {
    */
   async createOrReplaceInventoryItemGroup(
     inventoryItemGroupKey: string,
-    inventoryItemGroup: Record<string, unknown>
+    inventoryItemGroup: Record<string, unknown>,
   ): Promise<unknown> {
     requireString(inventoryItemGroupKey, 'inventoryItemGroupKey');
     requireObject(inventoryItemGroup, 'inventoryItemGroup');
@@ -193,8 +196,8 @@ export class InventoryApi {
     return await this.request('Failed to create or replace inventory item group', () =>
       this.client.put(
         `${this.basePath}/inventory_item_group/${inventoryItemGroupKey}`,
-        inventoryItemGroup
-      )
+        inventoryItemGroup,
+      ),
     );
   }
 
@@ -207,7 +210,7 @@ export class InventoryApi {
     requireString(inventoryItemGroupKey, 'inventoryItemGroupKey');
 
     return await this.request('Failed to delete inventory item group', () =>
-      this.client.delete(`${this.basePath}/inventory_item_group/${inventoryItemGroupKey}`)
+      this.client.delete(`${this.basePath}/inventory_item_group/${inventoryItemGroupKey}`),
     );
   }
 
@@ -218,12 +221,12 @@ export class InventoryApi {
    */
   async getInventoryLocations(
     limit?: number,
-    offset?: number
+    offset?: number,
   ): Promise<GetInventoryLocationsResponse> {
     const params = buildValidatedPaginatedParams(undefined, limit, offset);
 
     return await this.request('Failed to get inventory locations', () =>
-      this.client.get<GetInventoryLocationsResponse>(`${this.basePath}/location`, params)
+      this.client.get<GetInventoryLocationsResponse>(`${this.basePath}/location`, params),
     );
   }
 
@@ -236,7 +239,7 @@ export class InventoryApi {
     requireString(merchantLocationKey, 'merchantLocationKey');
 
     return await this.request('Failed to get inventory location', () =>
-      this.client.get(`${this.basePath}/location/${merchantLocationKey}`)
+      this.client.get(`${this.basePath}/location/${merchantLocationKey}`),
     );
   }
 
@@ -247,13 +250,13 @@ export class InventoryApi {
    */
   async createOrReplaceInventoryLocation(
     merchantLocationKey: string,
-    location: Record<string, unknown>
+    location: Record<string, unknown>,
   ): Promise<void> {
     requireString(merchantLocationKey, 'merchantLocationKey');
     requireObject(location, 'location');
 
     return await this.request('Failed to create or replace inventory location', () =>
-      this.client.post(`${this.basePath}/location/${merchantLocationKey}`, location)
+      this.client.post(`${this.basePath}/location/${merchantLocationKey}`, location),
     );
   }
 
@@ -266,7 +269,7 @@ export class InventoryApi {
     requireString(merchantLocationKey, 'merchantLocationKey');
 
     return await this.request('Failed to delete inventory location', () =>
-      this.client.delete(`${this.basePath}/location/${merchantLocationKey}`)
+      this.client.delete(`${this.basePath}/location/${merchantLocationKey}`),
     );
   }
 
@@ -279,7 +282,7 @@ export class InventoryApi {
     requireString(merchantLocationKey, 'merchantLocationKey');
 
     return await this.request('Failed to disable inventory location', () =>
-      this.client.post(`${this.basePath}/location/${merchantLocationKey}/disable`, {})
+      this.client.post(`${this.basePath}/location/${merchantLocationKey}/disable`, {}),
     );
   }
 
@@ -292,7 +295,7 @@ export class InventoryApi {
     requireString(merchantLocationKey, 'merchantLocationKey');
 
     return await this.request('Failed to enable inventory location', () =>
-      this.client.post(`${this.basePath}/location/${merchantLocationKey}/enable`, {})
+      this.client.post(`${this.basePath}/location/${merchantLocationKey}/enable`, {}),
     );
   }
 
@@ -303,7 +306,7 @@ export class InventoryApi {
    */
   async updateLocationDetails(
     merchantLocationKey: string,
-    locationDetails: Record<string, unknown>
+    locationDetails: Record<string, unknown>,
   ): Promise<void> {
     requireString(merchantLocationKey, 'merchantLocationKey');
     requireObject(locationDetails, 'locationDetails');
@@ -311,8 +314,8 @@ export class InventoryApi {
     return await this.request('Failed to update location details', () =>
       this.client.post(
         `${this.basePath}/location/${merchantLocationKey}/update_location_details`,
-        locationDetails
-      )
+        locationDetails,
+      ),
     );
   }
 
@@ -323,7 +326,7 @@ export class InventoryApi {
   async getOffers(
     sku?: string,
     marketplaceId?: string,
-    limit?: number
+    limit?: number,
   ): Promise<GetOffersResponse> {
     const params = buildOptionalStringParams({ sku });
     const marketplaceIdParam = optionalStringParam(marketplaceId, 'marketplaceId');
@@ -339,7 +342,7 @@ export class InventoryApi {
     }
 
     return await this.request('Failed to get offers', () =>
-      this.client.get<GetOffersResponse>(`${this.basePath}/offer`, params)
+      this.client.get<GetOffersResponse>(`${this.basePath}/offer`, params),
     );
   }
 
@@ -352,7 +355,7 @@ export class InventoryApi {
     requireString(offerId, 'offerId');
 
     return await this.request('Failed to get offer', () =>
-      this.client.get<EbayOfferDetailsWithAll>(`${this.basePath}/offer/${offerId}`)
+      this.client.get<EbayOfferDetailsWithAll>(`${this.basePath}/offer/${offerId}`),
     );
   }
 
@@ -364,7 +367,7 @@ export class InventoryApi {
     requireObject(offer, 'offer');
 
     return await this.request('Failed to create offer', () =>
-      this.client.post<CreateOfferResponse>(`${this.basePath}/offer`, offer)
+      this.client.post<CreateOfferResponse>(`${this.basePath}/offer`, offer),
     );
   }
 
@@ -378,7 +381,7 @@ export class InventoryApi {
     requireObject(offer, 'offer');
 
     return await this.request('Failed to update offer', () =>
-      this.client.put(`${this.basePath}/offer/${offerId}`, offer)
+      this.client.put(`${this.basePath}/offer/${offerId}`, offer),
     );
   }
 
@@ -391,7 +394,7 @@ export class InventoryApi {
     requireString(offerId, 'offerId');
 
     return await this.request('Failed to delete offer', () =>
-      this.client.delete(`${this.basePath}/offer/${offerId}`)
+      this.client.delete(`${this.basePath}/offer/${offerId}`),
     );
   }
 
@@ -403,7 +406,7 @@ export class InventoryApi {
     requireString(offerId, 'offerId');
 
     return await this.request('Failed to publish offer', () =>
-      this.client.post<PublishResponse>(`${this.basePath}/offer/${offerId}/publish`)
+      this.client.post<PublishResponse>(`${this.basePath}/offer/${offerId}/publish`),
     );
   }
 
@@ -416,7 +419,7 @@ export class InventoryApi {
     requireString(offerId, 'offerId');
 
     return await this.request('Failed to withdraw offer', () =>
-      this.client.post(`${this.basePath}/offer/${offerId}/withdraw`, {})
+      this.client.post(`${this.basePath}/offer/${offerId}/withdraw`, {}),
     );
   }
 
@@ -429,7 +432,7 @@ export class InventoryApi {
     requireObject(requests, 'requests');
 
     return await this.request('Failed to bulk create offers', () =>
-      this.client.post(`${this.basePath}/bulk_create_offer`, requests)
+      this.client.post(`${this.basePath}/bulk_create_offer`, requests),
     );
   }
 
@@ -442,7 +445,7 @@ export class InventoryApi {
     requireObject(requests, 'requests');
 
     return await this.request('Failed to bulk publish offers', () =>
-      this.client.post(`${this.basePath}/bulk_publish_offer`, requests)
+      this.client.post(`${this.basePath}/bulk_publish_offer`, requests),
     );
   }
 
@@ -455,7 +458,7 @@ export class InventoryApi {
     requireObject(offers, 'offers');
 
     return await this.request('Failed to get listing fees', () =>
-      this.client.post(`${this.basePath}/offer/get_listing_fees`, offers)
+      this.client.post(`${this.basePath}/offer/get_listing_fees`, offers),
     );
   }
 
@@ -468,7 +471,7 @@ export class InventoryApi {
     requireObject(requests, 'requests');
 
     return await this.request('Failed to bulk migrate listings', () =>
-      this.client.post(`${this.basePath}/bulk_migrate_listing`, requests)
+      this.client.post(`${this.basePath}/bulk_migrate_listing`, requests),
     );
   }
 
@@ -482,14 +485,14 @@ export class InventoryApi {
     requireString(sku, 'sku');
 
     return await this.request('Failed to get listing locations', () =>
-      this.client.get(`${this.basePath}/listing/${listingId}/sku/${sku}/locations`)
+      this.client.get(`${this.basePath}/listing/${listingId}/sku/${sku}/locations`),
     );
   }
 
   async createOrReplaceSkuLocationMapping(
     listingId: string,
     sku: string,
-    locationMapping: Record<string, unknown>
+    locationMapping: Record<string, unknown>,
   ): Promise<void> {
     requireString(listingId, 'listingId');
     requireString(sku, 'sku');
@@ -503,8 +506,8 @@ export class InventoryApi {
           headers: {
             'Content-Type': 'application/json',
           },
-        }
-      )
+        },
+      ),
     );
   }
 
@@ -513,7 +516,7 @@ export class InventoryApi {
     requireString(sku, 'sku');
 
     return await this.request('Failed to delete SKU location mapping', () =>
-      this.client.delete(`${this.basePath}/listing/${listingId}/sku/${sku}/locations`)
+      this.client.delete(`${this.basePath}/listing/${listingId}/sku/${sku}/locations`),
     );
   }
 
@@ -526,7 +529,7 @@ export class InventoryApi {
     requireObject(request, 'request');
 
     return await this.request('Failed to publish offer by inventory item group', () =>
-      this.client.post(`${this.basePath}/offer/publish_by_inventory_item_group`, request)
+      this.client.post(`${this.basePath}/offer/publish_by_inventory_item_group`, request),
     );
   }
 
@@ -539,7 +542,7 @@ export class InventoryApi {
     requireObject(request, 'request');
 
     return await this.request('Failed to withdraw offer by inventory item group', () =>
-      this.client.post(`${this.basePath}/offer/withdraw_by_inventory_item_group`, request)
+      this.client.post(`${this.basePath}/offer/withdraw_by_inventory_item_group`, request),
     );
   }
 }

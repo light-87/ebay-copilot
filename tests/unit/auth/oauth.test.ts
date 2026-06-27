@@ -139,7 +139,7 @@ describe('EbayOAuthClient', () => {
         'expired_token',
         refreshToken,
         pastExpiry,
-        futureRefreshExpiry
+        futureRefreshExpiry,
       );
 
       // Mock refresh token API call
@@ -251,7 +251,7 @@ describe('EbayOAuthClient', () => {
       const clientWithoutRedirect = new EbayOAuthClient(configWithoutRedirect);
 
       await expect(clientWithoutRedirect.exchangeCodeForToken('code_12345')).rejects.toThrow(
-        'Redirect URI is required'
+        'Redirect URI is required',
       );
     });
 
@@ -264,7 +264,7 @@ describe('EbayOAuthClient', () => {
       });
 
       await expect(oauthClient.exchangeCodeForToken(code)).rejects.toThrow(
-        'Invalid authorization code'
+        'Invalid authorization code',
       );
     });
   });
@@ -421,7 +421,7 @@ describe('EbayOAuthClient', () => {
       process.env.EBAY_USER_REFRESH_TOKEN = 'same_refresh';
       await fsPromises.writeFile(
         path.join(tempDir, '.env'),
-        'EBAY_USER_REFRESH_TOKEN=same_refresh\nEBAY_USER_ACCESS_TOKEN=old_access\n'
+        'EBAY_USER_REFRESH_TOKEN=same_refresh\nEBAY_USER_ACCESS_TOKEN=old_access\n',
       );
       oauthClient.setUserTokens('old_access_token', 'same_refresh');
       writeFileSyncMock.mockClear();

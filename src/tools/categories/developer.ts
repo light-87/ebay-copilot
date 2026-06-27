@@ -181,7 +181,7 @@ export const developerEntries: ToolEntry[] = [
         .enum(['ED25519', 'RSA'])
         .optional()
         .describe(
-          'Cipher to use for keypair: ED25519 (recommended, shorter keys) or RSA (legacy support)'
+          'Cipher to use for keypair: ED25519 (recommended, shorter keys) or RSA (legacy support)',
         ),
     },
     outputSchema: {
@@ -199,7 +199,7 @@ export const developerEntries: ToolEntry[] = [
     },
     handler: (api, args) =>
       api.developer.createSigningKey(
-        args.signingKeyCipher ? { signingKeyCipher: args.signingKeyCipher } : undefined
+        args.signingKeyCipher ? { signingKeyCipher: args.signingKeyCipher } : undefined,
       ),
   }),
   defineTool({

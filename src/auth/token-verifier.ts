@@ -149,7 +149,7 @@ export class TokenVerifier {
       // Validate audience
       if (!this.validateAudience(data.aud)) {
         throw new Error(
-          `Invalid audience. Expected: ${this.config.expectedAudience}, Got: ${data.aud}`
+          `Invalid audience. Expected: ${this.config.expectedAudience}, Got: ${data.aud}`,
         );
       }
 
@@ -157,11 +157,11 @@ export class TokenVerifier {
       const scopes = data.scope ? data.scope.split(' ') : [];
       if (this.config.requiredScopes) {
         const hasRequiredScopes = this.config.requiredScopes.every((scope) =>
-          scopes.includes(scope)
+          scopes.includes(scope),
         );
         if (!hasRequiredScopes) {
           throw new Error(
-            `Missing required scopes. Required: ${this.config.requiredScopes.join(', ')}, Got: ${scopes.join(', ')}`
+            `Missing required scopes. Required: ${this.config.requiredScopes.join(', ')}, Got: ${scopes.join(', ')}`,
           );
         }
       }
@@ -215,11 +215,11 @@ export class TokenVerifier {
       // Validate required scopes
       if (this.config.requiredScopes) {
         const hasRequiredScopes = this.config.requiredScopes.every((scope) =>
-          scopes.includes(scope)
+          scopes.includes(scope),
         );
         if (!hasRequiredScopes) {
           throw new Error(
-            `Missing required scopes. Required: ${this.config.requiredScopes.join(', ')}, Got: ${scopes.join(', ')}`
+            `Missing required scopes. Required: ${this.config.requiredScopes.join(', ')}, Got: ${scopes.join(', ')}`,
           );
         }
       }

@@ -53,7 +53,7 @@ interface RunWizardOptions {
   renderer?: unknown;
   quiet?: boolean;
   optionsProvider?: (
-    stepId: string
+    stepId: string,
   ) => MaybePromise<{ value: string; label: string }[] | undefined>;
   asyncValidate?: (stepId: string, value: unknown) => MaybePromise<string | null>;
   onAfterStep?: (stepId: string, value: unknown, context: WizardContext) => MaybePromise<void>;
@@ -106,7 +106,7 @@ function openUrl(url: string): Promise<void> {
 
 function getSelectDefaultIndex(
   options: { value: string; label: string }[],
-  stepDefault?: string
+  stepDefault?: string,
 ): number {
   if (!stepDefault) return 0;
   const index = options.findIndex((option) => option.value === stepDefault);
@@ -116,7 +116,7 @@ function getSelectDefaultIndex(
 async function promptStep(
   step: WizardStep,
   optionsOverride: { value: string; label: string }[] | undefined,
-  onCancel?: () => void
+  onCancel?: () => void,
 ): Promise<{ cancelled: boolean; value: PromptValue }> {
   if (step.type === 'note') {
     if (step.message) console.log(`\n  ${step.message}`);
@@ -149,7 +149,7 @@ async function promptStep(
           })),
           instructions: false,
         },
-        promptControl
+        promptControl,
       );
       break;
     case 'multiselect':
@@ -164,7 +164,7 @@ async function promptStep(
           })),
           instructions: false,
         },
-        promptControl
+        promptControl,
       );
       break;
     default:
@@ -182,7 +182,7 @@ async function promptStep(
             return true;
           },
         },
-        promptControl
+        promptControl,
       );
       break;
   }
@@ -207,7 +207,7 @@ async function promptStep(
  */
 export async function runWizard(
   config: WizardConfig,
-  runOptions: RunWizardOptions = {}
+  runOptions: RunWizardOptions = {},
 ): Promise<Record<string, unknown>> {
   const answers: Record<string, unknown> = {};
   const indexByStepId = new Map(config.steps.map((step, index) => [step.id, index]));

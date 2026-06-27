@@ -63,7 +63,7 @@ export class TradingApiClient {
    */
   async execute(
     callName: string,
-    params: Record<string, unknown>
+    params: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
     const requestTag = `${callName}Request`;
     const responseTag = `${callName}Response`;
@@ -116,7 +116,7 @@ export class TradingApiClient {
       parsed = parsedValue;
     } catch (e) {
       throw new Error(
-        `Failed to parse Trading API ${callName} response: ${e instanceof Error ? e.message : String(e)}`
+        `Failed to parse Trading API ${callName} response: ${e instanceof Error ? e.message : String(e)}`,
       );
     }
     const resultValue = parsed[responseTag] || parsed;

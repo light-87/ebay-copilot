@@ -30,7 +30,7 @@ export class EbayOAuthClient {
 
   constructor(
     private config: EbayConfig,
-    private credentialStore: CredentialStore = new DotEnvCredentialStore()
+    private credentialStore: CredentialStore = new DotEnvCredentialStore(),
   ) {}
 
   /**
@@ -122,7 +122,7 @@ export class EbayOAuthClient {
         authLogger.error('User refresh token expired. User needs to re-authorize.');
         this.userTokens = null;
         throw new Error(
-          'User authorization expired. Please update EBAY_USER_REFRESH_TOKEN in .env with a new refresh token.'
+          'User authorization expired. Please update EBAY_USER_REFRESH_TOKEN in .env with a new refresh token.',
         );
       }
     }
@@ -144,7 +144,7 @@ export class EbayOAuthClient {
     accessToken: string,
     refreshToken: string,
     accessTokenExpiry?: number,
-    refreshTokenExpiry?: number
+    refreshTokenExpiry?: number,
   ): void {
     this.userTokens = createStoredUserTokens({
       config: this.config,
@@ -174,7 +174,7 @@ export class EbayOAuthClient {
 
     const authUrl = `${getBaseUrl(this.config.environment, this.config.apiBaseUrl)}/identity/v1/oauth2/token`;
     const credentials = Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString(
-      'base64'
+      'base64',
     );
 
     // Client credentials flow only supports basic scope
@@ -223,7 +223,7 @@ export class EbayOAuthClient {
 
     const tokenUrl = `${getBaseUrl(this.config.environment, this.config.apiBaseUrl)}/identity/v1/oauth2/token`;
     const credentials = Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString(
-      'base64'
+      'base64',
     );
 
     try {
@@ -275,7 +275,7 @@ export class EbayOAuthClient {
     // Use the token endpoint, not the authorization endpoint
     const authUrl = `${getBaseUrl(this.config.environment, this.config.apiBaseUrl)}/identity/v1/oauth2/token`;
     const credentials = Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString(
-      'base64'
+      'base64',
     );
 
     try {

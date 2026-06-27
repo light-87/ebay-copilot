@@ -190,7 +190,7 @@ export const marketingTools: ToolDefinition[] = [
                 inventoryReferenceType: z
                   .enum(['INVENTORY_ITEM', 'INVENTORY_ITEM_GROUP'])
                   .describe('Reference type'),
-              })
+              }),
             )
             .describe('Array of inventory references'),
           bidPercentage: z
@@ -218,7 +218,7 @@ export const marketingTools: ToolDefinition[] = [
               z.object({
                 listingId: z.string().describe('eBay listing ID'),
                 bidPercentage: z.string().optional().describe('Bid percentage (e.g., "10.5")'),
-              })
+              }),
             )
             .max(500)
             .describe('Array of ad requests (max 500)'),
@@ -244,7 +244,7 @@ export const marketingTools: ToolDefinition[] = [
                 inventoryReferenceType: z
                   .enum(['INVENTORY_ITEM', 'INVENTORY_ITEM_GROUP'])
                   .describe('Reference type'),
-              })
+              }),
             )
             .describe('Array of inventory references to delete'),
         })
@@ -298,7 +298,7 @@ export const marketingTools: ToolDefinition[] = [
                   .enum(['INVENTORY_ITEM', 'INVENTORY_ITEM_GROUP'])
                   .describe('Reference type'),
                 bidPercentage: z.string().describe('New bid percentage (e.g., "10.5")'),
-              })
+              }),
             )
             .describe('Array of bid update requests'),
         })
@@ -321,7 +321,7 @@ export const marketingTools: ToolDefinition[] = [
               z.object({
                 listingId: z.string().describe('eBay listing ID'),
                 bidPercentage: z.string().describe('New bid percentage (e.g., "10.5")'),
-              })
+              }),
             )
             .describe('Array of bid update requests'),
         })
@@ -344,7 +344,7 @@ export const marketingTools: ToolDefinition[] = [
               z.object({
                 adId: z.string().describe('Ad ID'),
                 adStatus: z.enum(['ACTIVE', 'PAUSED', 'ARCHIVED']).describe('New ad status'),
-              })
+              }),
             )
             .describe('Array of status update requests'),
         })
@@ -368,7 +368,7 @@ export const marketingTools: ToolDefinition[] = [
               z.object({
                 listingId: z.string().describe('eBay listing ID'),
                 adStatus: z.enum(['ACTIVE', 'PAUSED', 'ARCHIVED']).describe('New ad status'),
-              })
+              }),
             )
             .describe('Array of status update requests'),
         })
@@ -418,7 +418,7 @@ export const marketingTools: ToolDefinition[] = [
                 inventoryReferenceType: z
                   .enum(['INVENTORY_ITEM', 'INVENTORY_ITEM_GROUP'])
                   .describe('Reference type'),
-              })
+              }),
             )
             .describe('Array of inventory references'),
           bidPercentage: z.string().optional().describe('Bid percentage for all ads'),
@@ -693,7 +693,7 @@ export const marketingTools: ToolDefinition[] = [
                     currency: z.string(),
                   })
                   .optional(),
-              })
+              }),
             )
             .describe('Array of keyword creation requests'),
         })
@@ -731,7 +731,7 @@ export const marketingTools: ToolDefinition[] = [
                     currency: z.string().describe('Currency code'),
                   })
                   .describe('New bid'),
-              })
+              }),
             )
             .describe('Array of bid update requests'),
         })
@@ -811,7 +811,7 @@ export const marketingTools: ToolDefinition[] = [
             adGroupId: z.string().optional().describe('Ad group the negative keyword is added to.'),
             negativeKeywordText: z.string().describe('The negative keyword text.'),
             negativeKeywordMatchType: z.enum(['EXACT', 'PHRASE']).describe('Match type.'),
-          })
+          }),
         )
         .describe('Array of negative keywords to create.'),
     },
@@ -825,7 +825,7 @@ export const marketingTools: ToolDefinition[] = [
           z.object({
             negativeKeywordId: z.string().describe('The negative keyword ID.'),
             negativeKeywordStatus: z.string().describe('New status for the negative keyword.'),
-          })
+          }),
         )
         .describe('Array of negative keyword status updates.'),
     },
@@ -1265,7 +1265,7 @@ export const marketingTools: ToolDefinition[] = [
                     currency: z.string(),
                   })
                   .optional(),
-              })
+              }),
             )
             .describe('Array of keyword creation requests'),
         })
@@ -1294,7 +1294,7 @@ export const marketingTools: ToolDefinition[] = [
                     currency: z.string(),
                   })
                   .optional(),
-              })
+              }),
             )
             .describe('Array of keyword update requests'),
         })

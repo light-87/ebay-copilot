@@ -345,7 +345,7 @@ describe('LLM Client Detector', () => {
           mcpServers: {
             'ebay-mcp-server': { command: 'node', args: [] },
           },
-        })
+        }),
       );
 
       const result = verifyClientConfiguration('claude', projectRoot);
@@ -359,7 +359,7 @@ describe('LLM Client Detector', () => {
           context_servers: {
             'ebay-mcp-server': { command: { path: 'node' } },
           },
-        })
+        }),
       );
 
       const result = verifyClientConfiguration('zed', projectRoot);
@@ -373,7 +373,7 @@ describe('LLM Client Detector', () => {
           mcpServers: {
             'ebay-mcp-server': { command: 'node', args: [] },
           },
-        })
+        }),
       );
 
       const result = verifyClientConfiguration('cursor', projectRoot);
@@ -387,7 +387,7 @@ describe('LLM Client Detector', () => {
           mcpServers: {
             'ebay-mcp-server': { command: 'node', args: [] },
           },
-        })
+        }),
       );
 
       const result = verifyClientConfiguration('windsurf', projectRoot);
@@ -401,7 +401,7 @@ describe('LLM Client Detector', () => {
           mcpServers: {
             'ebay-mcp-server': { command: 'node', args: [] },
           },
-        })
+        }),
       );
 
       const result = verifyClientConfiguration('roocode', projectRoot);
@@ -415,7 +415,7 @@ describe('LLM Client Detector', () => {
           mcpServers: {
             'ebay-mcp-server': { command: 'node', args: [] },
           },
-        })
+        }),
       );
 
       const result = verifyClientConfiguration('claudecode', projectRoot);
@@ -429,7 +429,7 @@ describe('LLM Client Detector', () => {
           mcpServers: {
             'ebay-mcp-server': { command: 'node', args: [] },
           },
-        })
+        }),
       );
 
       const result = verifyClientConfiguration('amazonq', projectRoot);
@@ -449,7 +449,7 @@ describe('LLM Client Detector', () => {
       vi.mocked(fs.readFileSync).mockReturnValue(
         JSON.stringify({
           mcpServers: {},
-        })
+        }),
       );
 
       const result = verifyClientConfiguration('claude', projectRoot);

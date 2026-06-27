@@ -38,7 +38,7 @@ describe('DeveloperApi', () => {
 
       expect(client.get).toHaveBeenCalledWith(
         '/developer/analytics/v1_beta/rate_limit/',
-        undefined
+        undefined,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -100,7 +100,7 @@ describe('DeveloperApi', () => {
 
       expect(client.get).toHaveBeenCalledWith(
         '/developer/analytics/v1_beta/user_rate_limit/',
-        undefined
+        undefined,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -169,7 +169,7 @@ describe('DeveloperApi', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/developer/client_registration/v1/client/register',
-        clientSettings
+        clientSettings,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -191,7 +191,7 @@ describe('DeveloperApi', () => {
 
       expect(client.post).toHaveBeenCalledWith(
         '/developer/client_registration/v1/client/register',
-        clientSettings
+        clientSettings,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -301,25 +301,25 @@ describe('DeveloperApi', () => {
 
     it('should throw error when signingKeyId is empty', async () => {
       await expect(api.getSigningKey('')).rejects.toThrow(
-        'signingKeyId is required and must be a string'
+        'signingKeyId is required and must be a string',
       );
     });
 
     it('should throw error when signingKeyId is null', async () => {
       await expect(api.getSigningKey(null as any)).rejects.toThrow(
-        'signingKeyId is required and must be a string'
+        'signingKeyId is required and must be a string',
       );
     });
 
     it('should throw error when signingKeyId is undefined', async () => {
       await expect(api.getSigningKey(undefined as any)).rejects.toThrow(
-        'signingKeyId is required and must be a string'
+        'signingKeyId is required and must be a string',
       );
     });
 
     it('should throw error when signingKeyId is not a string', async () => {
       await expect(api.getSigningKey(123 as any)).rejects.toThrow(
-        'signingKeyId is required and must be a string'
+        'signingKeyId is required and must be a string',
       );
     });
 

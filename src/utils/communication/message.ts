@@ -64,7 +64,7 @@ export const bulkUpdateConversationSchema = z.object({
       {
         invalid_type_error: 'conversations must be an array',
         description: 'Array of conversations to update',
-      }
+      },
     )
     .optional(),
 });
@@ -187,7 +187,7 @@ export const sendMessageSchema = z.object({
       {
         invalid_type_error: 'message_media must be an array',
         description: 'Array of up to 5 media attachments',
-      }
+      },
     )
     .max(5, 'Maximum 5 media attachments allowed')
     .optional(),
@@ -223,7 +223,7 @@ export const sendMessageSchema = z.object({
       {
         invalid_type_error: 'reference must be an object',
         description: 'Reference to associate with the conversation',
-      }
+      },
     )
     .optional(),
 });

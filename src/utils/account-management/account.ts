@@ -87,7 +87,7 @@ export const createCustomPolicySchema = z.object({
 export const updateCustomPolicySchema = z.object({
   custom_policy_id: idSchema(
     'Custom policy ID',
-    'The unique identifier of the custom policy to update'
+    'The unique identifier of the custom policy to update',
   ),
   name: z
     .string({
@@ -120,7 +120,7 @@ export const updateCustomPolicySchema = z.object({
 export const deleteCustomPolicySchema = z.object({
   custom_policy_id: idSchema(
     'Custom policy ID',
-    'The unique identifier of the custom policy to delete'
+    'The unique identifier of the custom policy to delete',
   ),
 });
 
@@ -150,7 +150,7 @@ export const getFulfillmentPoliciesSchema = z.object({
 export const getFulfillmentPolicySchema = z.object({
   fulfillment_policy_id: idSchema(
     'Fulfillment policy ID',
-    'The unique identifier of the fulfillment policy'
+    'The unique identifier of the fulfillment policy',
   ),
 });
 
@@ -189,7 +189,7 @@ export const createFulfillmentPolicySchema = z.object({
             description: 'Category type: ALL_EXCLUDING_MOTORS_VEHICLES or MOTORS_VEHICLES',
           })
           .optional(),
-      })
+      }),
     )
     .optional(),
   description: z
@@ -266,13 +266,13 @@ export const createFulfillmentPolicySchema = z.object({
 export const updateFulfillmentPolicySchema = z.object({
   fulfillment_policy_id: idSchema(
     'Fulfillment policy ID',
-    'The unique identifier of the fulfillment policy to update'
+    'The unique identifier of the fulfillment policy to update',
   ),
   category_types: z
     .array(
       z.object({
         name: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   description: z.string().max(250).optional(),
@@ -305,7 +305,7 @@ export const updateFulfillmentPolicySchema = z.object({
 export const deleteFulfillmentPolicySchema = z.object({
   fulfillment_policy_id: idSchema(
     'Fulfillment policy ID',
-    'The unique identifier of the fulfillment policy to delete'
+    'The unique identifier of the fulfillment policy to delete',
   ),
 });
 
@@ -366,7 +366,7 @@ export const createPaymentPolicySchema = z.object({
     .array(
       z.object({
         name: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   description: z
@@ -425,13 +425,13 @@ export const createPaymentPolicySchema = z.object({
 export const updatePaymentPolicySchema = z.object({
   payment_policy_id: idSchema(
     'Payment policy ID',
-    'The unique identifier of the payment policy to update'
+    'The unique identifier of the payment policy to update',
   ),
   category_types: z
     .array(
       z.object({
         name: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   description: z.string().max(250).optional(),
@@ -472,7 +472,7 @@ export const updatePaymentPolicySchema = z.object({
 export const deletePaymentPolicySchema = z.object({
   payment_policy_id: idSchema(
     'Payment policy ID',
-    'The unique identifier of the payment policy to delete'
+    'The unique identifier of the payment policy to delete',
   ),
 });
 
@@ -533,7 +533,7 @@ export const createReturnPolicySchema = z.object({
     .array(
       z.object({
         name: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   description: z
@@ -624,13 +624,13 @@ export const createReturnPolicySchema = z.object({
 export const updateReturnPolicySchema = z.object({
   return_policy_id: idSchema(
     'Return policy ID',
-    'The unique identifier of the return policy to update'
+    'The unique identifier of the return policy to update',
   ),
   category_types: z
     .array(
       z.object({
         name: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   description: z.string().max(250).optional(),
@@ -672,7 +672,7 @@ export const updateReturnPolicySchema = z.object({
 export const deleteReturnPolicySchema = z.object({
   return_policy_id: idSchema(
     'Return policy ID',
-    'The unique identifier of the return policy to delete'
+    'The unique identifier of the return policy to delete',
   ),
 });
 
@@ -795,7 +795,7 @@ export const bulkCreateOrReplaceSalesTaxSchema = z.object({
       {
         invalid_type_error: 'requests must be an array',
         description: 'Array of sales tax requests',
-      }
+      },
     )
     .optional(),
 });

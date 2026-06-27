@@ -62,7 +62,7 @@ export const fulfillmentEntries: ToolEntry[] = [
     inputSchema: {
       orderId: z.string().describe('The order ID'),
       fulfillment: shippingFulfillmentSchema.describe(
-        'Shipping fulfillment details including tracking number'
+        'Shipping fulfillment details including tracking number',
       ),
     },
     outputSchema: zodToJsonSchema(createShippingFulfillmentOutputSchema, {
@@ -112,7 +112,7 @@ export const fulfillmentEntries: ToolEntry[] = [
           reasonForRefund: z
             .string()
             .describe(
-              'REQUIRED. Reason code: BUYER_CANCEL, OUT_OF_STOCK, FOUND_CHEAPER_PRICE, INCORRECT_PRICE, ITEM_DAMAGED, ITEM_DEFECTIVE, LOST_IN_TRANSIT, MUTUALLY_AGREED, SELLER_CANCEL'
+              'REQUIRED. Reason code: BUYER_CANCEL, OUT_OF_STOCK, FOUND_CHEAPER_PRICE, INCORRECT_PRICE, ITEM_DAMAGED, ITEM_DEFECTIVE, LOST_IN_TRANSIT, MUTUALLY_AGREED, SELLER_CANCEL',
             ),
           comment: z
             .string()
@@ -140,13 +140,13 @@ export const fulfillmentEntries: ToolEntry[] = [
                   })
                   .optional()
                   .describe(
-                    'Optional legacy item ID/transaction ID pair for identifying the line item'
+                    'Optional legacy item ID/transaction ID pair for identifying the line item',
                   ),
-              })
+              }),
             )
             .optional()
             .describe(
-              'Array of individual line items to refund. Use this for partial refunds of specific items. Each item requires lineItemId and refundAmount.'
+              'Array of individual line items to refund. Use this for partial refunds of specific items. Each item requires lineItemId and refundAmount.',
             ),
           orderLevelRefundAmount: z
             .object({
@@ -155,11 +155,11 @@ export const fulfillmentEntries: ToolEntry[] = [
             })
             .optional()
             .describe(
-              'Use this to refund the entire order amount. Alternative to refundItems. Include value and currency.'
+              'Use this to refund the entire order amount. Alternative to refundItems. Include value and currency.',
             ),
         })
         .describe(
-          'Refund details including amount, reason, and optional comment. Must include reasonForRefund (required), and either refundItems (for line item refunds) OR orderLevelRefundAmount (for full order refunds).'
+          'Refund details including amount, reason, and optional comment. Must include reasonForRefund (required), and either refundItems (for line item refunds) OR orderLevelRefundAmount (for full order refunds).',
         ),
     },
     outputSchema: zodToJsonSchema(issueRefundOutputSchema, {
@@ -257,7 +257,7 @@ export const fulfillmentEntries: ToolEntry[] = [
         })
         .optional()
         .describe(
-          'Return address for buyer to send item back (required for ITEM_NOT_RECEIVED disputes)'
+          'Return address for buyer to send item back (required for ITEM_NOT_RECEIVED disputes)',
         ),
       revisionNumber: z
         .number()
@@ -323,7 +323,7 @@ export const fulfillmentEntries: ToolEntry[] = [
         .array(
           z.object({
             fileId: z.string().describe('File ID from uploadEvidenceFile'),
-          })
+          }),
         )
         .optional()
         .describe('Array of file IDs to attach as evidence'),
@@ -332,7 +332,7 @@ export const fulfillmentEntries: ToolEntry[] = [
           z.object({
             itemId: z.string().optional().describe('eBay item ID'),
             lineItemId: z.string().optional().describe('Order line item ID'),
-          })
+          }),
         )
         .optional()
         .describe('Line items this evidence applies to'),
@@ -356,7 +356,7 @@ export const fulfillmentEntries: ToolEntry[] = [
         .array(
           z.object({
             fileId: z.string(),
-          })
+          }),
         )
         .optional()
         .describe('Updated file IDs'),
@@ -365,7 +365,7 @@ export const fulfillmentEntries: ToolEntry[] = [
           z.object({
             itemId: z.string().optional(),
             lineItemId: z.string().optional(),
-          })
+          }),
         )
         .optional()
         .describe('Updated line items'),

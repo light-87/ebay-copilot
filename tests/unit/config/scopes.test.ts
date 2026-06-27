@@ -236,7 +236,7 @@ describe('Scope Validation', () => {
         'production',
         undefined,
         undefined,
-        state
+        state,
       );
       const parsed = new URL(url);
 
@@ -268,7 +268,7 @@ describe('Scope Validation', () => {
       const url = getOAuthAuthorizationUrl(clientId, redirectUri, 'production', scopes);
 
       expect(url).toContain(
-        'scope=https://api.ebay.com/oauth/api_scope/sell.inventory%20https://api.ebay.com/oauth/api_scope/sell.fulfillment'
+        'scope=https://api.ebay.com/oauth/api_scope/sell.inventory%20https://api.ebay.com/oauth/api_scope/sell.fulfillment',
       );
       expect(url).not.toContain('scope=https%3A%2F%2F');
       expect(url).not.toMatch(/scope=[^&]*\+/);
