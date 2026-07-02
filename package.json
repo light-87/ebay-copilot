@@ -24,6 +24,7 @@
     "typecheck:ui": "tsc -p ui/tsconfig.json --noEmit",
     "check": "tsc --noEmit && tsc -p ui/tsconfig.json --noEmit && biome check \"{src,ui}/**/*.{ts,tsx,js,json,md,css,html}\"",
     "check:ci": "biome ci .",
+    "verify": "npm run check:ci && npm run typecheck && npm run typecheck:ui && npm run test && npm run build",
     "fix": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true \"{src,ui}/**/*.{ts,tsx,js,json,md,css,html}\"",
     "lint": "biome check .",
     "lint:fix": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true .",
