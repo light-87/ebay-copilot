@@ -42,9 +42,9 @@ jobs:
         run: pnpm test
 
       - name: Run integration tests
-        run: ppnpm test:integration
+        run: pnpm test:integration
 
       - name: Coverage (informational, non-blocking)
         if: matrix.os == 'ubuntu-latest' && matrix.node == 24
         continue-on-error: true
-        run: ppnpm test:coverage
+        run: pnpm test:coverage

@@ -33,7 +33,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Type check (src)
-        run: ppnpm typecheck
+        run: pnpm typecheck
 
       - name: Type check (ui)
-        run: ppnpm typecheck:ui
+        run: pnpm typecheck:ui

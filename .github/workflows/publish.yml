@@ -88,13 +88,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Type check
-        run: ppnpm typecheck
+        run: pnpm typecheck
 
       - name: Run tests
-        run: ppnpm test
+        run: pnpm test
 
       - name: Build
-        run: ppnpm build
+        run: pnpm build
 
       - name: Publish to npm (trusted publishing)
         run: pnpm publish --no-git-checks --access public --provenance
