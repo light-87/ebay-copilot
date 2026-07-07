@@ -7,51 +7,44 @@ import { z } from 'zod';
  * Types from: src/types/sell_compliance_v1_oas3.ts
  */
 
-// Reusable schema for compliance_type parameter
+// Reusable schema for complianceType parameter
 const complianceTypeSchema = z
   .string({
-    invalid_type_error: 'compliance_type must be a string',
+    invalid_type_error: 'complianceType must be a string',
     description:
       'Compliance type(s) to filter violations (e.g., ASPECTS_ADOPTION, HTTPS, OUTSIDE_EBAY_BUYING_AND_SELLING, RETURNS_POLICY)',
   })
   .optional();
 
-// Reusable schema for offset parameter (string in API)
+// Reusable schema for offset parameter
 const offsetSchema = z
-  .string({
-    invalid_type_error: 'offset must be a string',
+  .number({
+    invalid_type_error: 'offset must be a number',
     description: 'Number of items to skip (zero-based index)',
   })
+  .int()
+  .nonnegative()
   .optional();
 
-// Reusable schema for limit parameter (string in API)
+// Reusable schema for limit parameter
 const limitSchema = z
-  .string({
-    invalid_type_error: 'limit must be a string',
+  .number({
+    invalid_type_error: 'limit must be a number',
     description: 'Maximum number of items to return (default: 100, max: 200)',
   })
+  .int()
+  .positive()
   .optional();
 
 /**
  * Schema for getListingViolations method
  * Endpoint: GET /listing_violation
- * Query: GetListingViolationsParams - compliance_type (required), offset, limit, listing_id, filter
+ * Query: complianceType, offset, limit, filter
  */
 export const getListingViolationsSchema = z.object({
-  compliance_type: z.string({
-    message: 'Compliance type is required',
-    required_error: 'compliance_type is required',
-    invalid_type_error: 'compliance_type must be a string',
-    description: 'The compliance type of violations to retrieve (only one type allowed per call)',
-  }),
+  complianceType: complianceTypeSchema,
   offset: offsetSchema,
   limit: limitSchema,
-  listing_id: z
-    .string({
-      invalid_type_error: 'listing_id must be a string',
-      description: 'Filter by specific eBay listing ID (not yet supported)',
-    })
-    .optional(),
   filter: z
     .string({
       invalid_type_error: 'filter must be a string',
@@ -63,22 +56,8 @@ export const getListingViolationsSchema = z.object({
 /**
  * Schema for getListingViolationsSummary method
  * Endpoint: GET /listing_violation_summary
- * Query: GetListingViolationsSummaryParams - compliance_type
+ * Query: complianceType
  */
 export const getListingViolationsSummarySchema = z.object({
-  compliance_type: complianceTypeSchema,
-});
-
-/**
- * Schema for suppressViolation method
- * Endpoint: POST /suppress_violation
- * Body: listing_violation_id (required)
- */
-export const suppressViolationSchema = z.object({
-  listing_violation_id: z.string({
-    message: 'Listing violation ID is required',
-    required_error: 'listing_violation_id is required',
-    invalid_type_error: 'listing_violation_id must be a string',
-    description: 'The unique identifier of the listing violation to suppress',
-  }),
+  complianceType: complianceTypeSchema,
 });

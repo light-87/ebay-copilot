@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { EbaySellerApi } from '@/api/index.js';
 import type { EbayConfig } from '@/types/ebay.js';
+import { Effect } from 'effect';
 
 // Mock EbayOAuthClient
 const mockOAuthClient = {
@@ -34,8 +35,9 @@ describe('EbaySellerApi', () => {
     };
 
     mockOAuthClient.hasUserTokens.mockReturnValue(true);
-    mockOAuthClient.getAccessToken.mockResolvedValue('test_access_token');
-    mockOAuthClient.initialize.mockResolvedValue(undefined);
+    mockOAuthClient.getAccessToken.mockReturnValue(Effect.succeed('test_access_token'));
+    mockOAuthClient.initialize.mockReturnValue(Effect.succeed(undefined));
+    mockOAuthClient.setUserTokens.mockReturnValue(Effect.succeed(undefined));
     mockOAuthClient.isAuthenticated.mockReturnValue(true);
     mockOAuthClient.getTokenInfo.mockReturnValue({
       hasUserTokens: true,
@@ -44,16 +46,16 @@ describe('EbaySellerApi', () => {
     });
 
     api = new EbaySellerApi(config);
-    await api.initialize();
+    await Effect.runPromise(api.initialize());
   });
 
   describe('initialization', () => {
-    it('should initialize successfully', async () => {
+    it('initialize successfully', async () => {
       const newApi = new EbaySellerApi(config);
-      await expect(newApi.initialize()).resolves.not.toThrow();
+      await expect(Effect.runPromise(newApi.initialize())).resolves.not.toThrow();
     });
 
-    it('should have all API modules', () => {
+    it('have all API modules', () => {
       expect(api.account).toBeDefined();
       expect(api.inventory).toBeDefined();
       expect(api.fulfillment).toBeDefined();
@@ -76,39 +78,41 @@ describe('EbaySellerApi', () => {
   });
 
   describe('authentication methods', () => {
-    it('should check if authenticated', () => {
+    it('check if authenticated', () => {
       const isAuth = api.isAuthenticated();
       expect(typeof isAuth).toBe('boolean');
     });
 
-    it('should check if user tokens are available', () => {
+    it('check if user tokens are available', () => {
       mockOAuthClient.hasUserTokens.mockReturnValue(true);
       const hasTokens = api.hasUserTokens();
       expect(typeof hasTokens).toBe('boolean');
     });
 
-    it('should set user tokens', async () => {
+    it('set user tokens', async () => {
       const accessToken = 'new_access_token';
       const refreshToken = 'new_refresh_token';
-      const accessTokenExpiry = Date.now() + 7200000;
-      const refreshTokenExpiry = Date.now() + 47304000000;
+      const accessTokenExpiry = Date.now() + 7_200_000;
+      const refreshTokenExpiry = Date.now() + 47_304_000_000;
 
-      await api.setUserTokens(accessToken, refreshToken, accessTokenExpiry, refreshTokenExpiry);
+      await Effect.runPromise(
+        api.setUserTokens(accessToken, refreshToken, accessTokenExpiry, refreshTokenExpiry),
+      );
 
       expect(mockOAuthClient.setUserTokens).toHaveBeenCalled();
     });
 
-    it('should set user tokens without expiry times', async () => {
-      await api.setUserTokens('access_token', 'refresh_token');
+    it('set user tokens without expiry times', async () => {
+      await Effect.runPromise(api.setUserTokens('access_token', 'refresh_token'));
       expect(mockOAuthClient.setUserTokens).toHaveBeenCalled();
     });
 
-    it('should get auth client', () => {
+    it('get auth client', () => {
       const client = api.getAuthClient();
       expect(client).toBeDefined();
     });
 
-    it('should get token info', () => {
+    it('get token info', () => {
       const tokenInfo = api.getTokenInfo();
       expect(tokenInfo).toBeDefined();
     });

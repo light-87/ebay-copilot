@@ -80,7 +80,7 @@
 
 - [ ] I have updated the README.md (if needed)
 - [ ] I have updated CHANGELOG.md with my changes
-- [ ] I have updated relevant documentation files (CLAUDE.md, etc.)
+- [ ] I have updated relevant documentation files (AGENTS.md, CODE-STYLE.md, CLAUDE.md, etc.)
 - [ ] I have updated JSDoc comments for modified functions
 - [ ] I have updated tool descriptions for new/modified tools
 - [ ] Code examples in documentation are accurate

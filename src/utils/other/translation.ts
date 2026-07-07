@@ -25,9 +25,9 @@ export const translateSchema = z.object({
       description: 'The target language for translation (e.g., en_US, fr_FR, de_DE)',
     })
     .optional(),
-  translation_context: z
+  translationContext: z
     .string({
-      invalid_type_error: 'translation_context must be a string',
+      invalid_type_error: 'translationContext must be a string',
       description: 'The listing entity to translate (ITEM_TITLE or ITEM_DESCRIPTION)',
     })
     .optional(),

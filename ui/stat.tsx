@@ -5,8 +5,8 @@
  */
 
 import type { ReactNode } from 'react';
-import type { StatTile, StatViewModel } from '../src/tools/ui/view-models.ts';
-import { AppShell, EmptyState, mount, useViewModel } from './host.tsx';
+import type { StatTile, StatViewModel } from '@/tools/ui/viewModels.js';
+import { AppShell, EmptyState, mount, useViewModel } from './host.js';
 
 /** Maps a tile tone to its CSS modifier class. */
 function tileClass(tone: StatTile['tone']): string {

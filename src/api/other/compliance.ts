@@ -1,54 +1,141 @@
 import type { EbayApiClient } from '@/api/client.js';
-import { withApiError } from '@/api/shared/request.js';
+import {
+  buildEndpointParams,
+  type EbayApiError,
+  type EndpointInputError,
+  optionalNonNegativeNumberEffect,
+  optionalPositiveNumberEffect,
+  optionalStringEffect,
+  requestGetEffect,
+  requireObjectEffect,
+} from '@/api/shared/request.js';
+import type { SellComplianceComponents } from '@/types/sell-apps/other-apis/sellComplianceV1Oas3.js';
+import { Effect } from 'effect';
+
+/** Input accepted by getListingViolations. */
+export interface GetListingViolationsInput {
+  /** Compliance type filter, sent as compliance_type. */
+  readonly complianceType?: string;
+  /** Compliance state filter expression, sent as filter. */
+  readonly filter?: string;
+  /** Number of violations to skip. */
+  readonly offset?: number;
+  /** Number of violations to return. */
+  readonly limit?: number;
+}
+
+/** Input accepted by getListingViolationsSummary. */
+export interface GetListingViolationsSummaryInput {
+  /** Compliance type filter, sent as compliance_type. */
+  readonly complianceType?: string;
+}
 
 /**
- * Compliance API - Listing compliance checks
- * Based on: docs/sell-apps/other-apis/sell_compliance_v1_oas3.json
+ * Response returned by getListingViolations.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/compliance/resources/listing_violation/methods/getListingViolations
  */
+export type ListingViolationsResponse =
+  SellComplianceComponents['schemas']['PagedComplianceViolationCollection'];
+
+/**
+ * Response returned by getListingViolationsSummary.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/compliance/resources/listing_violation_summary/methods/getListingViolationsSummary
+ */
+export type ListingViolationsSummaryResponse =
+  SellComplianceComponents['schemas']['ComplianceSummary'];
+
+/** Compliance API - listing policy violation checks. */
 export class ComplianceApi {
   private readonly basePath = '/sell/compliance/v1';
 
-  constructor(private client: EbayApiClient) {}
+  public constructor(private readonly client: EbayApiClient) {}
 
   /**
-   * Get listing violations
+   * Retrieves listing violations for supported compliance types.
+   *
+   * @param input - Optional compliance type, compliance state filter, and pagination params.
+   * @returns An Effect that succeeds with eBay's PagedComplianceViolationCollection response.
+   *
+   * @example
+   * ```ts
+   * const violations = await Effect.runPromise(
+   *   complianceApi.getListingViolations({ complianceType: 'PRODUCT_ADOPTION', limit: 10 }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/compliance/resources/listing_violation/methods/getListingViolations
    */
-  async getListingViolations(complianceType?: string, offset?: number, limit?: number) {
-    const params: Record<string, string | number> = {};
-    if (complianceType) params.compliance_type = complianceType;
-    if (offset) params.offset = offset;
-    if (limit) params.limit = limit;
-    return await withApiError('Failed to get listing violations', () =>
-      this.client.get(`${this.basePath}/listing_violation`, params),
-    );
-  }
+  public getListingViolations = (
+    input: GetListingViolationsInput = {},
+  ): Effect.Effect<ListingViolationsResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetListingViolationsInput>(input, 'input');
+      const complianceType = yield* optionalStringEffect(
+        validatedInput.complianceType,
+        'complianceType',
+      );
+      const filter = yield* optionalStringEffect(validatedInput.filter, 'filter');
+      const offset = yield* optionalNonNegativeNumberEffect(validatedInput.offset, 'offset');
+      const limit = yield* optionalPositiveNumberEffect(validatedInput.limit, 'limit');
+      const params = buildEndpointParams({
+        complianceType: { wireName: 'compliance_type', value: complianceType },
+        filter: { wireName: 'filter', value: filter },
+        offset: { wireName: 'offset', value: offset },
+        limit: { wireName: 'limit', value: limit },
+      });
+
+      return yield* requestGetEffect<ListingViolationsResponse>(
+        client,
+        `${basePath}/listing_violation`,
+        params,
+      );
+    });
+  };
 
   /**
-   * Get listing violation summary
+   * Retrieves listing violation counts grouped by marketplace and compliance type.
+   *
+   * @param input - Optional compliance type filter.
+   * @returns An Effect that succeeds with eBay's ComplianceSummary response.
+   *
+   * @example
+   * ```ts
+   * const summary = await Effect.runPromise(
+   *   complianceApi.getListingViolationsSummary({ complianceType: 'PRODUCT_ADOPTION' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/compliance/resources/listing_violation_summary/methods/getListingViolationsSummary
    */
-  async getListingViolationsSummary(complianceType?: string) {
-    const params: Record<string, string> = {};
-    if (complianceType) params.compliance_type = complianceType;
-    return await withApiError('Failed to get listing violations summary', () =>
-      this.client.get(`${this.basePath}/listing_violation_summary`, params),
-    );
-  }
+  public getListingViolationsSummary = (
+    input: GetListingViolationsSummaryInput = {},
+  ): Effect.Effect<ListingViolationsSummaryResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
 
-  /**
-   * Suppress a violation
-   */
-  async suppressViolation(listingViolationId: string) {
-    return await withApiError('Failed to suppress violation', () =>
-      this.client.post(`${this.basePath}/suppress_violation`, {
-        listing_violation_id: listingViolationId,
-      }),
-    );
-  }
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetListingViolationsSummaryInput>(
+        input,
+        'input',
+      );
+      const complianceType = yield* optionalStringEffect(
+        validatedInput.complianceType,
+        'complianceType',
+      );
+      const params = buildEndpointParams({
+        complianceType: { wireName: 'compliance_type', value: complianceType },
+      });
 
-  /**
-   * Get compliance snapshot (alias for getListingViolations)
-   */
-  async getComplianceSnapshot(complianceType?: string, offset?: number, limit?: number) {
-    return await this.getListingViolations(complianceType, offset, limit);
-  }
+      return yield* requestGetEffect<ListingViolationsSummaryResponse>(
+        client,
+        `${basePath}/listing_violation_summary`,
+        params,
+      );
+    });
+  };
 }

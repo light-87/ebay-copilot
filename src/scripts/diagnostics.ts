@@ -10,16 +10,18 @@ import chalk from 'chalk';
 import { writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { runSecurityChecks, displaySecurityResults } from '@/utils/security-checker.js';
-import { validateSetup, displayRecommendations } from '@/utils/setup-validator.js';
-import { parseEnvFile } from '@/utils/env-parser.js';
-import { detectLLMClients } from '@/utils/llm-client-detector.js';
-import { displayScopeVerification, parseScopeString } from '@/utils/scope-helper.js';
-import { readEnvironment } from './setup-shared.js';
+import { runSecurityChecks, displaySecurityResults } from '@/utils/securityChecker.js';
+import { validateSetup, displayRecommendations } from '@/utils/setupValidator.js';
+import { parseEnvFile } from '@/utils/envParser.js';
+import { detectLLMClients } from '@/utils/llmClientDetector.js';
+import { displayScopeVerification, parseScopeString } from '@/utils/scopeHelper.js';
+import { readEnvironment } from './setupShared.js';
 import { EbaySellerApi } from '@/api/index.js';
 import { getErrorMessage } from '@/utils/errors.js';
 import { getUpdateInfo, getVersion } from '@/utils/version.js';
 import type { EbayConfig } from '@/types/ebay.js';
+import { Effect, Either } from 'effect';
+import process from 'node:process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -50,23 +52,29 @@ interface DiagnosticReport {
  * Check API connectivity
  */
 async function checkApiConnectivity(): Promise<{ canReachEbay: boolean; error?: string }> {
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
 
-    const response = await fetch('https://api.ebay.com/health', {
-      signal: controller.signal,
-    });
+  const checked = await Effect.runPromise(
+    Effect.either(
+      Effect.tryPromise({
+        try: () =>
+          fetch('https://api.ebay.com/health', {
+            signal: controller.signal,
+          }),
+        catch: (error) => error,
+      }).pipe(Effect.ensuring(Effect.sync(() => clearTimeout(timeout)))),
+    ),
+  );
 
-    clearTimeout(timeout);
-
-    return { canReachEbay: response.ok || response.status === 404 };
-  } catch (error) {
+  if (Either.isLeft(checked)) {
     return {
       canReachEbay: false,
-      error: getErrorMessage(error),
+      error: getErrorMessage(checked.left),
     };
   }
+
+  return { canReachEbay: checked.right.ok || checked.right.status === 404 };
 }
 
 /**
@@ -75,20 +83,26 @@ async function checkApiConnectivity(): Promise<{ canReachEbay: boolean; error?: 
 async function testEbayAuthentication(
   config: EbayConfig,
 ): Promise<{ success: boolean; error?: string; userInfo?: unknown }> {
-  try {
-    const api = new EbaySellerApi(config);
-    await api.initialize();
+  const authenticated = await Effect.runPromise(
+    Effect.either(
+      Effect.gen(function* () {
+        const api = new EbaySellerApi(config);
+        yield* api.initialize();
 
-    // Try to get user info
-    const userInfo = await api.identity.getUser();
+        // Try to get user info
+        return yield* api.identity.getUser();
+      }),
+    ),
+  );
 
-    return { success: true, userInfo };
-  } catch (error) {
+  if (Either.isLeft(authenticated)) {
     return {
       success: false,
-      error: getErrorMessage(error),
+      error: getErrorMessage(authenticated.left),
     };
   }
+
+  return { success: true, userInfo: authenticated.right };
 }
 
 /**
@@ -131,19 +145,25 @@ async function displayUpdateStatus(): Promise<void> {
   console.log(chalk.bold.cyan('🔄 Version\n'));
   console.log(`  ${chalk.gray('Installed:')} ${getVersion()}`);
 
-  try {
-    const info = await getUpdateInfo();
-    if (info) {
-      console.log(
-        `  ${chalk.gray('Latest:')}    ${chalk.green(info.latest)} ${chalk.yellow(`(run \`npm i -g ${info.name}\` to update)`)}`,
-      );
-    } else {
-      console.log(`  ${chalk.gray('Latest:')}    ${chalk.green('up to date')}`);
-    }
-  } catch {
+  const updateInfo = await Effect.runPromise(
+    Effect.either(
+      Effect.tryPromise({
+        try: getUpdateInfo,
+        catch: (error) => error,
+      }),
+    ),
+  );
+
+  if (Either.isLeft(updateInfo)) {
     console.log(
       `  ${chalk.gray('Latest:')}    ${chalk.dim('update check unavailable (offline?)')}`,
     );
+  } else if (updateInfo.right) {
+    console.log(
+      `  ${chalk.gray('Latest:')}    ${chalk.green(updateInfo.right.latest)} ${chalk.yellow(`(run \`npm i -g ${updateInfo.right.name}\` to update)`)}`,
+    );
+  } else {
+    console.log(`  ${chalk.gray('Latest:')}    ${chalk.green('up to date')}`);
   }
 
   console.log('');
@@ -344,17 +364,21 @@ async function runDiagnostics(exportReport = false): Promise<void> {
 
     // Scope verification if user has refresh token
     if (envVars.EBAY_USER_REFRESH_TOKEN) {
-      try {
-        const api = new EbaySellerApi(config);
-        await api.initialize();
-        const authClient = api.getAuthClient();
-        const tokenInfo = authClient.getTokenInfo();
+      const tokenScopes = await Effect.runPromise(
+        Effect.either(
+          Effect.gen(function* () {
+            const api = new EbaySellerApi(config);
+            yield* api.initialize();
+            const authClient = api.getAuthClient();
+            return authClient.getTokenInfo().scopeInfo;
+          }),
+        ),
+      );
 
-        if (tokenInfo.scopeInfo) {
-          displayScopeVerification(tokenInfo.scopeInfo.tokenScopes, config.environment);
-        }
-      } catch {
+      if (Either.isLeft(tokenScopes)) {
         console.log(chalk.yellow('⚠️  Could not verify token scopes\n'));
+      } else if (tokenScopes.right) {
+        displayScopeVerification(tokenScopes.right.tokenScopes, config.environment);
       }
     }
   }
@@ -374,7 +398,16 @@ async function runDiagnostics(exportReport = false): Promise<void> {
 const args = process.argv.slice(2);
 const exportReport = args.includes('--export') || args.includes('-e');
 
-runDiagnostics(exportReport).catch((error) => {
-  console.error(chalk.red('\n❌ Diagnostics failed:'), error);
-  process.exit(1);
+void Effect.runPromise(
+  Effect.either(
+    Effect.tryPromise({
+      try: () => runDiagnostics(exportReport),
+      catch: (error) => error,
+    }),
+  ),
+).then((result) => {
+  if (Either.isLeft(result)) {
+    console.error(chalk.red('\n❌ Diagnostics failed:'), getErrorMessage(result.left));
+    process.exitCode = 1;
+  }
 });

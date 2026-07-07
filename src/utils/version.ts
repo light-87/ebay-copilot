@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import updateNotifier from 'update-notifier';
+import { Effect, Either } from 'effect';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,7 +16,7 @@ interface PackageJson {
 
 let cachedPackageJson: PackageJson | null = null;
 
-function isPackageJson(value: unknown): value is PackageJson {
+const isPackageJson = (value: unknown): value is PackageJson => {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
@@ -24,44 +25,64 @@ function isPackageJson(value: unknown): value is PackageJson {
     typeof Reflect.get(value, 'name') === 'string' &&
     typeof Reflect.get(value, 'version') === 'string'
   );
-}
+};
 
 /**
  * Reads and caches package metadata used by version helpers.
+ *
+ * @returns Parsed package metadata, or a fallback package identity.
+ *
+ * @example
+ * ```ts
+ * const pkg = getPackageJson();
+ * ```
  */
-export function getPackageJson(): PackageJson {
+export const getPackageJson = (): PackageJson => {
   if (cachedPackageJson) {
     return cachedPackageJson;
   }
 
-  try {
-    const content = readFileSync(PACKAGE_JSON_PATH, 'utf-8');
-    const parsed = JSON.parse(content);
-    if (isPackageJson(parsed)) {
-      cachedPackageJson = parsed;
-      return cachedPackageJson;
-    }
+  const loaded = Effect.runSync(
+    Effect.either(
+      Effect.try({
+        try: () => JSON.parse(readFileSync(PACKAGE_JSON_PATH, 'utf-8')) as unknown,
+        catch: (error) => error,
+      }),
+    ),
+  );
 
-    cachedPackageJson = { name: 'ebay-mcp', version: '0.0.0' };
+  if (Either.isRight(loaded) && isPackageJson(loaded.right)) {
+    cachedPackageJson = loaded.right;
     return cachedPackageJson;
-  } catch {
-    return { name: 'ebay-mcp', version: '0.0.0' };
   }
-}
+
+  cachedPackageJson = { name: 'ebay-mcp', version: '0.0.0' };
+  return cachedPackageJson;
+};
 
 /**
  * Returns the package version from package.json.
+ *
+ * @returns Current package version.
+ *
+ * @example
+ * ```ts
+ * const version = getVersion();
+ * ```
  */
-export function getVersion(): string {
-  return getPackageJson().version;
-}
+export const getVersion = (): string => getPackageJson().version;
 
 /**
  * Returns the package name from package.json.
+ *
+ * @returns Current package name.
+ *
+ * @example
+ * ```ts
+ * const name = getPackageName();
+ * ```
  */
-export function getPackageName(): string {
-  return getPackageJson().name;
-}
+export const getPackageName = (): string => getPackageJson().name;
 
 const ONE_DAY_MS = 1000 * 60 * 60 * 24;
 
@@ -76,8 +97,16 @@ const ONE_DAY_MS = 1000 * 60 * 60 * 24;
  * stdio); that path uses {@link getCachedUpdateNotice} instead. Dropping the
  * old custom `message` lets update-notifier render its default colorized
  * template (dim current → green latest, cyan command).
+ *
+ * @param options - Update-notifier options used by CLI/server callers.
+ * @returns Nothing; delegates display to update-notifier.
+ *
+ * @example
+ * ```ts
+ * checkForUpdates({ defer: true });
+ * ```
  */
-export function checkForUpdates(options: { defer?: boolean } = {}): void {
+export const checkForUpdates = (options: { defer?: boolean } = {}): void => {
   const pkg = getPackageJson();
 
   const notifier = updateNotifier({
@@ -90,7 +119,7 @@ export function checkForUpdates(options: { defer?: boolean } = {}): void {
     isGlobal: true,
     defer: options.defer ?? false,
   });
-}
+};
 
 /**
  * Build a one-line "update available" notice from update-notifier's cached
@@ -103,8 +132,15 @@ export function checkForUpdates(options: { defer?: boolean } = {}): void {
  * hot path. Returns `undefined` when already current, or before the first
  * background check has populated the cache (so the notice appears from the
  * second run onward — update-notifier's normal behavior).
+ *
+ * @returns One-line update notice for stderr logging, or undefined when absent.
+ *
+ * @example
+ * ```ts
+ * const notice = getCachedUpdateNotice();
+ * ```
  */
-export function getCachedUpdateNotice(): string | undefined {
+export const getCachedUpdateNotice = (): string | undefined => {
   const pkg = getPackageJson();
 
   const notifier = updateNotifier({
@@ -114,18 +150,25 @@ export function getCachedUpdateNotice(): string | undefined {
 
   const { update } = notifier;
   if (!update || update.latest === pkg.version) {
-    return undefined;
+    return;
   }
 
   return `Update available ${pkg.version} → ${update.latest} — run \`npm i -g ${pkg.name}\` to update`;
-}
+};
 
 /**
  * Fetches update metadata without printing a notification.
+ *
+ * @returns Update metadata when a newer version exists, otherwise undefined.
+ *
+ * @example
+ * ```ts
+ * const info = await getUpdateInfo();
+ * ```
  */
-export async function getUpdateInfo(): Promise<
+export const getUpdateInfo = async (): Promise<
   { current: string; latest: string; name: string } | undefined
-> {
+> => {
   const pkg = getPackageJson();
 
   const notifier = updateNotifier({
@@ -142,6 +185,4 @@ export async function getUpdateInfo(): Promise<
       name: pkg.name,
     };
   }
-
-  return undefined;
-}
+};

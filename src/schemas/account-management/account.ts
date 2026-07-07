@@ -9,7 +9,7 @@ import {
   ReturnMethod,
   ReturnShippingCostPayer,
   MarketplaceId,
-} from '@/types/ebay-enums.js';
+} from '@/types/ebayEnums.js';
 
 /**
  * Account Management API Schemas
@@ -111,6 +111,17 @@ export const createCustomPolicyInputSchema = z.object({
     policyType: z.string(),
     label: z.string().optional(),
   }),
+});
+
+/** Validates the Account Management API get custom policy request payload. */
+export const getCustomPolicyInputSchema = z.object({
+  customPolicyId: z.string().describe('The custom policy ID'),
+});
+
+/** Validates the Account Management API update custom policy request payload. */
+export const updateCustomPolicyInputSchema = z.object({
+  customPolicyId: z.string().describe('The custom policy ID'),
+  policy: customPolicySchema.describe('Updated custom policy details'),
 });
 
 /**
@@ -216,6 +227,28 @@ export const createFulfillmentPolicyInputSchema = z.object({
   policy: fulfillmentPolicySchema,
 });
 
+/** Validates the Account Management API get fulfillment policy request payload. */
+export const getFulfillmentPolicyInputSchema = z.object({
+  fulfillmentPolicyId: z.string().describe('The fulfillment policy ID'),
+});
+
+/** Validates the Account Management API get fulfillment policy by name request payload. */
+export const getFulfillmentPolicyByNameInputSchema = z.object({
+  marketplaceId: z.nativeEnum(MarketplaceId).describe('eBay marketplace ID'),
+  name: z.string().describe('Policy name'),
+});
+
+/** Validates the Account Management API update fulfillment policy request payload. */
+export const updateFulfillmentPolicyInputSchema = z.object({
+  fulfillmentPolicyId: z.string().describe('The fulfillment policy ID'),
+  policy: fulfillmentPolicySchema.describe('Updated fulfillment policy details'),
+});
+
+/** Validates the Account Management API delete fulfillment policy request payload. */
+export const deleteFulfillmentPolicyInputSchema = z.object({
+  fulfillmentPolicyId: z.string().describe('The fulfillment policy ID'),
+});
+
 /**
  * Validates the Account Management API create fulfillment policy response payload.
  */
@@ -305,6 +338,28 @@ export const createPaymentPolicyInputSchema = z.object({
   policy: paymentPolicySchema,
 });
 
+/** Validates the Account Management API get payment policy request payload. */
+export const getPaymentPolicyInputSchema = z.object({
+  paymentPolicyId: z.string().describe('The payment policy ID'),
+});
+
+/** Validates the Account Management API get payment policy by name request payload. */
+export const getPaymentPolicyByNameInputSchema = z.object({
+  marketplaceId: z.nativeEnum(MarketplaceId).describe('eBay marketplace ID'),
+  name: z.string().describe('Policy name'),
+});
+
+/** Validates the Account Management API update payment policy request payload. */
+export const updatePaymentPolicyInputSchema = z.object({
+  paymentPolicyId: z.string().describe('The payment policy ID'),
+  policy: paymentPolicySchema.describe('Updated payment policy details'),
+});
+
+/** Validates the Account Management API delete payment policy request payload. */
+export const deletePaymentPolicyInputSchema = z.object({
+  paymentPolicyId: z.string().describe('The payment policy ID'),
+});
+
 /**
  * Validates the Account Management API create payment policy response payload.
  */
@@ -391,6 +446,28 @@ export const createReturnPolicyInputSchema = z.object({
   policy: returnPolicySchema,
 });
 
+/** Validates the Account Management API get return policy request payload. */
+export const getReturnPolicyInputSchema = z.object({
+  returnPolicyId: z.string().describe('The return policy ID'),
+});
+
+/** Validates the Account Management API get return policy by name request payload. */
+export const getReturnPolicyByNameInputSchema = z.object({
+  marketplaceId: z.nativeEnum(MarketplaceId).describe('eBay marketplace ID'),
+  name: z.string().describe('Policy name'),
+});
+
+/** Validates the Account Management API update return policy request payload. */
+export const updateReturnPolicyInputSchema = z.object({
+  returnPolicyId: z.string().describe('The return policy ID'),
+  policy: returnPolicySchema.describe('Updated return policy details'),
+});
+
+/** Validates the Account Management API delete return policy request payload. */
+export const deleteReturnPolicyInputSchema = z.object({
+  returnPolicyId: z.string().describe('The return policy ID'),
+});
+
 /**
  * Validates the Account Management API create return policy response payload.
  */
@@ -421,6 +498,39 @@ export const salesTaxSchema = z.object({
   shippingAndHandlingTaxed: z.boolean().optional(),
 });
 
+/** Validates the Account Management API create or replace sales tax request payload. */
+export const createOrReplaceSalesTaxInputSchema = z.object({
+  countryCode: z.string().describe('Two-letter ISO 3166 country code'),
+  jurisdictionId: z.string().describe('Tax jurisdiction ID'),
+  salesTaxBase: salesTaxBaseSchema.describe('Sales tax details'),
+});
+
+/** Validates one sales tax row in a bulk create or replace request. */
+export const bulkSalesTaxRequestEntrySchema = z.object({
+  countryCode: z.string(),
+  jurisdictionId: z.string(),
+  salesTaxBase: salesTaxBaseSchema,
+});
+
+/** Validates the Account Management API bulk create or replace sales tax request payload. */
+export const bulkCreateOrReplaceSalesTaxInputSchema = z.object({
+  requests: z.array(bulkSalesTaxRequestEntrySchema).describe('Array of sales tax requests'),
+});
+
+/** Validates the Account Management API get sales tax request payload. */
+export const getSalesTaxInputSchema = z.object({
+  countryCode: z.string().describe('Two-letter ISO 3166 country code'),
+  jurisdictionId: z.string().describe('Tax jurisdiction ID'),
+});
+
+/** Validates the Account Management API delete sales tax request payload. */
+export const deleteSalesTaxInputSchema = getSalesTaxInputSchema;
+
+/** Validates the Account Management API get sales taxes request payload. */
+export const getSalesTaxesInputSchema = z.object({
+  countryCode: z.string().describe('Required: Two-letter ISO 3166-1 country code'),
+});
+
 /**
  * Validates the Account Management API get sales taxes response payload.
  */
@@ -439,6 +549,19 @@ export const getSalesTaxesOutputSchema = z.object({
 export const programRequestSchema = z.object({
   programType: z.string(),
 });
+
+/** Validates the Account Management API program opt-in request payload. */
+export const optInToProgramInputSchema = z.object({
+  request: programRequestSchema.describe('Program opt-in request'),
+});
+
+/** Validates the Account Management API program opt-out request payload. */
+export const optOutOfProgramInputSchema = z.object({
+  request: programRequestSchema.describe('Program opt-out request'),
+});
+
+/** Validates the Account Management API get opted-in programs request payload. */
+export const getOptedInProgramsInputSchema = z.object({});
 
 /**
  * Validates the Account Management API programs response payload.
@@ -468,6 +591,38 @@ export const kycOutputSchema = z.object({
   warnings: z.array(errorSchema).optional(),
 });
 
+/** Validates the Account Management API get KYC request payload. */
+export const getKycInputSchema = z.object({});
+
+/** Validates the Account Management API payments program request payload. */
+export const getPaymentsProgramInputSchema = z.object({
+  marketplaceId: z.nativeEnum(MarketplaceId).describe('The eBay marketplace ID'),
+  paymentsProgramType: z.string().describe('The type of payments program'),
+});
+
+/** Validates the Account Management API payments onboarding request payload. */
+export const getPaymentsProgramOnboardingInputSchema = getPaymentsProgramInputSchema;
+
+/** Validates the Account Management API subscription request payload. */
+export const getSubscriptionInputSchema = z.object({
+  limit: z.string().optional().describe('Optional subscription page size limit'),
+  continuationToken: z.string().optional().describe('Optional continuation token'),
+});
+
+/** Validates the Account Management API get rate tables request payload. */
+export const getRateTablesInputSchema = z.object({});
+
+/** Validates the Account Management API advertising eligibility request payload. */
+export const getAdvertisingEligibilityInputSchema = z.object({
+  marketplaceId: z
+    .nativeEnum(MarketplaceId)
+    .describe('eBay marketplace ID to check eligibility for'),
+  programTypes: z
+    .string()
+    .optional()
+    .describe('Optional comma-separated list of program types to check eligibility for'),
+});
+
 // ============================================================================
 // Privileges Schemas
 // ============================================================================
@@ -487,14 +642,23 @@ export const privilegesOutputSchema = z.object({
   warnings: z.array(errorSchema).optional(),
 });
 
+/** Validates the Account Management API get privileges request payload. */
+export const getPrivilegesInputSchema = z.object({});
+
 // ============================================================================
 // JSON Schema Conversion Functions
 // ============================================================================
 
 /**
- * Convert Zod schemas to JSON Schema format for MCP tools
+ * Converts Account Management API Zod schemas to JSON Schema format for MCP tools.
+ *
+ * @returns Account Management API JSON schemas keyed by endpoint or shared model name.
+ * @example
+ * ```ts
+ * const schemas = getAccountManagementJsonSchemas();
+ * ```
  */
-export function getAccountManagementJsonSchemas() {
+export const getAccountManagementJsonSchemas = () => {
   return {
     // Custom Policies
     getCustomPoliciesInput: zodToJsonSchema(getCustomPoliciesInputSchema, 'getCustomPoliciesInput'),
@@ -571,10 +735,17 @@ export function getAccountManagementJsonSchemas() {
 
     // Programs
     programRequest: zodToJsonSchema(programRequestSchema, 'programRequest'),
+    getOptedInProgramsInput: zodToJsonSchema(
+      getOptedInProgramsInputSchema,
+      'getOptedInProgramsInput',
+    ),
     programsOutput: zodToJsonSchema(programsOutputSchema, 'programsOutput'),
 
     // KYC & Privileges
+    getKycInput: zodToJsonSchema(getKycInputSchema, 'getKycInput'),
     kycOutput: zodToJsonSchema(kycOutputSchema, 'kycOutput'),
+    getRateTablesInput: zodToJsonSchema(getRateTablesInputSchema, 'getRateTablesInput'),
+    getPrivilegesInput: zodToJsonSchema(getPrivilegesInputSchema, 'getPrivilegesInput'),
     privilegesOutput: zodToJsonSchema(privilegesOutputSchema, 'privilegesOutput'),
   };
-}
+};

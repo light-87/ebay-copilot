@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { Effect } from 'effect';
 import { getToolDefinitions } from '@/tools/index.js';
 
 const mcpMock = vi.hoisted(() => ({
@@ -11,7 +12,7 @@ const mcpMock = vi.hoisted(() => ({
 }));
 
 vi.mock('@modelcontextprotocol/sdk/server/mcp.js', () => ({
-  McpServer: vi.fn(function (config) {
+  McpServer: vi.fn(function (this: unknown, config) {
     mcpMock.constructor(config);
     // Mirror the McpServer surface the UI bridge touches: `registerResource` for
     // `ui://` views and the underlying `.server` for the capability gate.
@@ -32,7 +33,7 @@ describe('MCP runtime', () => {
   it('registers the shared tool registry on server construction', async () => {
     const { createEbayMcpRuntime } = await import('@/mcp/runtime.js');
     const api = {
-      initialize: vi.fn(),
+      initialize: vi.fn(() => Effect.succeed(undefined)),
     };
 
     const runtime = createEbayMcpRuntime({

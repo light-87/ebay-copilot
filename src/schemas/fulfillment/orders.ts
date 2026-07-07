@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { ReasonForRefund } from '@/types/ebay-enums.js';
+import { ReasonForRefund } from '@/types/ebayEnums.js';
 
 /**
  * Fulfillment/Order Management API Schemas
@@ -204,6 +204,7 @@ const orderSchema = z.object({
  * Validates the Fulfillment API get orders request payload.
  */
 export const getOrdersInputSchema = z.object({
+  fieldGroups: z.string().optional().describe('Response field group, e.g. TAX_BREAKDOWN'),
   filter: z
     .string()
     .optional()
@@ -232,6 +233,7 @@ export const getOrdersOutputSchema = z.object({
  */
 export const getOrderInputSchema = z.object({
   orderId: z.string().describe('The unique identifier of the order'),
+  fieldGroups: z.string().optional().describe('Response field group, e.g. TAX_BREAKDOWN'),
 });
 
 /**
@@ -250,7 +252,7 @@ export const getOrderOutputSchema = orderSchema.extend({
  */
 export const createShippingFulfillmentInputSchema = z.object({
   orderId: z.string().describe('The unique identifier of the order'),
-  fulfillment: z.object({
+  body: z.object({
     lineItems: z
       .array(
         z.object({
@@ -268,10 +270,7 @@ export const createShippingFulfillmentInputSchema = z.object({
 /**
  * Validates the Fulfillment API create shipping fulfillment response payload.
  */
-export const createShippingFulfillmentOutputSchema = z.object({
-  fulfillmentId: z.string().optional(),
-  warnings: z.array(errorSchema).optional(),
-});
+export const createShippingFulfillmentOutputSchema = z.object({});
 
 /**
  * Validates the Fulfillment API get shipping fulfillments request payload.
@@ -287,6 +286,19 @@ export const getShippingFulfillmentsOutputSchema = z.object({
   fulfillments: z.array(shippingFulfillmentSchema).optional(),
   warnings: z.array(errorSchema).optional(),
 });
+
+/**
+ * Validates the Fulfillment API get one shipping fulfillment request payload.
+ */
+export const getShippingFulfillmentInputSchema = z.object({
+  orderId: z.string().describe('The unique identifier of the order'),
+  fulfillmentId: z.string().describe('The unique identifier of the shipping fulfillment'),
+});
+
+/**
+ * Validates the Fulfillment API get one shipping fulfillment response payload.
+ */
+export const getShippingFulfillmentOutputSchema = shippingFulfillmentSchema;
 
 // ============================================================================
 // Refund Schemas
@@ -308,7 +320,7 @@ const lineItemRefundSchema = z.object({
  */
 export const issueRefundInputSchema = z.object({
   orderId: z.string().describe('The unique identifier of the order'),
-  refundData: z.object({
+  body: z.object({
     reasonForRefund: z.nativeEnum(ReasonForRefund).describe('Reason for issuing the refund'),
     comment: z.string().optional().describe('Optional comment about the refund'),
     refundItems: z.array(lineItemRefundSchema).optional().describe('Line items to refund'),
@@ -336,7 +348,7 @@ const paymentDisputeSchema = z.object({
   orderId: z.string().optional(),
   openDate: z.string().optional(),
   respondByDate: z.string().optional(),
-  status: z.string().optional(),
+  paymentDisputeStatus: z.string().optional(),
   reason: z.string().optional(),
   amount: amountSchema.optional(),
   buyer: buyerSchema.optional(),
@@ -367,23 +379,96 @@ const paymentDisputeSchema = z.object({
     .optional(),
 });
 
+const paymentDisputeSummarySchema = z.object({
+  paymentDisputeId: z.string().optional(),
+  orderId: z.string().optional(),
+  openDate: z.string().optional(),
+  respondByDate: z.string().optional(),
+  paymentDisputeStatus: z.string().optional(),
+  reason: z.string().optional(),
+  amount: amountSchema.optional(),
+});
+
+const paymentDisputeIdSchema = z.string().describe('The unique payment dispute ID');
+
+const disputeReturnAddressSchema = z.object({
+  addressLine1: z.string().optional().describe('Street address line 1'),
+  addressLine2: z.string().optional().describe('Street address line 2'),
+  city: z.string().optional().describe('City name'),
+  country: z.string().optional().describe('Two-letter ISO 3166-1 country code'),
+  county: z.string().optional().describe('County name'),
+  fullName: z.string().optional().describe('Full name of the return address owner'),
+  postalCode: z.string().optional().describe('Postal or ZIP code'),
+  primaryPhone: z
+    .object({
+      countryCode: z.string().optional().describe('Two-letter ISO 3166-1 country code'),
+      number: z.string().optional().describe('Primary phone number'),
+    })
+    .optional()
+    .describe('Primary phone number for the return address'),
+  stateOrProvince: z.string().optional().describe('State or province'),
+});
+
+const acceptPaymentDisputeBodySchema = z.object({
+  returnAddress: disputeReturnAddressSchema.optional().describe('Return address for the buyer'),
+  revision: z.number().optional().describe('Payment dispute revision number'),
+});
+
+const contestPaymentDisputeBodySchema = acceptPaymentDisputeBodySchema.extend({
+  note: z.string().max(1000).optional().describe('Seller note for contesting the dispute'),
+});
+
+const disputeFileEvidenceSchema = z.object({
+  fileId: z.string().optional().describe('File ID from uploadEvidenceFile'),
+});
+
+const disputeLineItemSchema = z.object({
+  itemId: z.string().optional().describe('eBay item ID'),
+  lineItemId: z.string().optional().describe('Order line item ID'),
+});
+
+const addDisputeEvidenceBodySchema = z.object({
+  evidenceType: z.string().optional().describe('Evidence type, e.g. PROOF_OF_DELIVERY'),
+  files: z.array(disputeFileEvidenceSchema).optional().describe('Evidence files to attach'),
+  lineItems: z.array(disputeLineItemSchema).optional().describe('Line items this evidence covers'),
+});
+
+const updateDisputeEvidenceBodySchema = addDisputeEvidenceBodySchema.extend({
+  evidenceId: z.string().optional().describe('Evidence set ID to update'),
+});
+
 /**
- * Validates the Fulfillment API get payment disputes request payload.
+ * Validates the Fulfillment API getPaymentDispute request payload.
  */
-export const getPaymentDisputesInputSchema = z.object({
-  orderIds: z.string().optional().describe('Comma-separated list of order IDs'),
+export const getPaymentDisputeInputSchema = z.object({
+  paymentDisputeId: paymentDisputeIdSchema,
+});
+
+/**
+ * Validates the Fulfillment API getActivities request payload.
+ */
+export const getActivitiesInputSchema = z.object({
+  paymentDisputeId: paymentDisputeIdSchema,
+});
+
+/**
+ * Validates the Fulfillment API getPaymentDisputeSummaries request payload.
+ */
+export const getPaymentDisputeSummariesInputSchema = z.object({
+  orderId: z.string().optional().describe('Filter by one order ID'),
   buyerUsername: z.string().optional().describe('Filter by buyer username'),
   openDateFrom: z.string().optional().describe('Start date for dispute open date filter'),
   openDateTo: z.string().optional().describe('End date for dispute open date filter'),
+  paymentDisputeStatus: z.string().optional().describe('Filter by payment dispute status'),
   limit: z.number().optional().describe('Number of disputes to return'),
   offset: z.number().optional().describe('Number of disputes to skip'),
 });
 
 /**
- * Validates the Fulfillment API get payment disputes response payload.
+ * Validates the Fulfillment API getPaymentDisputeSummaries response payload.
  */
-export const getPaymentDisputesOutputSchema = z.object({
-  paymentDisputes: z.array(paymentDisputeSchema).optional(),
+export const getPaymentDisputeSummariesOutputSchema = z.object({
+  paymentDisputeSummaries: z.array(paymentDisputeSummarySchema).optional(),
   href: z.string().optional(),
   limit: z.number().optional(),
   next: z.string().optional(),
@@ -393,14 +478,78 @@ export const getPaymentDisputesOutputSchema = z.object({
   warnings: z.array(errorSchema).optional(),
 });
 
+/**
+ * Validates the Fulfillment API acceptPaymentDispute request payload.
+ */
+export const acceptPaymentDisputeInputSchema = z.object({
+  paymentDisputeId: paymentDisputeIdSchema,
+  body: acceptPaymentDisputeBodySchema
+    .optional()
+    .describe('Generated acceptPaymentDispute request body'),
+});
+
+/**
+ * Validates the Fulfillment API contestPaymentDispute request payload.
+ */
+export const contestPaymentDisputeInputSchema = z.object({
+  paymentDisputeId: paymentDisputeIdSchema,
+  body: contestPaymentDisputeBodySchema
+    .optional()
+    .describe('Generated contestPaymentDispute request body'),
+});
+
+/**
+ * Validates the Fulfillment API addEvidence request payload.
+ */
+export const addEvidenceInputSchema = z.object({
+  paymentDisputeId: paymentDisputeIdSchema,
+  body: addDisputeEvidenceBodySchema.describe('Generated addEvidence request body'),
+});
+
+/**
+ * Validates the Fulfillment API updateEvidence request payload.
+ */
+export const updateEvidenceInputSchema = z.object({
+  paymentDisputeId: paymentDisputeIdSchema,
+  body: updateDisputeEvidenceBodySchema.describe('Generated updateEvidence request body'),
+});
+
+/**
+ * Validates the Fulfillment API uploadEvidenceFile request payload.
+ */
+export const uploadEvidenceFileInputSchema = z.object({
+  paymentDisputeId: paymentDisputeIdSchema,
+  body: z
+    .object({
+      data: z.string().describe('Base64-encoded file data'),
+      filename: z.string().describe('File name with extension'),
+    })
+    .describe('Multipart-compatible file body to upload'),
+});
+
+/**
+ * Validates the Fulfillment API fetchEvidenceContent request payload.
+ */
+export const fetchEvidenceContentInputSchema = z.object({
+  paymentDisputeId: paymentDisputeIdSchema,
+  evidenceId: z.string().describe('The evidence ID'),
+  fileId: z.string().describe('The file ID to download'),
+});
+
 // ============================================================================
 // JSON Schema Conversion Functions
 // ============================================================================
 
 /**
- * Convert Zod schemas to JSON Schema format for MCP tools
+ * Converts Fulfillment API Zod schemas to JSON Schema format for MCP tools.
+ *
+ * @returns Fulfillment API JSON schemas keyed by endpoint or shared model name.
+ * @example
+ * ```ts
+ * const schemas = getFulfillmentJsonSchemas();
+ * ```
  */
-export function getFulfillmentJsonSchemas() {
+export const getFulfillmentJsonSchemas = () => {
   return {
     // Orders
     getOrdersInput: zodToJsonSchema(getOrdersInputSchema, 'getOrdersInput'),
@@ -426,6 +575,14 @@ export function getFulfillmentJsonSchemas() {
       getShippingFulfillmentsOutputSchema,
       'getShippingFulfillmentsOutput',
     ),
+    getShippingFulfillmentInput: zodToJsonSchema(
+      getShippingFulfillmentInputSchema,
+      'getShippingFulfillmentInput',
+    ),
+    getShippingFulfillmentOutput: zodToJsonSchema(
+      getShippingFulfillmentOutputSchema,
+      'getShippingFulfillmentOutput',
+    ),
     shippingFulfillmentDetails: zodToJsonSchema(
       shippingFulfillmentSchema,
       'shippingFulfillmentDetails',
@@ -436,14 +593,34 @@ export function getFulfillmentJsonSchemas() {
     issueRefundOutput: zodToJsonSchema(issueRefundOutputSchema, 'issueRefundOutput'),
 
     // Payment Disputes
-    getPaymentDisputesInput: zodToJsonSchema(
-      getPaymentDisputesInputSchema,
-      'getPaymentDisputesInput',
+    getPaymentDisputeInput: zodToJsonSchema(getPaymentDisputeInputSchema, 'getPaymentDisputeInput'),
+    getActivitiesInput: zodToJsonSchema(getActivitiesInputSchema, 'getActivitiesInput'),
+    getPaymentDisputeSummariesInput: zodToJsonSchema(
+      getPaymentDisputeSummariesInputSchema,
+      'getPaymentDisputeSummariesInput',
     ),
-    getPaymentDisputesOutput: zodToJsonSchema(
-      getPaymentDisputesOutputSchema,
-      'getPaymentDisputesOutput',
+    getPaymentDisputeSummariesOutput: zodToJsonSchema(
+      getPaymentDisputeSummariesOutputSchema,
+      'getPaymentDisputeSummariesOutput',
+    ),
+    acceptPaymentDisputeInput: zodToJsonSchema(
+      acceptPaymentDisputeInputSchema,
+      'acceptPaymentDisputeInput',
+    ),
+    contestPaymentDisputeInput: zodToJsonSchema(
+      contestPaymentDisputeInputSchema,
+      'contestPaymentDisputeInput',
+    ),
+    addEvidenceInput: zodToJsonSchema(addEvidenceInputSchema, 'addEvidenceInput'),
+    updateEvidenceInput: zodToJsonSchema(updateEvidenceInputSchema, 'updateEvidenceInput'),
+    uploadEvidenceFileInput: zodToJsonSchema(
+      uploadEvidenceFileInputSchema,
+      'uploadEvidenceFileInput',
+    ),
+    fetchEvidenceContentInput: zodToJsonSchema(
+      fetchEvidenceContentInputSchema,
+      'fetchEvidenceContentInput',
     ),
     paymentDisputeDetails: zodToJsonSchema(paymentDisputeSchema, 'paymentDisputeDetails'),
   };
-}
+};

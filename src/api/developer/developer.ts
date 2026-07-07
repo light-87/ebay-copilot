@@ -1,15 +1,45 @@
 import type { EbayApiClient } from '@/api/client.js';
-import { withApiError } from '@/api/shared/request.js';
+import {
+  buildEndpointParams,
+  type EbayApiError,
+  type EndpointInputError,
+  requestGetEffect,
+  requestPostEffect,
+  requireObjectEffect,
+  requireStringEffect,
+} from '@/api/shared/request.js';
+import {
+  createSigningKeyInputSchema,
+  getRateLimitsInputSchema,
+  getSigningKeyInputSchema,
+  getSigningKeysInputSchema,
+  getUserRateLimitsInputSchema,
+  registerClientInputSchema,
+} from '@/schemas/developer/developer.js';
 import type { DeveloperAnalyticsComponents as AnalyticsComponents } from '@/types/application-settings/developerAnalyticsV1BetaOas3.js';
 import type { DeveloperClientRegistrationComponents as ClientComponents } from '@/types/application-settings/developerClientRegistrationV1Oas3.js';
 import type { DeveloperKeyManagementComponents as KeyComponents } from '@/types/application-settings/developerKeyManagementV1Oas3.js';
+import { Effect } from 'effect';
+import type { z } from 'zod';
 
+/** Response returned by Developer Analytics rate-limit endpoints. */
 type RateLimitsResponse = AnalyticsComponents['schemas']['RateLimitsResponse'];
+/** Request body for registering a developer client. */
 type ClientSettings = ClientComponents['schemas']['ClientSettings'];
+/** Response returned after registering a developer client. */
 type ClientDetails = ClientComponents['schemas']['ClientDetails'];
+/** Signing key response returned by Developer Key Management endpoints. */
 type SigningKey = KeyComponents['schemas']['SigningKey'];
+/** Response returned by the list signing keys endpoint. */
 type QuerySigningKeysResponse = KeyComponents['schemas']['QuerySigningKeysResponse'];
+/** Request body for creating a signing key. */
 type CreateSigningKeyRequest = KeyComponents['schemas']['CreateSigningKeyRequest'];
+type GetRateLimitsInput = z.infer<typeof getRateLimitsInputSchema>;
+type GetUserRateLimitsInput = z.infer<typeof getUserRateLimitsInputSchema>;
+type RegisterClientInput = z.infer<typeof registerClientInputSchema>;
+type GetSigningKeysInput = z.infer<typeof getSigningKeysInputSchema>;
+type CreateSigningKeyInput = z.infer<typeof createSigningKeyInputSchema>;
+type GetSigningKeyInput = z.infer<typeof getSigningKeyInputSchema>;
 
 /**
  * Developer API - Rate limits, client registration, and signing keys
@@ -23,96 +53,172 @@ export class DeveloperApi {
   private readonly clientBasePath = '/developer/client_registration/v1';
   private readonly keyBasePath = '/developer/key_management/v1';
 
-  constructor(private client: EbayApiClient) {}
+  public constructor(private readonly client: EbayApiClient) {}
 
   // ========================================
   // RATE LIMITS (Analytics API)
   // ========================================
 
   /**
-   * Get application rate limits
-   * Endpoint: GET /rate_limit/
+   * Retrieves application rate-limit usage across eBay APIs.
+   *
+   * @param input - Optional API context and API name filters.
+   * @returns An Effect that succeeds with eBay's generated RateLimitsResponse.
+   *
+   * @example
+   * ```ts
+   * const limits = await Effect.runPromise(
+   *   developerApi.getRateLimits({ apiContext: 'sell', apiName: 'inventory' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/developer/analytics/resources/rate_limit/methods/getRateLimits
    */
-  async getRateLimits(apiContext?: string, apiName?: string): Promise<RateLimitsResponse> {
-    const params: Record<string, string> = {};
-    if (apiContext) params.api_context = apiContext;
-    if (apiName) params.api_name = apiName;
+  public getRateLimits = (
+    input: GetRateLimitsInput = {},
+  ): Effect.Effect<RateLimitsResponse, EbayApiError> => {
+    const params = buildEndpointParams({
+      apiContext: { wireName: 'api_context', value: input.apiContext },
+      apiName: { wireName: 'api_name', value: input.apiName },
+    });
 
-    return await withApiError('Failed to get rate limits', () =>
-      this.client.get<RateLimitsResponse>(
-        `${this.analyticsBasePath}/rate_limit/`,
-        Object.keys(params).length > 0 ? params : undefined,
-      ),
+    return requestGetEffect<RateLimitsResponse>(
+      this.client,
+      `${this.analyticsBasePath}/rate_limit/`,
+      params,
     );
-  }
+  };
 
   /**
-   * Get user rate limits
-   * Endpoint: GET /user_rate_limit/
+   * Retrieves user-specific rate-limit usage across eBay APIs.
+   *
+   * @param input - Optional API context and API name filters.
+   * @returns An Effect that succeeds with eBay's generated RateLimitsResponse.
+   *
+   * @example
+   * ```ts
+   * const limits = await Effect.runPromise(developerApi.getUserRateLimits({ apiContext: 'sell' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/developer/analytics/resources/user_rate_limit/methods/getUserRateLimits
    */
-  async getUserRateLimits(apiContext?: string, apiName?: string): Promise<RateLimitsResponse> {
-    const params: Record<string, string> = {};
-    if (apiContext) params.api_context = apiContext;
-    if (apiName) params.api_name = apiName;
+  public getUserRateLimits = (
+    input: GetUserRateLimitsInput = {},
+  ): Effect.Effect<RateLimitsResponse, EbayApiError> => {
+    const params = buildEndpointParams({
+      apiContext: { wireName: 'api_context', value: input.apiContext },
+      apiName: { wireName: 'api_name', value: input.apiName },
+    });
 
-    return await withApiError('Failed to get user rate limits', () =>
-      this.client.get<RateLimitsResponse>(
-        `${this.analyticsBasePath}/user_rate_limit/`,
-        Object.keys(params).length > 0 ? params : undefined,
-      ),
+    return requestGetEffect<RateLimitsResponse>(
+      this.client,
+      `${this.analyticsBasePath}/user_rate_limit/`,
+      params,
     );
-  }
+  };
 
   // ========================================
   // CLIENT REGISTRATION
   // ========================================
 
   /**
-   * Register a new third party financial application with eBay
-   * Endpoint: POST /client/register
-   * Note: This is primarily for Open Banking / PSD2 compliance
+   * Registers a third-party financial application with eBay.
+   *
+   * @param input - Generated ClientSettings request body.
+   * @returns An Effect that succeeds with eBay's generated ClientDetails response.
+   *
+   * @example
+   * ```ts
+   * const client = await Effect.runPromise(
+   *   developerApi.registerClient({ clientSettings }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/developer/client_registration/resources/client/methods/registerClient
    */
-  async registerClient(clientSettings: ClientSettings): Promise<ClientDetails> {
-    return await withApiError('Failed to register client', () =>
-      this.client.post<ClientDetails>(`${this.clientBasePath}/client/register`, clientSettings),
+  public registerClient = (
+    input: RegisterClientInput,
+  ): Effect.Effect<ClientDetails, EbayApiError> =>
+    requestPostEffect<ClientDetails>(
+      this.client,
+      `${this.clientBasePath}/client/register`,
+      input.clientSettings as ClientSettings,
     );
-  }
 
   // ========================================
   // SIGNING KEY MANAGEMENT
   // ========================================
 
   /**
-   * Get all signing keys for the application
-   * Endpoint: GET /signing_key
+   * Retrieves all signing keys for the application.
+   *
+   * @param input - Empty endpoint input object.
+   * @returns An Effect that succeeds with eBay's generated QuerySigningKeysResponse.
+   *
+   * @example
+   * ```ts
+   * const keys = await Effect.runPromise(developerApi.getSigningKeys({}));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/developer/key_management/resources/signing_key/methods/getSigningKeys
    */
-  async getSigningKeys(): Promise<QuerySigningKeysResponse> {
-    return await withApiError('Failed to get signing keys', () =>
-      this.client.get<QuerySigningKeysResponse>(`${this.keyBasePath}/signing_key`),
+  public getSigningKeys = (
+    input: GetSigningKeysInput = {},
+  ): Effect.Effect<QuerySigningKeysResponse, EbayApiError> => {
+    void input;
+    return requestGetEffect<QuerySigningKeysResponse>(
+      this.client,
+      `${this.keyBasePath}/signing_key`,
     );
-  }
+  };
 
   /**
-   * Create a new signing key
-   * Endpoint: POST /signing_key
+   * Creates a signing keypair for API digital signatures.
+   *
+   * @param input - Optional signing-key cipher request body.
+   * @returns An Effect that succeeds with eBay's generated SigningKey response.
+   *
+   * @example
+   * ```ts
+   * const key = await Effect.runPromise(
+   *   developerApi.createSigningKey({ request: { signingKeyCipher: 'RSA' } }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/developer/key_management/resources/signing_key/methods/createSigningKey
    */
-  async createSigningKey(request?: CreateSigningKeyRequest): Promise<SigningKey> {
-    return await withApiError('Failed to create signing key', () =>
-      this.client.post<SigningKey>(`${this.keyBasePath}/signing_key`, request || {}),
+  public createSigningKey = (
+    input: CreateSigningKeyInput = {},
+  ): Effect.Effect<SigningKey, EbayApiError> =>
+    requestPostEffect<SigningKey>(
+      this.client,
+      `${this.keyBasePath}/signing_key`,
+      (input.request as CreateSigningKeyRequest | undefined) ?? {},
     );
-  }
 
   /**
-   * Get a specific signing key by ID
-   * Endpoint: GET /signing_key/{signing_key_id}
+   * Retrieves a specific signing key by eBay signing key ID.
+   *
+   * @param input - eBay-generated signing key identifier.
+   * @returns An Effect that succeeds with eBay's generated SigningKey response.
+   *
+   * @example
+   * ```ts
+   * const key = await Effect.runPromise(developerApi.getSigningKey({ signingKeyId: 'key_001' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/developer/key_management/resources/signing_key/methods/getSigningKey
    */
-  async getSigningKey(signingKeyId: string): Promise<SigningKey> {
-    if (!signingKeyId || typeof signingKeyId !== 'string') {
-      throw new Error('signingKeyId is required and must be a string');
-    }
+  public getSigningKey = (
+    input: GetSigningKeyInput,
+  ): Effect.Effect<SigningKey, EbayApiError | EndpointInputError> =>
+    Effect.gen(this, function* () {
+      const endpointInput = yield* requireObjectEffect<GetSigningKeyInput>(input, 'input');
+      const signingKeyId = yield* requireStringEffect(endpointInput.signingKeyId, 'signingKeyId');
 
-    return await withApiError('Failed to get signing key', () =>
-      this.client.get<SigningKey>(`${this.keyBasePath}/signing_key/${signingKeyId}`),
-    );
-  }
+      return yield* requestGetEffect<SigningKey>(
+        this.client,
+        `${this.keyBasePath}/signing_key/${signingKeyId}`,
+      );
+    });
 }

@@ -10,7 +10,7 @@ import {
   MerchantLocationStatus,
   DayOfWeek,
   MarketplaceId,
-} from '@/types/ebay-enums.js';
+} from '@/types/ebayEnums.js';
 
 /**
  * Inventory Management API Schemas
@@ -184,7 +184,7 @@ export const getInventoryItemOutputSchema = inventoryItemSchema.extend({
  */
 export const createInventoryItemInputSchema = z.object({
   sku: z.string().describe('The seller-defined SKU value for the inventory item'),
-  inventoryItem: inventoryItemSchema,
+  body: inventoryItemSchema,
 });
 
 /**
@@ -286,9 +286,11 @@ export const offerResponseSchema = offerSchema.extend({
  * Validates the Inventory Management API get offers request payload.
  */
 export const getOffersInputSchema = z.object({
+  format: z.string().optional().describe('Filter offers by listing format'),
   sku: z.string().optional().describe('Filter offers by SKU'),
   marketplaceId: z.nativeEnum(MarketplaceId).optional().describe('Filter offers by marketplace'),
   limit: z.number().optional().describe('Number of offers to return'),
+  offset: z.number().optional().describe('Number of offers to skip'),
 });
 
 /**
@@ -310,7 +312,7 @@ export const getOffersOutputSchema = z.object({
  * Validates the Inventory Management API create offer request payload.
  */
 export const createOfferInputSchema = z.object({
-  offer: offerSchema,
+  body: offerSchema,
 });
 
 /**
@@ -433,7 +435,7 @@ export const getInventoryLocationsOutputSchema = z.object({
  */
 export const createInventoryLocationInputSchema = z.object({
   merchantLocationKey: z.string().describe('Unique merchant-defined key for the location'),
-  location: locationSchema,
+  body: locationSchema,
 });
 
 /**
@@ -616,9 +618,15 @@ export const bulkPublishResponseSchema = z.object({
 // ============================================================================
 
 /**
- * Convert Zod schemas to JSON Schema format for MCP tools
+ * Converts Inventory Management API Zod schemas to JSON Schema format for MCP tools.
+ *
+ * @returns Inventory Management API JSON schemas keyed by endpoint or shared model name.
+ * @example
+ * ```ts
+ * const schemas = getInventoryManagementJsonSchemas();
+ * ```
  */
-export function getInventoryManagementJsonSchemas() {
+export const getInventoryManagementJsonSchemas = () => {
   return {
     // Inventory Items
     getInventoryItemsInput: zodToJsonSchema(getInventoryItemsInputSchema, 'getInventoryItemsInput'),
@@ -699,4 +707,4 @@ export function getInventoryManagementJsonSchemas() {
     bulkPublishRequest: zodToJsonSchema(bulkPublishRequestSchema, 'bulkPublishRequest'),
     bulkPublishResponse: zodToJsonSchema(bulkPublishResponseSchema, 'bulkPublishResponse'),
   };
-}
+};

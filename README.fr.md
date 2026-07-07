@@ -218,7 +218,7 @@ Les limites du jeton utilisateur varient selon le niveau de compte (Individuel 1
 
 ### Compatibilité des clients MCP
 
-Configurés automatiquement par `npm run setup`. Nécessite Node.js ≥ 18 et le protocole MCP 1.0+ via STDIO (par défaut) ou HTTP.
+Configurés automatiquement par `npm run setup`. Nécessite Node.js ≥ 20 et le protocole MCP 1.0+ via STDIO (par défaut) ou HTTP.
 
 | Client                 | Plateforme            | Chemin de configuration                                                     |
 | ---------------------- | --------------------- | --------------------------------------------------------------------------- |
@@ -248,7 +248,7 @@ Configurés automatiquement par `npm run setup`. Nécessite Node.js ≥ 18 et le
 | [Taxonomy](src/tools/categories/taxonomy.ts) | Arbres de catégories, aspects d'articles, états d'articles |
 | [Trading (XML hérité)](src/tools/categories/trading.ts) | Créer, réviser, remettre en vente et clôturer des annonces à prix fixe |
 | [Developer](src/tools/categories/developer.ts) | Limites de débit, clés de signature, enregistrement de clients |
-| [Token Management](src/tools/categories/token-management.ts) | Génération d'URL OAuth et gestion des jetons |
+| [Token Management](src/tools/categories/tokenManagement.ts) | Génération d'URL OAuth et gestion des jetons |
 
 **Outils d'exemple :** `ebay_get_inventory_items`, `ebay_get_orders`, `ebay_create_offer`, `ebay_get_campaigns`, `ebay_get_oauth_url`.
 
@@ -326,7 +326,7 @@ Il s'exécute entièrement sur votre machine via STDIO (ou HTTP local). Il n'y a
 
 ### De quoi ai-je besoin pour commencer ?
 
-Node.js ≥ 18, un [compte développeur eBay](https://developer.ebay.com/) gratuit (Client ID + Client Secret), puis lancez `npm run setup`.
+Node.js ≥ 20, un [compte développeur eBay](https://developer.ebay.com/) gratuit (Client ID + Client Secret), puis lancez `npm run setup`.
 
 ### Quelles sont les limites de débit de l'API eBay ?
 

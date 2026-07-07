@@ -1,314 +1,1253 @@
 import type { EbayApiClient } from '@/api/client.js';
-import { withApiError } from '@/api/shared/request.js';
+import {
+  buildEndpointParams,
+  type EbayApiError,
+  type EndpointInputError,
+  optionalNonNegativeNumberEffect,
+  optionalPositiveNumberEffect,
+  optionalStringEffect,
+  requestDeleteEffect,
+  requestGetEffect,
+  requestPostEffect,
+  requireObjectEffect,
+  requireStringEffect,
+} from '@/api/shared/request.js';
+import type {
+  components,
+  operations,
+} from '@/types/sell-apps/other-apis/sellEdeliveryInternationalShippingOas3.js';
+import { Effect } from 'effect';
+
+/** Input accepted by getAddressPreferences. */
+export type GetAddressPreferencesInput = Record<string, never>;
+
+/** Input accepted by getConsignPreferences. */
+export type GetConsignPreferencesInput = Record<string, never>;
+
+/** Input accepted by getActualCosts. */
+export interface GetActualCostsInput {
+  /** Tracking numbers sent as tracking_numbers. */
+  readonly trackingNumbers?: string;
+  /** UTC transaction start time sent as trans_begin_time. */
+  readonly transactionBeginTime?: string;
+  /** UTC transaction end time sent as trans_end_time. */
+  readonly transactionEndTime?: string;
+}
+
+/** Input accepted by paginated eDelivery metadata endpoints. */
+export interface EDeliveryPaginationInput {
+  /** Number of results to return. */
+  readonly limit?: number;
+  /** Number of results to skip. */
+  readonly offset?: number;
+}
+
+/** Input accepted by createAddressPreference. */
+export interface CreateAddressPreferenceInput {
+  /** Generated CreateAddressPreferenceRequest body. */
+  readonly body: CreateAddressPreferenceRequest;
+}
+
+/** Input accepted by createConsignPreference. */
+export interface CreateConsignPreferenceInput {
+  /** Generated CreateConsignPreferenceRequest body. */
+  readonly body: CreateConsignPreferenceRequest;
+}
+
+/** Input accepted by bundle ID endpoints. */
+export interface BundleIdInput {
+  /** eDelivery bundle identifier. */
+  readonly bundleId: string;
+}
+
+/** Input accepted by createBundle. */
+export interface CreateBundleInput {
+  /** Generated CreateBundleRequest body. */
+  readonly body: CreateBundleRequest;
+}
+
+/** Input accepted by createComplaint. */
+export interface CreateComplaintInput {
+  /** Generated AddComplaintRequest body. */
+  readonly body: CreateComplaintRequest;
+}
+
+/** Input accepted by package ID endpoints. */
+export interface PackageIdInput {
+  /** eDelivery package identifier. */
+  readonly packageId: string;
+}
+
+/** Input accepted by createPackage. */
+export interface CreatePackageInput {
+  /** Generated AddPackageRequest body. */
+  readonly body: CreatePackageRequest;
+}
+
+/** Input accepted by getPackagesByLineItemId. */
+export interface GetPackagesByLineItemIdInput {
+  /** Fulfillment order line item identifier sent as order_line_item_id. */
+  readonly orderLineItemId: string;
+}
+
+/** Input accepted by bulkCancelPackages. */
+export interface BulkCancelPackagesInput {
+  /** Generated CancelPackagesRequest body. */
+  readonly body: BulkCancelPackagesRequest;
+}
+
+/** Input accepted by bulkConfirmPackages. */
+export interface BulkConfirmPackagesInput {
+  /** Generated ConfirmPackagesRequest body. */
+  readonly body: BulkConfirmPackagesRequest;
+}
+
+/** Input accepted by bulkDeletePackages. */
+export interface BulkDeletePackagesInput {
+  /** Generated DeletePackagesRequest body. */
+  readonly body: BulkDeletePackagesRequest;
+}
+
+/** Input accepted by getLabels. */
+export interface GetLabelsInput {
+  /** Page size preference sent as page_size. */
+  readonly pageSize?: string;
+  /** Print preferences sent as print_preference. */
+  readonly printPreference?: string;
+  /** Tracking numbers sent as tracking_numbers. */
+  readonly trackingNumbers: string;
+}
+
+/** Input accepted by getHandoverSheet. */
+export interface GetHandoverSheetInput {
+  /** Tracking numbers sent as tracking_numbers. */
+  readonly trackingNumbers: string;
+}
+
+/** Input accepted by getTracking. */
+export interface GetTrackingInput {
+  /** Tracking number sent as tracking_number. */
+  readonly trackingNumber: string;
+}
 
 /**
- * eDelivery API - International shipping eDelivery
- * Based on: docs/sell-apps/other-apis/sell_edelivery_international_shipping_oas3.json
+ * Response returned by getActualCosts.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/actual_costs/methods/getActualCosts
  */
+export type GetActualCostsResponse = components['schemas']['GetActualCostResponses'];
+
+/**
+ * Response returned by getAddressPreferences.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/address_preference/methods/getAddressPreferences
+ */
+export type GetAddressPreferencesResponse =
+  components['schemas']['GetAddressPreferenceListResponses'];
+
+/**
+ * Request body accepted by createAddressPreference.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/address_preference/methods/createAddressPreference
+ */
+export type CreateAddressPreferenceRequest =
+  components['schemas']['CreateAddressPreferenceRequest'];
+
+/**
+ * Response returned by createAddressPreference.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/address_preference/methods/createAddressPreference
+ */
+export type CreateAddressPreferenceResponse =
+  components['schemas']['CreateAddressPreferenceResponses'];
+
+/**
+ * Response returned by getConsignPreferences.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/consign_preference/methods/getConsignPreferences
+ */
+export type GetConsignPreferencesResponse =
+  components['schemas']['GetConsignPreferenceListResponses'];
+
+/**
+ * Request body accepted by createConsignPreference.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/consign_preference/methods/createConsignPreference
+ */
+export type CreateConsignPreferenceRequest =
+  components['schemas']['CreateConsignPreferenceRequest'];
+
+/**
+ * Response returned by createConsignPreference.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/consign_preference/methods/createConsignPreference
+ */
+export type CreateConsignPreferenceResponse =
+  components['schemas']['CreateConsignPreferenceResponses'];
+
+/**
+ * Response returned by getAgents.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/agents/methods/getAgents
+ */
+export type GetAgentsResponse = components['schemas']['GetAgentListResponses'];
+
+/**
+ * Response returned by getBatteryQualifications.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/battery_qualifications/methods/getBatteryQualifications
+ */
+export type GetBatteryQualificationsResponse = components['schemas']['GetBatteryQualListResponses'];
+
+/**
+ * Response returned by getDropoffSites.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/dropoff_sites/methods/getDropoffSites
+ */
+export type GetDropoffSitesResponse = components['schemas']['GetDropoffSiteListResponses'];
+
+/**
+ * Response returned by getServices.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/services/methods/getServices
+ */
+export type GetServicesResponse = components['schemas']['GetServiceListResponses'];
+
+/**
+ * Request body accepted by createBundle.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/bundle/methods/createBundle
+ */
+export type CreateBundleRequest = components['schemas']['CreateBundleRequest'];
+
+/**
+ * Response returned by createBundle.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/bundle/methods/createBundle
+ */
+export type CreateBundleResponse = components['schemas']['CreateBundleResponse'];
+
+/**
+ * Response returned by getBundle.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/bundle/methods/getBundle
+ */
+export type GetBundleResponse = components['schemas']['BundleDetailResponse'];
+
+/**
+ * No-content response returned by cancelBundle.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/bundle/methods/cancelBundle
+ */
+export type CancelBundleResponse = void;
+
+/**
+ * Response returned by getBundleLabel.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/bundle/methods/getBundleLabel
+ */
+export type GetBundleLabelResponse = components['schemas']['BundleLabelResponse'];
+
+/**
+ * Request body accepted by createPackage.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/createPackage
+ */
+export type CreatePackageRequest = components['schemas']['AddPackageRequest'];
+
+/**
+ * Response returned by createPackage.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/createPackage
+ */
+export type CreatePackageResponse = components['schemas']['AddPackageResponses'];
+
+/**
+ * Response returned by getPackage.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/getPackage
+ */
+export type GetPackageResponse = components['schemas']['GetPackageDetailResponses'];
+
+/**
+ * No-content response returned by deletePackage.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/deletePackage
+ */
+export type DeletePackageResponse = void;
+
+/**
+ * Response returned by getPackagesByLineItemID.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/getPackagesByLineItemID
+ */
+export type GetPackagesByLineItemIdResponse = components['schemas']['GetItemPackageIdResponses'];
+
+/**
+ * No-content response returned by cancelPackage.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/cancelPackage
+ */
+export type CancelPackageResponse = void;
+
+/**
+ * Response returned by clonePackage.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/clonePackage
+ */
+export type ClonePackageResponse = components['schemas']['ClonePackageResponses'];
+
+/**
+ * No-content response returned by confirmPackage.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/confirmPackage
+ */
+export type ConfirmPackageResponse = void;
+
+/**
+ * Request body accepted by bulkCancelPackages.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/bulkCancelPackages
+ */
+export type BulkCancelPackagesRequest = components['schemas']['CancelPackagesRequest'];
+
+/**
+ * Response returned by bulkCancelPackages.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/bulkCancelPackages
+ */
+export type BulkCancelPackagesResponse = components['schemas']['CancelPackagesResponses'];
+
+/**
+ * Request body accepted by bulkConfirmPackages.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/bulkConfirmPackages
+ */
+export type BulkConfirmPackagesRequest = components['schemas']['ConfirmPackagesRequest'];
+
+/**
+ * Response returned by bulkConfirmPackages.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/bulkConfirmPackages
+ */
+export type BulkConfirmPackagesResponse = components['schemas']['ConfirmPackagesResponses'];
+
+/**
+ * Request body accepted by bulkDeletePackages.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/bulkDeletePackages
+ */
+export type BulkDeletePackagesRequest = components['schemas']['DeletePackagesRequest'];
+
+/**
+ * Response returned by bulkDeletePackages.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/bulkDeletePackages
+ */
+export type BulkDeletePackagesResponse = components['schemas']['DeletePackagesResponses'];
+
+/**
+ * Response returned by getLabels.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/labels/methods/getLabels
+ */
+export type GetLabelsResponse = components['schemas']['GetLabelListResponses'];
+
+/**
+ * Response returned by getHandoverSheet.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/handover_sheet/methods/getHandoverSheet
+ */
+export type GetHandoverSheetResponse = components['schemas']['GetHandoverSheetResponses'];
+
+/**
+ * Response returned by getTracking.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/tracking/methods/getTracking
+ */
+export type GetTrackingResponse = components['schemas']['GetTrackingDetailResponses'];
+
+/**
+ * Request body accepted by createComplaint.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/complaint/methods/createComplaint
+ */
+export type CreateComplaintRequest = components['schemas']['AddComplaintRequest'];
+
+/**
+ * Response returned by createComplaint.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/complaint/methods/createComplaint
+ */
+export type CreateComplaintResponse =
+  operations['createComplaint']['responses'][201]['content']['application/json'];
+
+/** eDelivery International Shipping API endpoints. */
 export class EDeliveryApi {
   private readonly basePath = '/sell/logistics/v1';
 
-  constructor(private client: EbayApiClient) {}
+  public constructor(private readonly client: EbayApiClient) {}
 
   /**
-   * Create shipping quote
+   * Retrieves actual package weights and costs by tracking numbers or transaction time range.
+   *
+   * @param input - Optional tracking-number or transaction-time filters.
+   * @returns An Effect that succeeds with eBay's GetActualCostResponses.
+   *
+   * @example
+   * ```ts
+   * const costs = await Effect.runPromise(
+   *   edeliveryApi.getActualCosts({ trackingNumbers: 'ES000000001' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/actual_costs/methods/getActualCosts
    */
-  async createShippingQuote(shippingQuoteRequest: Record<string, unknown>) {
-    return await withApiError('Failed to create shipping quote', () =>
-      this.client.post(`${this.basePath}/shipping_quote`, shippingQuoteRequest),
-    );
-  }
+  public getActualCosts = (
+    input: GetActualCostsInput = {},
+  ): Effect.Effect<GetActualCostsResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/actual_costs`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetActualCostsInput>(input, 'input');
+      const trackingNumbers = yield* optionalStringEffect(
+        validatedInput.trackingNumbers,
+        'trackingNumbers',
+      );
+      const transactionBeginTime = yield* optionalStringEffect(
+        validatedInput.transactionBeginTime,
+        'transactionBeginTime',
+      );
+      const transactionEndTime = yield* optionalStringEffect(
+        validatedInput.transactionEndTime,
+        'transactionEndTime',
+      );
+      const params = buildEndpointParams({
+        trackingNumbers: { wireName: 'tracking_numbers', value: trackingNumbers },
+        transactionBeginTime: { wireName: 'trans_begin_time', value: transactionBeginTime },
+        transactionEndTime: { wireName: 'trans_end_time', value: transactionEndTime },
+      });
+
+      return yield* requestGetEffect<GetActualCostsResponse>(client, path, params);
+    });
+  };
 
   /**
-   * Get shipping quote
+   * Retrieves saved ship-from address preferences.
+   *
+   * @param input - Empty endpoint input object.
+   * @returns An Effect that succeeds with eBay's GetAddressPreferenceListResponses.
+   *
+   * @example
+   * ```ts
+   * const preferences = await Effect.runPromise(edeliveryApi.getAddressPreferences({}));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/address_preference/methods/getAddressPreferences
    */
-  async getShippingQuote(shippingQuoteId: string) {
-    return await withApiError('Failed to get shipping quote', () =>
-      this.client.get(`${this.basePath}/shipping_quote/${shippingQuoteId}`),
+  public getAddressPreferences = (
+    input: GetAddressPreferencesInput = {},
+  ): Effect.Effect<GetAddressPreferencesResponse, EbayApiError> => {
+    void input;
+    return requestGetEffect<GetAddressPreferencesResponse>(
+      this.client,
+      `${this.basePath}/address_preference`,
     );
-  }
-
-  // ==================== Cost & Preferences ====================
+  };
 
   /**
-   * Get actual costs for shipped packages
-   * Endpoint: GET /actual_costs
+   * Creates a ship-from address preference.
+   *
+   * @param input - Generated CreateAddressPreferenceRequest body.
+   * @returns An Effect that succeeds with eBay's CreateAddressPreferenceResponses.
+   *
+   * @example
+   * ```ts
+   * const address = await Effect.runPromise(
+   *   edeliveryApi.createAddressPreference({ body: { shipFromAddress: {} } }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/address_preference/methods/createAddressPreference
    */
-  async getActualCosts(params?: Record<string, string>) {
-    return await withApiError('Failed to get actual costs', () =>
-      this.client.get(`${this.basePath}/actual_costs`, params),
-    );
-  }
+  public createAddressPreference = (
+    input: CreateAddressPreferenceInput,
+  ): Effect.Effect<CreateAddressPreferenceResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/address_preference`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<CreateAddressPreferenceInput>(
+        input,
+        'input',
+      );
+      const body = yield* requireObjectEffect<CreateAddressPreferenceRequest>(
+        validatedInput.body,
+        'body',
+      );
+
+      return yield* requestPostEffect<CreateAddressPreferenceResponse>(client, path, body);
+    });
+  };
 
   /**
-   * Get address preferences
-   * Endpoint: GET /address_preference
+   * Retrieves saved consign preferences.
+   *
+   * @param input - Empty endpoint input object.
+   * @returns An Effect that succeeds with eBay's GetConsignPreferenceListResponses.
+   *
+   * @example
+   * ```ts
+   * const preferences = await Effect.runPromise(edeliveryApi.getConsignPreferences({}));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/consign_preference/methods/getConsignPreferences
    */
-  async getAddressPreferences() {
-    return await withApiError('Failed to get address preferences', () =>
-      this.client.get(`${this.basePath}/address_preference`),
+  public getConsignPreferences = (
+    input: GetConsignPreferencesInput = {},
+  ): Effect.Effect<GetConsignPreferencesResponse, EbayApiError> => {
+    void input;
+    return requestGetEffect<GetConsignPreferencesResponse>(
+      this.client,
+      `${this.basePath}/consign_preference`,
     );
-  }
+  };
 
   /**
-   * Create address preference
-   * Endpoint: POST /address_preference
+   * Creates a consign preference.
+   *
+   * @param input - Generated CreateConsignPreferenceRequest body.
+   * @returns An Effect that succeeds with eBay's CreateConsignPreferenceResponses.
+   *
+   * @example
+   * ```ts
+   * const preference = await Effect.runPromise(
+   *   edeliveryApi.createConsignPreference({ body: { consignAddress: {} } }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/consign_preference/methods/createConsignPreference
    */
-  async createAddressPreference(addressPreference: Record<string, unknown>) {
-    return await withApiError('Failed to create address preference', () =>
-      this.client.post(`${this.basePath}/address_preference`, addressPreference),
-    );
-  }
+  public createConsignPreference = (
+    input: CreateConsignPreferenceInput,
+  ): Effect.Effect<CreateConsignPreferenceResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/consign_preference`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<CreateConsignPreferenceInput>(
+        input,
+        'input',
+      );
+      const body = yield* requireObjectEffect<CreateConsignPreferenceRequest>(
+        validatedInput.body,
+        'body',
+      );
+
+      return yield* requestPostEffect<CreateConsignPreferenceResponse>(client, path, body);
+    });
+  };
 
   /**
-   * Get consign preferences
-   * Endpoint: GET /consign_preference
+   * Retrieves available shipping agents.
+   *
+   * @param input - Optional pagination controls.
+   * @returns An Effect that succeeds with eBay's GetAgentListResponses.
+   *
+   * @example
+   * ```ts
+   * const agents = await Effect.runPromise(edeliveryApi.getAgents({ limit: 50 }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/agents/methods/getAgents
    */
-  async getConsignPreferences() {
-    return await withApiError('Failed to get consign preferences', () =>
-      this.client.get(`${this.basePath}/consign_preference`),
-    );
-  }
+  public getAgents = (
+    input: EDeliveryPaginationInput = {},
+  ): Effect.Effect<GetAgentsResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/agents`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<EDeliveryPaginationInput>(input, 'input');
+      const limit = yield* optionalPositiveNumberEffect(validatedInput.limit, 'limit');
+      const offset = yield* optionalNonNegativeNumberEffect(validatedInput.offset, 'offset');
+      const params = buildEndpointParams({
+        limit: { wireName: 'limit', value: limit === undefined ? undefined : String(limit) },
+        offset: { wireName: 'offset', value: offset === undefined ? undefined : String(offset) },
+      });
+
+      return yield* requestGetEffect<GetAgentsResponse>(client, path, params);
+    });
+  };
 
   /**
-   * Create consign preference
-   * Endpoint: POST /consign_preference
+   * Retrieves available lithium battery qualifications.
+   *
+   * @param input - Optional pagination controls.
+   * @returns An Effect that succeeds with eBay's GetBatteryQualListResponses.
+   *
+   * @example
+   * ```ts
+   * const qualifications = await Effect.runPromise(
+   *   edeliveryApi.getBatteryQualifications({ limit: 25 }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/battery_qualifications/methods/getBatteryQualifications
    */
-  async createConsignPreference(consignPreference: Record<string, unknown>) {
-    return await withApiError('Failed to create consign preference', () =>
-      this.client.post(`${this.basePath}/consign_preference`, consignPreference),
-    );
-  }
+  public getBatteryQualifications = (
+    input: EDeliveryPaginationInput = {},
+  ): Effect.Effect<GetBatteryQualificationsResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/battery_qualifications`;
 
-  // ==================== Agents & Services ====================
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<EDeliveryPaginationInput>(input, 'input');
+      const limit = yield* optionalPositiveNumberEffect(validatedInput.limit, 'limit');
+      const offset = yield* optionalNonNegativeNumberEffect(validatedInput.offset, 'offset');
+      const params = buildEndpointParams({
+        limit: { wireName: 'limit', value: limit === undefined ? undefined : String(limit) },
+        offset: { wireName: 'offset', value: offset === undefined ? undefined : String(offset) },
+      });
+
+      return yield* requestGetEffect<GetBatteryQualificationsResponse>(client, path, params);
+    });
+  };
 
   /**
-   * Get available shipping agents
-   * Endpoint: GET /agents
+   * Retrieves available drop-off sites.
+   *
+   * @param input - Optional pagination controls.
+   * @returns An Effect that succeeds with eBay's GetDropoffSiteListResponses.
+   *
+   * @example
+   * ```ts
+   * const sites = await Effect.runPromise(edeliveryApi.getDropoffSites({ offset: 10 }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/dropoff_sites/methods/getDropoffSites
    */
-  async getAgents(params?: Record<string, string>) {
-    return await withApiError('Failed to get agents', () =>
-      this.client.get(`${this.basePath}/agents`, params),
-    );
-  }
+  public getDropoffSites = (
+    input: EDeliveryPaginationInput = {},
+  ): Effect.Effect<GetDropoffSitesResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/dropoff_sites`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<EDeliveryPaginationInput>(input, 'input');
+      const limit = yield* optionalPositiveNumberEffect(validatedInput.limit, 'limit');
+      const offset = yield* optionalNonNegativeNumberEffect(validatedInput.offset, 'offset');
+      const params = buildEndpointParams({
+        limit: { wireName: 'limit', value: limit === undefined ? undefined : String(limit) },
+        offset: { wireName: 'offset', value: offset === undefined ? undefined : String(offset) },
+      });
+
+      return yield* requestGetEffect<GetDropoffSitesResponse>(client, path, params);
+    });
+  };
 
   /**
-   * Get battery qualifications
-   * Endpoint: GET /battery_qualifications
+   * Retrieves available shipping services.
+   *
+   * @param input - Optional pagination controls.
+   * @returns An Effect that succeeds with eBay's GetServiceListResponses.
+   *
+   * @example
+   * ```ts
+   * const services = await Effect.runPromise(edeliveryApi.getServices({ limit: 25 }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/services/methods/getServices
    */
-  async getBatteryQualifications(params?: Record<string, string>) {
-    return await withApiError('Failed to get battery qualifications', () =>
-      this.client.get(`${this.basePath}/battery_qualifications`, params),
-    );
-  }
+  public getServices = (
+    input: EDeliveryPaginationInput = {},
+  ): Effect.Effect<GetServicesResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/services`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<EDeliveryPaginationInput>(input, 'input');
+      const limit = yield* optionalPositiveNumberEffect(validatedInput.limit, 'limit');
+      const offset = yield* optionalNonNegativeNumberEffect(validatedInput.offset, 'offset');
+      const params = buildEndpointParams({
+        limit: { wireName: 'limit', value: limit === undefined ? undefined : String(limit) },
+        offset: { wireName: 'offset', value: offset === undefined ? undefined : String(offset) },
+      });
+
+      return yield* requestGetEffect<GetServicesResponse>(client, path, params);
+    });
+  };
 
   /**
-   * Get dropoff sites
-   * Endpoint: GET /dropoff_sites
+   * Creates a bundle from package tracking numbers.
+   *
+   * @param input - Generated CreateBundleRequest body.
+   * @returns An Effect that succeeds with eBay's CreateBundleResponse.
+   *
+   * @example
+   * ```ts
+   * const bundle = await Effect.runPromise(
+   *   edeliveryApi.createBundle({ body: { bundle: { trackingNumbers: 'ES000000001' } } }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/bundle/methods/createBundle
    */
-  async getDropoffSites(params: Record<string, string>) {
-    return await withApiError('Failed to get dropoff sites', () =>
-      this.client.get(`${this.basePath}/dropoff_sites`, params),
-    );
-  }
+  public createBundle = (
+    input: CreateBundleInput,
+  ): Effect.Effect<CreateBundleResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/bundle`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<CreateBundleInput>(input, 'input');
+      const body = yield* requireObjectEffect<CreateBundleRequest>(validatedInput.body, 'body');
+
+      return yield* requestPostEffect<CreateBundleResponse>(client, path, body);
+    });
+  };
 
   /**
-   * Get available shipping services
-   * Endpoint: GET /services
+   * Retrieves a bundle by ID.
+   *
+   * @param input - Bundle identifier.
+   * @returns An Effect that succeeds with eBay's BundleDetailResponse.
+   *
+   * @example
+   * ```ts
+   * const bundle = await Effect.runPromise(edeliveryApi.getBundle({ bundleId: 'BUNDLE123' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/bundle/methods/getBundle
    */
-  async getShippingServices(params?: Record<string, string>) {
-    return await withApiError('Failed to get shipping services', () =>
-      this.client.get(`${this.basePath}/services`, params),
-    );
-  }
+  public getBundle = (
+    input: BundleIdInput,
+  ): Effect.Effect<GetBundleResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
 
-  // ==================== Bundles ====================
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<BundleIdInput>(input, 'input');
+      const bundleId = yield* requireStringEffect(validatedInput.bundleId, 'bundleId');
+
+      return yield* requestGetEffect<GetBundleResponse>(client, `${basePath}/bundle/${bundleId}`);
+    });
+  };
 
   /**
-   * Create a bundle of packages
-   * Endpoint: POST /bundle
+   * Cancels a bundle by ID.
+   *
+   * @param input - Bundle identifier.
+   * @returns An Effect that succeeds when eBay returns no content.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(edeliveryApi.cancelBundle({ bundleId: 'BUNDLE123' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/bundle/methods/cancelBundle
    */
-  async createBundle(bundleRequest: Record<string, unknown>) {
-    return await withApiError('Failed to create bundle', () =>
-      this.client.post(`${this.basePath}/bundle`, bundleRequest),
-    );
-  }
+  public cancelBundle = (
+    input: BundleIdInput,
+  ): Effect.Effect<CancelBundleResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<BundleIdInput>(input, 'input');
+      const bundleId = yield* requireStringEffect(validatedInput.bundleId, 'bundleId');
+
+      return yield* requestPostEffect<CancelBundleResponse>(
+        client,
+        `${basePath}/bundle/${bundleId}/cancel`,
+      );
+    });
+  };
 
   /**
-   * Get bundle by ID
-   * Endpoint: GET /bundle/{bundle_id}
+   * Retrieves the label for a bundle.
+   *
+   * @param input - Bundle identifier.
+   * @returns An Effect that succeeds with eBay's BundleLabelResponse.
+   *
+   * @example
+   * ```ts
+   * const label = await Effect.runPromise(edeliveryApi.getBundleLabel({ bundleId: 'BUNDLE123' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/bundle/methods/getBundleLabel
    */
-  async getBundle(bundleId: string) {
-    return await withApiError('Failed to get bundle', () =>
-      this.client.get(`${this.basePath}/bundle/${bundleId}`),
-    );
-  }
+  public getBundleLabel = (
+    input: BundleIdInput,
+  ): Effect.Effect<GetBundleLabelResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<BundleIdInput>(input, 'input');
+      const bundleId = yield* requireStringEffect(validatedInput.bundleId, 'bundleId');
+
+      return yield* requestGetEffect<GetBundleLabelResponse>(
+        client,
+        `${basePath}/bundle/${bundleId}/label`,
+      );
+    });
+  };
 
   /**
-   * Cancel a bundle
-   * Endpoint: POST /bundle/{bundle_id}/cancel
+   * Creates a package.
+   *
+   * @param input - Generated AddPackageRequest body.
+   * @returns An Effect that succeeds with eBay's AddPackageResponses.
+   *
+   * @example
+   * ```ts
+   * const createdPackage = await Effect.runPromise(
+   *   edeliveryApi.createPackage({ body: { packageInfo: {} } }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/createPackage
    */
-  async cancelBundle(bundleId: string) {
-    return await withApiError('Failed to cancel bundle', () =>
-      this.client.post(`${this.basePath}/bundle/${bundleId}/cancel`, {}),
-    );
-  }
+  public createPackage = (
+    input: CreatePackageInput,
+  ): Effect.Effect<CreatePackageResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/package`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<CreatePackageInput>(input, 'input');
+      const body = yield* requireObjectEffect<CreatePackageRequest>(validatedInput.body, 'body');
+
+      return yield* requestPostEffect<CreatePackageResponse>(client, path, body);
+    });
+  };
 
   /**
-   * Get bundle label
-   * Endpoint: GET /bundle/{bundle_id}/label
+   * Retrieves a package by ID.
+   *
+   * @param input - Package identifier.
+   * @returns An Effect that succeeds with eBay's GetPackageDetailResponses.
+   *
+   * @example
+   * ```ts
+   * const packageDetail = await Effect.runPromise(
+   *   edeliveryApi.getPackage({ packageId: 'PKG123' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/getPackage
    */
-  async getBundleLabel(bundleId: string) {
-    return await withApiError('Failed to get bundle label', () =>
-      this.client.get(`${this.basePath}/bundle/${bundleId}/label`),
-    );
-  }
+  public getPackage = (
+    input: PackageIdInput,
+  ): Effect.Effect<GetPackageResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
 
-  // ==================== Packages (Single) ====================
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<PackageIdInput>(input, 'input');
+      const packageId = yield* requireStringEffect(validatedInput.packageId, 'packageId');
+
+      return yield* requestGetEffect<GetPackageResponse>(
+        client,
+        `${basePath}/package/${packageId}`,
+      );
+    });
+  };
 
   /**
-   * Create a package
-   * Endpoint: POST /package
+   * Deletes a package by ID.
+   *
+   * @param input - Package identifier.
+   * @returns An Effect that succeeds when eBay returns no content.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(edeliveryApi.deletePackage({ packageId: 'PKG123' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/deletePackage
    */
-  async createPackage(packageRequest: Record<string, unknown>) {
-    return await withApiError('Failed to create package', () =>
-      this.client.post(`${this.basePath}/package`, packageRequest),
-    );
-  }
+  public deletePackage = (
+    input: PackageIdInput,
+  ): Effect.Effect<DeletePackageResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<PackageIdInput>(input, 'input');
+      const packageId = yield* requireStringEffect(validatedInput.packageId, 'packageId');
+
+      return yield* requestDeleteEffect<DeletePackageResponse>(
+        client,
+        `${basePath}/package/${packageId}`,
+      );
+    });
+  };
 
   /**
-   * Get package by ID
-   * Endpoint: GET /package/{package_id}
+   * Retrieves packages by fulfillment order line item ID.
+   *
+   * @param input - Fulfillment order line item identifier.
+   * @returns An Effect that succeeds with eBay's GetItemPackageIdResponses.
+   *
+   * @example
+   * ```ts
+   * const packages = await Effect.runPromise(
+   *   edeliveryApi.getPackagesByLineItemId({ orderLineItemId: 'LINE123' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/getPackagesByLineItemID
    */
-  async getPackage(packageId: string) {
-    return await withApiError('Failed to get package', () =>
-      this.client.get(`${this.basePath}/package/${packageId}`),
-    );
-  }
+  public getPackagesByLineItemId = (
+    input: GetPackagesByLineItemIdInput,
+  ): Effect.Effect<GetPackagesByLineItemIdResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetPackagesByLineItemIdInput>(
+        input,
+        'input',
+      );
+      const orderLineItemId = yield* requireStringEffect(
+        validatedInput.orderLineItemId,
+        'orderLineItemId',
+      );
+
+      return yield* requestGetEffect<GetPackagesByLineItemIdResponse>(
+        client,
+        `${basePath}/package/${orderLineItemId}/item`,
+      );
+    });
+  };
 
   /**
-   * Delete a package
-   * Endpoint: DELETE /package/{package_id}
+   * Cancels a package by ID.
+   *
+   * @param input - Package identifier.
+   * @returns An Effect that succeeds when eBay returns no content.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(edeliveryApi.cancelPackage({ packageId: 'PKG123' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/cancelPackage
    */
-  async deletePackage(packageId: string) {
-    return await withApiError('Failed to delete package', () =>
-      this.client.delete(`${this.basePath}/package/${packageId}`),
-    );
-  }
+  public cancelPackage = (
+    input: PackageIdInput,
+  ): Effect.Effect<CancelPackageResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<PackageIdInput>(input, 'input');
+      const packageId = yield* requireStringEffect(validatedInput.packageId, 'packageId');
+
+      return yield* requestPostEffect<CancelPackageResponse>(
+        client,
+        `${basePath}/package/${packageId}/cancel`,
+      );
+    });
+  };
 
   /**
-   * Get package by order line item
-   * Endpoint: GET /package/{order_line_item_id}/item
+   * Clones a package by ID.
+   *
+   * @param input - Package identifier.
+   * @returns An Effect that succeeds with eBay's ClonePackageResponses.
+   *
+   * @example
+   * ```ts
+   * const clone = await Effect.runPromise(edeliveryApi.clonePackage({ packageId: 'PKG123' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/clonePackage
    */
-  async getPackageByOrderLineItem(orderLineItemId: string) {
-    return await withApiError('Failed to get package by order line item', () =>
-      this.client.get(`${this.basePath}/package/${orderLineItemId}/item`),
-    );
-  }
+  public clonePackage = (
+    input: PackageIdInput,
+  ): Effect.Effect<ClonePackageResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<PackageIdInput>(input, 'input');
+      const packageId = yield* requireStringEffect(validatedInput.packageId, 'packageId');
+
+      return yield* requestPostEffect<ClonePackageResponse>(
+        client,
+        `${basePath}/package/${packageId}/clone`,
+      );
+    });
+  };
 
   /**
-   * Cancel a package
-   * Endpoint: POST /package/{package_id}/cancel
+   * Confirms a package by ID.
+   *
+   * @param input - Package identifier.
+   * @returns An Effect that succeeds when eBay returns no content.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(edeliveryApi.confirmPackage({ packageId: 'PKG123' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/confirmPackage
    */
-  async cancelPackage(packageId: string) {
-    return await withApiError('Failed to cancel package', () =>
-      this.client.post(`${this.basePath}/package/${packageId}/cancel`, {}),
-    );
-  }
+  public confirmPackage = (
+    input: PackageIdInput,
+  ): Effect.Effect<ConfirmPackageResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<PackageIdInput>(input, 'input');
+      const packageId = yield* requireStringEffect(validatedInput.packageId, 'packageId');
+
+      return yield* requestPostEffect<ConfirmPackageResponse>(
+        client,
+        `${basePath}/package/${packageId}/confirm`,
+      );
+    });
+  };
 
   /**
-   * Clone a package
-   * Endpoint: POST /package/{package_id}/clone
+   * Cancels multiple packages.
+   *
+   * @param input - Generated CancelPackagesRequest body.
+   * @returns An Effect that succeeds with eBay's CancelPackagesResponses.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(
+   *   edeliveryApi.bulkCancelPackages({ body: { requests: { packageIds: 'PKG123' } } }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/bulkCancelPackages
    */
-  async clonePackage(packageId: string) {
-    return await withApiError('Failed to clone package', () =>
-      this.client.post(`${this.basePath}/package/${packageId}/clone`, {}),
-    );
-  }
+  public bulkCancelPackages = (
+    input: BulkCancelPackagesInput,
+  ): Effect.Effect<BulkCancelPackagesResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/package/bulk_cancel_packages`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<BulkCancelPackagesInput>(input, 'input');
+      const body = yield* requireObjectEffect<BulkCancelPackagesRequest>(
+        validatedInput.body,
+        'body',
+      );
+
+      return yield* requestPostEffect<BulkCancelPackagesResponse>(client, path, body);
+    });
+  };
 
   /**
-   * Confirm a package
-   * Endpoint: POST /package/{package_id}/confirm
+   * Confirms multiple packages.
+   *
+   * @param input - Generated ConfirmPackagesRequest body.
+   * @returns An Effect that succeeds with eBay's ConfirmPackagesResponses.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(
+   *   edeliveryApi.bulkConfirmPackages({ body: { requests: { packageIds: 'PKG123' } } }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/bulkConfirmPackages
    */
-  async confirmPackage(packageId: string) {
-    return await withApiError('Failed to confirm package', () =>
-      this.client.post(`${this.basePath}/package/${packageId}/confirm`, {}),
-    );
-  }
+  public bulkConfirmPackages = (
+    input: BulkConfirmPackagesInput,
+  ): Effect.Effect<BulkConfirmPackagesResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/package/bulk_confirm_packages`;
 
-  // ==================== Packages (Bulk) ====================
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<BulkConfirmPackagesInput>(input, 'input');
+      const body = yield* requireObjectEffect<BulkConfirmPackagesRequest>(
+        validatedInput.body,
+        'body',
+      );
+
+      return yield* requestPostEffect<BulkConfirmPackagesResponse>(client, path, body);
+    });
+  };
 
   /**
-   * Bulk cancel packages
-   * Endpoint: POST /package/bulk_cancel_packages
+   * Deletes multiple packages.
+   *
+   * @param input - Generated DeletePackagesRequest body.
+   * @returns An Effect that succeeds with eBay's DeletePackagesResponses.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(
+   *   edeliveryApi.bulkDeletePackages({ body: { requests: { packageIds: 'PKG123' } } }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/package/methods/bulkDeletePackages
    */
-  async bulkCancelPackages(bulkCancelRequest: Record<string, unknown>) {
-    return await withApiError('Failed to bulk cancel packages', () =>
-      this.client.post(`${this.basePath}/package/bulk_cancel_packages`, bulkCancelRequest),
-    );
-  }
+  public bulkDeletePackages = (
+    input: BulkDeletePackagesInput,
+  ): Effect.Effect<BulkDeletePackagesResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/package/bulk_delete_packages`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<BulkDeletePackagesInput>(input, 'input');
+      const body = yield* requireObjectEffect<BulkDeletePackagesRequest>(
+        validatedInput.body,
+        'body',
+      );
+
+      return yield* requestPostEffect<BulkDeletePackagesResponse>(client, path, body);
+    });
+  };
 
   /**
-   * Bulk confirm packages
-   * Endpoint: POST /package/bulk_confirm_packages
+   * Retrieves labels by tracking numbers.
+   *
+   * @param input - Required tracking numbers and optional label formatting preferences.
+   * @returns An Effect that succeeds with eBay's GetLabelListResponses.
+   *
+   * @example
+   * ```ts
+   * const labels = await Effect.runPromise(
+   *   edeliveryApi.getLabels({ trackingNumbers: 'ES000000001', pageSize: 'A4' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/labels/methods/getLabels
    */
-  async bulkConfirmPackages(bulkConfirmRequest: Record<string, unknown>) {
-    return await withApiError('Failed to bulk confirm packages', () =>
-      this.client.post(`${this.basePath}/package/bulk_confirm_packages`, bulkConfirmRequest),
-    );
-  }
+  public getLabels = (
+    input: GetLabelsInput,
+  ): Effect.Effect<GetLabelsResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/labels`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetLabelsInput>(input, 'input');
+      const trackingNumbers = yield* requireStringEffect(
+        validatedInput.trackingNumbers,
+        'trackingNumbers',
+      );
+      const pageSize = yield* optionalStringEffect(validatedInput.pageSize, 'pageSize');
+      const printPreference = yield* optionalStringEffect(
+        validatedInput.printPreference,
+        'printPreference',
+      );
+      const params = buildEndpointParams({
+        pageSize: { wireName: 'page_size', value: pageSize },
+        printPreference: { wireName: 'print_preference', value: printPreference },
+        trackingNumbers: { wireName: 'tracking_numbers', value: trackingNumbers },
+      });
+
+      return yield* requestGetEffect<GetLabelsResponse>(client, path, params);
+    });
+  };
 
   /**
-   * Bulk delete packages
-   * Endpoint: POST /package/bulk_delete_packages
+   * Retrieves a handover sheet by tracking numbers.
+   *
+   * @param input - Required tracking numbers.
+   * @returns An Effect that succeeds with eBay's GetHandoverSheetResponses.
+   *
+   * @example
+   * ```ts
+   * const sheet = await Effect.runPromise(
+   *   edeliveryApi.getHandoverSheet({ trackingNumbers: 'ES000000001' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/handover_sheet/methods/getHandoverSheet
    */
-  async bulkDeletePackages(bulkDeleteRequest: Record<string, unknown>) {
-    return await withApiError('Failed to bulk delete packages', () =>
-      this.client.post(`${this.basePath}/package/bulk_delete_packages`, bulkDeleteRequest),
-    );
-  }
+  public getHandoverSheet = (
+    input: GetHandoverSheetInput,
+  ): Effect.Effect<GetHandoverSheetResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/handover_sheet`;
 
-  // ==================== Labels & Tracking ====================
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetHandoverSheetInput>(input, 'input');
+      const trackingNumbers = yield* requireStringEffect(
+        validatedInput.trackingNumbers,
+        'trackingNumbers',
+      );
+      const params = buildEndpointParams({
+        trackingNumbers: { wireName: 'tracking_numbers', value: trackingNumbers },
+      });
+
+      return yield* requestGetEffect<GetHandoverSheetResponse>(client, path, params);
+    });
+  };
 
   /**
-   * Get labels
-   * Endpoint: GET /labels
+   * Retrieves tracking details for one tracking number.
+   *
+   * @param input - Required tracking number.
+   * @returns An Effect that succeeds with eBay's GetTrackingDetailResponses.
+   *
+   * @example
+   * ```ts
+   * const tracking = await Effect.runPromise(
+   *   edeliveryApi.getTracking({ trackingNumber: 'ES000000001' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/tracking/methods/getTracking
    */
-  async getLabels(params?: Record<string, string>) {
-    return await withApiError('Failed to get labels', () =>
-      this.client.get(`${this.basePath}/labels`, params),
-    );
-  }
+  public getTracking = (
+    input: GetTrackingInput,
+  ): Effect.Effect<GetTrackingResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/tracking`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetTrackingInput>(input, 'input');
+      const trackingNumber = yield* requireStringEffect(
+        validatedInput.trackingNumber,
+        'trackingNumber',
+      );
+      const params = buildEndpointParams({
+        trackingNumber: { wireName: 'tracking_number', value: trackingNumber },
+      });
+
+      return yield* requestGetEffect<GetTrackingResponse>(client, path, params);
+    });
+  };
 
   /**
-   * Get handover sheet
-   * Endpoint: GET /handover_sheet
+   * Creates a complaint for shipment issues.
+   *
+   * @param input - Generated AddComplaintRequest body.
+   * @returns An Effect that succeeds with eBay's empty createComplaint response.
+   *
+   * @example
+   * ```ts
+   * const complaint = await Effect.runPromise(
+   *   edeliveryApi.createComplaint({ body: { complaintRequest: {} } }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/edelivery_international_shipping/resources/complaint/methods/createComplaint
    */
-  async getHandoverSheet(params?: Record<string, string>) {
-    return await withApiError('Failed to get handover sheet', () =>
-      this.client.get(`${this.basePath}/handover_sheet`, params),
-    );
-  }
+  public createComplaint = (
+    input: CreateComplaintInput,
+  ): Effect.Effect<CreateComplaintResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/complaint`;
 
-  /**
-   * Get tracking information
-   * Endpoint: GET /tracking
-   */
-  async getTracking(params: Record<string, string>) {
-    return await withApiError('Failed to get tracking', () =>
-      this.client.get(`${this.basePath}/tracking`, params),
-    );
-  }
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<CreateComplaintInput>(input, 'input');
+      const body = yield* requireObjectEffect<CreateComplaintRequest>(validatedInput.body, 'body');
 
-  // ==================== Other ====================
-
-  /**
-   * Create a complaint
-   * Endpoint: POST /complaint
-   */
-  async createComplaint(complaintRequest: Record<string, unknown>) {
-    return await withApiError('Failed to create complaint', () =>
-      this.client.post(`${this.basePath}/complaint`, complaintRequest),
-    );
-  }
+      return yield* requestPostEffect<CreateComplaintResponse>(client, path, body);
+    });
+  };
 }

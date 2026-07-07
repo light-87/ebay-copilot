@@ -10,12 +10,12 @@ import {
   inventoryItemSchema,
   offerSchema,
   locationSchema as inventoryLocationSchema,
-} from '../../../src/tools/schemas.js';
+} from '@/tools/schemas.js';
 
 describe('Schema Validation', () => {
   describe('Common Schemas', () => {
     describe('timeDurationSchema', () => {
-      it('should validate valid time duration', () => {
+      it('validate valid time duration', () => {
         const validDuration = {
           unit: 'DAY',
           value: 30,
@@ -25,7 +25,7 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(true);
       });
 
-      it('should reject invalid unit', () => {
+      it('reject invalid unit', () => {
         const invalidDuration = {
           unit: 'INVALID_UNIT',
           value: 30,
@@ -35,7 +35,7 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(false);
       });
 
-      it('should require unit and value', () => {
+      it('require unit and value', () => {
         const missingFields = {
           unit: 'DAY',
         };
@@ -44,7 +44,7 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(false);
       });
 
-      it('should allow additional properties (passthrough)', () => {
+      it('allow additional properties (passthrough)', () => {
         const withExtra = {
           unit: 'DAY',
           value: 30,
@@ -60,7 +60,7 @@ describe('Schema Validation', () => {
     });
 
     describe('amountSchema', () => {
-      it('should validate valid amount', () => {
+      it('validate valid amount', () => {
         const validAmount = {
           currency: 'USD',
           value: '99.99',
@@ -70,7 +70,7 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(true);
       });
 
-      it('should accept different currencies', () => {
+      it('accept different currencies', () => {
         const currencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD'];
 
         currencies.forEach((currency) => {
@@ -80,7 +80,7 @@ describe('Schema Validation', () => {
         });
       });
 
-      it('should require both currency and value', () => {
+      it('require both currency and value', () => {
         const missingValue = { currency: 'USD' };
         const missingCurrency = { value: '99.99' };
 
@@ -90,7 +90,7 @@ describe('Schema Validation', () => {
     });
 
     describe('regionSchema', () => {
-      it('should validate region with name and type', () => {
+      it('validate region with name and type', () => {
         const validRegion = {
           regionName: 'United States',
           regionType: 'COUNTRY',
@@ -100,14 +100,14 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(true);
       });
 
-      it('should allow optional fields', () => {
+      it('allow optional fields', () => {
         const minimalRegion = {};
 
         const result = regionSchema.safeParse(minimalRegion);
         expect(result.success).toBe(true);
       });
 
-      it('should validate all region types', () => {
+      it('validate all region types', () => {
         const regionTypes = [
           'COUNTRY',
           'COUNTRY_REGION',
@@ -125,7 +125,7 @@ describe('Schema Validation', () => {
     });
 
     describe('regionSetSchema', () => {
-      it('should validate region set with included and excluded regions', () => {
+      it('validate region set with included and excluded regions', () => {
         const validRegionSet = {
           regionIncluded: [
             { regionName: 'United States', regionType: 'COUNTRY' },
@@ -138,7 +138,7 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(true);
       });
 
-      it('should allow empty region set', () => {
+      it('allow empty region set', () => {
         const result = regionSetSchema.safeParse({});
         expect(result.success).toBe(true);
       });
@@ -147,7 +147,7 @@ describe('Schema Validation', () => {
 
   describe('Account Management Schemas', () => {
     describe('fulfillmentPolicySchema', () => {
-      it('should validate basic fulfillment policy', () => {
+      it('validate basic fulfillment policy', () => {
         const validPolicy = {
           name: 'Standard Shipping',
           marketplaceId: 'EBAY_US',
@@ -172,7 +172,7 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(true);
       });
 
-      it('should require name and marketplaceId', () => {
+      it('require name and marketplaceId', () => {
         const missingName = { marketplaceId: 'EBAY_US' };
         const missingMarketplace = { name: 'Test Policy' };
 
@@ -182,7 +182,7 @@ describe('Schema Validation', () => {
     });
 
     describe('paymentPolicySchema', () => {
-      it('should validate basic payment policy', () => {
+      it('validate basic payment policy', () => {
         const validPolicy = {
           name: 'Immediate Payment Required',
           marketplaceId: 'EBAY_US',
@@ -194,7 +194,7 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(true);
       });
 
-      it('should require name and marketplaceId', () => {
+      it('require name and marketplaceId', () => {
         const missingName = { marketplaceId: 'EBAY_US' };
 
         expect(paymentPolicySchema.safeParse(missingName).success).toBe(false);
@@ -202,7 +202,7 @@ describe('Schema Validation', () => {
     });
 
     describe('returnPolicySchema', () => {
-      it('should validate return policy', () => {
+      it('validate return policy', () => {
         const validPolicy = {
           name: '30 Day Returns',
           marketplaceId: 'EBAY_US',
@@ -215,7 +215,7 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(true);
       });
 
-      it('should allow no returns accepted', () => {
+      it('allow no returns accepted', () => {
         const noReturns = {
           name: 'No Returns',
           marketplaceId: 'EBAY_US',
@@ -230,7 +230,7 @@ describe('Schema Validation', () => {
 
   describe('Inventory Management Schemas', () => {
     describe('inventoryItemSchema', () => {
-      it('should validate complete inventory item', () => {
+      it('validate complete inventory item', () => {
         const validItem = {
           availability: {
             shipToLocationAvailability: {
@@ -253,7 +253,7 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(true);
       });
 
-      it('should allow missing availability (all fields optional)', () => {
+      it('allow missing availability (all fields optional)', () => {
         const missingAvailability = {
           condition: 'NEW',
           product: {
@@ -266,7 +266,7 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(true);
       });
 
-      it('should accept different conditions', () => {
+      it('accept different conditions', () => {
         const conditions = ['NEW', 'LIKE_NEW', 'NEW_OTHER', 'USED_EXCELLENT', 'USED_GOOD'];
 
         conditions.forEach((condition) => {
@@ -282,7 +282,7 @@ describe('Schema Validation', () => {
     });
 
     describe('offerSchema', () => {
-      it('should validate complete offer', () => {
+      it('validate complete offer', () => {
         const validOffer = {
           sku: 'TEST-SKU-001',
           marketplaceId: 'EBAY_US',
@@ -303,7 +303,7 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(true);
       });
 
-      it('should require sku and marketplaceId', () => {
+      it('require sku and marketplaceId', () => {
         const missingSku = { marketplaceId: 'EBAY_US', format: 'FIXED_PRICE' };
         const missingMarketplace = { sku: 'TEST-001', format: 'FIXED_PRICE' };
 
@@ -311,7 +311,7 @@ describe('Schema Validation', () => {
         expect(offerSchema.safeParse(missingMarketplace).success).toBe(false);
       });
 
-      it('should validate listing formats', () => {
+      it('validate listing formats', () => {
         const formats = ['FIXED_PRICE', 'AUCTION'];
 
         formats.forEach((format) => {
@@ -327,7 +327,7 @@ describe('Schema Validation', () => {
     });
 
     describe('inventoryLocationSchema', () => {
-      it('should validate inventory location', () => {
+      it('validate inventory location', () => {
         const validLocation = {
           location: {
             address: {
@@ -348,7 +348,7 @@ describe('Schema Validation', () => {
         expect(result.success).toBe(true);
       });
 
-      it('should allow missing location object (all fields optional)', () => {
+      it('allow missing location object (all fields optional)', () => {
         const missingLocation = {
           name: 'Test Location',
           merchantLocationStatus: 'ENABLED',
@@ -361,7 +361,7 @@ describe('Schema Validation', () => {
   });
 
   describe('Schema Edge Cases', () => {
-    it('should handle empty objects gracefully', () => {
+    it('handle empty objects gracefully', () => {
       const schemas = [regionSchema, regionSetSchema];
 
       schemas.forEach((schema) => {
@@ -370,7 +370,7 @@ describe('Schema Validation', () => {
       });
     });
 
-    it('should reject non-object values', () => {
+    it('reject non-object values', () => {
       const schemas = [amountSchema, timeDurationSchema, regionSchema];
 
       const invalidValues = [null, undefined, 'string', 123, [], true];
@@ -383,7 +383,7 @@ describe('Schema Validation', () => {
       });
     });
 
-    it('should preserve extra fields with passthrough', () => {
+    it('preserve extra fields with passthrough', () => {
       const schemaWithExtra = amountSchema.safeParse({
         currency: 'USD',
         value: '99.99',

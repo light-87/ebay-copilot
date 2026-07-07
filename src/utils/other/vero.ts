@@ -18,21 +18,39 @@ const filterSchema = z
   })
   .optional();
 
-// Reusable schema for limit parameter (string in API)
+// Reusable schema for limit parameter
 const limitSchema = z
-  .string({
-    invalid_type_error: 'limit must be a string',
+  .number({
+    invalid_type_error: 'limit must be a number',
     description: 'Maximum number of items to return',
   })
+  .int()
+  .positive()
   .optional();
 
-// Reusable schema for offset parameter (string in API)
+// Reusable schema for offset parameter
 const offsetSchema = z
-  .string({
-    invalid_type_error: 'offset must be a string',
+  .number({
+    invalid_type_error: 'offset must be a number',
     description: 'Number of items to skip',
   })
+  .int()
+  .nonnegative()
   .optional();
+
+const reportItemSchema = z
+  .object({
+    brand: z.string().optional(),
+    copyEmailToRightsOwner: z.boolean().optional(),
+    countries: z.array(z.string()).optional(),
+    detailedMessage: z.string().optional(),
+    itemId: z.string().optional(),
+    messageToSeller: z.string().optional(),
+    patent: z.string().optional(),
+    regions: z.array(z.string()).optional(),
+    veroReasonCodeId: z.string().optional(),
+  })
+  .passthrough();
 
 /**
  * Schema for createVeroReport method
@@ -40,13 +58,11 @@ const offsetSchema = z
  * Body: VeroReportItemsRequest - report data
  */
 export const createVeroReportSchema = z.object({
-  report_data: z.record(z.unknown(), {
-    message: 'Report data is required',
-    required_error: 'report_data is required',
-    invalid_type_error: 'report_data must be an object',
-    description:
-      'The VeRO report data containing item details and intellectual property violation information',
-  }),
+  reportData: z
+    .object({
+      reportItems: z.array(reportItemSchema).optional(),
+    })
+    .passthrough(),
 });
 
 /**
@@ -55,11 +71,11 @@ export const createVeroReportSchema = z.object({
  * Path: vero_report_id
  */
 export const getVeroReportSchema = z.object({
-  vero_report_id: z
+  veroReportId: z
     .string({
       message: 'VERO report ID is required',
-      required_error: 'vero_report_id is required',
-      invalid_type_error: 'vero_report_id must be a string',
+      required_error: 'veroReportId is required',
+      invalid_type_error: 'veroReportId must be a string',
       description: 'The unique identifier of the VERO report',
     })
     .min(1, 'VERO report ID cannot be empty'),
@@ -82,11 +98,11 @@ export const getVeroReportItemsSchema = z.object({
  * Path: vero_reason_code_id
  */
 export const getVeroReasonCodeSchema = z.object({
-  vero_reason_code_id: z
+  veroReasonCodeId: z
     .string({
       message: 'VERO reason code ID is required',
-      required_error: 'vero_reason_code_id is required',
-      invalid_type_error: 'vero_reason_code_id must be a string',
+      required_error: 'veroReasonCodeId is required',
+      invalid_type_error: 'veroReasonCodeId must be a string',
       description: 'The unique identifier of the VERO reason code',
     })
     .min(1, 'VERO reason code ID cannot be empty'),

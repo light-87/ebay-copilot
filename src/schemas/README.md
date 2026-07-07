@@ -23,7 +23,7 @@ src/schemas/
 ├── taxonomy/             # Categories, suggestions, aspects
 │   └── taxonomy.ts
 ├── other/                # Identity, compliance, VERO, translation, eDelivery
-│   └── other-apis.ts
+│   └── otherApis.ts
 ├── index.ts              # Central export point
 └── README.md             # This file
 ```
@@ -71,6 +71,7 @@ const marketingCampaignSchema = allSchemas.marketing.createCampaignInput;
 ### Using Zod Schemas for Validation
 
 ```typescript
+import { Effect } from 'effect';
 import { getInventoryItemInputSchema, getInventoryItemOutputSchema } from '@/schemas';
 
 // Validate input
@@ -79,7 +80,7 @@ const input = getInventoryItemInputSchema.parse({
 });
 
 // Validate output
-const response = await api.inventory.getInventoryItem(input.sku);
+const response = await Effect.runPromise(api.inventory.getInventoryItem(input));
 const validatedOutput = getInventoryItemOutputSchema.parse(response);
 ```
 
@@ -176,7 +177,7 @@ Schemas for order management, shipping, refunds, and payment disputes.
 - `getOrdersInputSchema` / `getOrdersOutputSchema`
 - `createShippingFulfillmentInputSchema` / `createShippingFulfillmentOutputSchema`
 - `issueRefundInputSchema` / `issueRefundOutputSchema`
-- `getPaymentDisputesInputSchema` / `getPaymentDisputesOutputSchema`
+- `getPaymentDisputeSummariesInputSchema` / `getPaymentDisputeSummariesOutputSchema`
 
 ### 5. Marketing & Promotions (`marketing/marketing.ts`)
 
@@ -254,7 +255,7 @@ Schemas for category navigation, suggestions, and product aspects.
 - `getCategorySuggestionsInputSchema` / `getCategorySuggestionsOutputSchema`
 - `getItemAspectsForCategoryOutputSchema`
 
-### 9. Other APIs (`other/other-apis.ts`)
+### 9. Other APIs (`other/otherApis.ts`)
 
 Schemas for identity, compliance, VERO, translation, and international shipping.
 
@@ -264,7 +265,7 @@ Schemas for identity, compliance, VERO, translation, and international shipping.
 - Sell Compliance API (listing violations, suppression)
 - Commerce VERO API (intellectual property rights reporting)
 - Commerce Translation API (content translation)
-- Sell eDelivery International Shipping API (shipping quotes, packages, labels, tracking)
+- Sell eDelivery International Shipping API (actual costs, services, bundles, packages, labels, tracking)
 
 **Key Schemas:**
 
@@ -272,7 +273,9 @@ Schemas for identity, compliance, VERO, translation, and international shipping.
 - `getListingViolationsOutputSchema`
 - `createVeroReportInputSchema` / `createVeroReportOutputSchema`
 - `translateInputSchema` / `translateOutputSchema`
-- `createShippingQuoteInputSchema` / `createShippingQuoteOutputSchema`
+- `getActualCostsInputSchema` / `getActualCostsOutputSchema`
+- `createPackageInputSchema` / `createPackageOutputSchema`
+- `getTrackingInputSchema` / `getTrackingOutputSchema`
 
 ## 🔧 Schema Naming Convention
 
@@ -292,7 +295,7 @@ All schemas follow a consistent naming pattern:
 When adding schemas for new endpoints:
 
 1. **Create a new file** in the appropriate category folder
-2. **Import required enums** from `@/types/ebay-enums.js`
+2. **Import required enums** from `@/types/ebayEnums.js`
 3. **Define Zod schemas** for inputs and outputs
 4. **Add JSON Schema converter function** (e.g., `getMarketingJsonSchemas()`)
 5. **Export from `index.ts`**
@@ -319,13 +322,21 @@ export const actionNameOutputSchema = z.object({
   warnings: z.array(errorSchema).optional(),
 });
 
-// JSON Schema conversion
-export function getCategoryJsonSchemas() {
+/**
+ * Converts category Zod schemas to JSON Schema format for MCP tools.
+ *
+ * @returns Category JSON schemas keyed by endpoint or shared model name.
+ * @example
+ * ```ts
+ * const schemas = getCategoryJsonSchemas();
+ * ```
+ */
+export const getCategoryJsonSchemas = () => {
   return {
     actionNameInput: zodToJsonSchema(actionNameInputSchema, 'actionNameInput'),
     actionNameOutput: zodToJsonSchema(actionNameOutputSchema, 'actionNameOutput'),
   };
-}
+};
 ```
 
 ## 🧪 Testing Schemas
@@ -365,7 +376,7 @@ describe('Inventory Schemas', () => {
 3. **Descriptive**: Use `.describe()` to document schema fields
 4. **Optional by Default**: Make fields optional unless they're truly required
 5. **Passthrough**: Use `.passthrough()` to allow additional properties from eBay
-6. **Enum Support**: Use native enums from `@/types/ebay-enums.js`
+6. **Enum Support**: Use native enums from `@/types/ebayEnums.js`
 
 ## ✅ Completion Status
 

@@ -850,10 +850,15 @@ export const salesTaxJurisdictionsSchema = z.object({
 // ============================================================================
 
 /**
- * Generates JSON schemas for all Metadata API endpoints
- * @returns Object containing JSON schemas for all endpoints
+ * Generates JSON schemas for all Metadata API endpoints.
+ *
+ * @returns Metadata API JSON schemas keyed by endpoint or shared model name.
+ * @example
+ * ```ts
+ * const schemas = getMetadataJsonSchemas();
+ * ```
  */
-export function getMetadataJsonSchemas() {
+export const getMetadataJsonSchemas = () => {
   return {
     // Marketplace Policies
     automotivePartsCompatibilityPolicy: zodToJsonSchema(
@@ -1028,4 +1033,4 @@ export function getMetadataJsonSchemas() {
     amount: zodToJsonSchema(amountSchema, 'amount'),
     timeDuration: zodToJsonSchema(timeDurationSchema, 'timeDuration'),
   };
-}
+};

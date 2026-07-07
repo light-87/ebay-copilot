@@ -1,184 +1,205 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, expect, it, vi } from 'vitest';
+import type { TradingApiClient } from '@/api/clientTrading.js';
 import { TradingApi } from '@/api/trading/trading.js';
-import type { TradingApiClient } from '@/api/client-trading.js';
+import { Effect } from 'effect';
 
-describe('TradingApi', () => {
-  let api: TradingApi;
-  let mockClient: { execute: ReturnType<typeof vi.fn> };
+let api: TradingApi;
+let mockClient: { execute: ReturnType<typeof vi.fn> };
 
-  beforeEach(() => {
-    mockClient = { execute: vi.fn() };
-    api = new TradingApi(mockClient as unknown as TradingApiClient);
-  });
+beforeEach(() => {
+  mockClient = { execute: vi.fn() };
+  api = new TradingApi(mockClient as unknown as TradingApiClient);
+});
 
-  describe('getActiveListings', () => {
-    it('should call GetMyeBaySelling and return normalized listings', async () => {
-      mockClient.execute.mockResolvedValue({
-        Ack: 'Success',
-        ActiveList: {
-          ItemArray: {
-            Item: [
-              {
-                ItemID: '167382780779',
-                Title: 'Bambu Lab 0.2mm Nozzle',
-                SKU: 'NZ-2MM',
-                Quantity: 10,
-                QuantityAvailable: 4,
-                SellingStatus: { CurrentPrice: { '#text': 12.99 } },
-                WatchCount: 3,
-                ListingType: 'FixedPriceItem',
-              },
-            ],
-          },
-          PaginationResult: { TotalNumberOfEntries: 1, TotalNumberOfPages: 1 },
+it('normalizes active listing rows from GetMyeBaySelling', async () => {
+  mockClient.execute.mockReturnValue(
+    Effect.succeed({
+      Ack: 'Success',
+      ActiveList: {
+        ItemArray: {
+          Item: [
+            {
+              ItemID: '167382780779',
+              Title: 'Bambu Lab 0.2mm Nozzle',
+              SKU: 'NZ-2MM',
+              Quantity: 10,
+              QuantityAvailable: 4,
+              SellingStatus: { CurrentPrice: { '#text': 12.99 } },
+              WatchCount: 3,
+              ListingType: 'FixedPriceItem',
+            },
+          ],
         },
-      });
+        PaginationResult: { TotalNumberOfEntries: 1, TotalNumberOfPages: 1 },
+      },
+    }),
+  );
 
-      const result = await api.getActiveListings();
-      expect(result.listings).toHaveLength(1);
-      expect(result.listings[0]).toEqual({
-        itemId: '167382780779',
-        title: 'Bambu Lab 0.2mm Nozzle',
-        sku: 'NZ-2MM',
-        quantity: 10,
-        quantityAvailable: 4,
-        currentPrice: 12.99,
-        watchCount: 3,
-        listingType: 'FixedPriceItem',
-      });
-      expect(result.total).toBe(1);
-    });
+  const result = await Effect.runPromise(api.getActiveListings());
 
-    it('should handle empty listings', async () => {
-      mockClient.execute.mockResolvedValue({
-        Ack: 'Success',
-        ActiveList: {
-          ItemArray: null,
-          PaginationResult: { TotalNumberOfEntries: 0 },
-        },
-      });
-
-      const result = await api.getActiveListings();
-      expect(result.listings).toEqual([]);
-      expect(result.total).toBe(0);
-    });
-
-    it('should pass pagination params to execute', async () => {
-      mockClient.execute.mockResolvedValue({
-        Ack: 'Success',
-        ActiveList: {
-          ItemArray: null,
-          PaginationResult: { TotalNumberOfEntries: 0 },
-        },
-      });
-
-      await api.getActiveListings(2, 25);
-      expect(mockClient.execute).toHaveBeenCalledWith('GetMyeBaySelling', {
-        ActiveList: {
-          Sort: 'TimeLeft',
-          Pagination: { EntriesPerPage: 25, PageNumber: 2 },
-        },
-      });
-    });
+  expect(result.listings).toHaveLength(1);
+  expect(result.listings[0]).toEqual({
+    itemId: '167382780779',
+    title: 'Bambu Lab 0.2mm Nozzle',
+    sku: 'NZ-2MM',
+    quantity: 10,
+    quantityAvailable: 4,
+    currentPrice: 12.99,
+    watchCount: 3,
+    listingType: 'FixedPriceItem',
   });
+  expect(result.total).toBe(1);
+});
 
-  describe('getListing', () => {
-    it('should call GetItem with itemId and return first item', async () => {
-      mockClient.execute.mockResolvedValue({
-        Ack: 'Success',
-        Item: [{ ItemID: '12345', Title: 'Test', SKU: 'T1', Quantity: 5 }],
-      });
+it('handles empty active listings', async () => {
+  mockClient.execute.mockReturnValue(
+    Effect.succeed({
+      Ack: 'Success',
+      ActiveList: {
+        ItemArray: null,
+        PaginationResult: { TotalNumberOfEntries: 0 },
+      },
+    }),
+  );
 
-      const result = await api.getListing('12345');
-      expect(mockClient.execute).toHaveBeenCalledWith('GetItem', {
-        ItemID: '12345',
-        DetailLevel: 'ReturnAll',
-      });
-      expect(result.ItemID).toBe('12345');
-    });
+  const result = await Effect.runPromise(api.getActiveListings());
 
-    it('should throw if itemId is missing', async () => {
-      await expect(api.getListing('')).rejects.toThrow('itemId is required');
-    });
+  expect(result.listings).toEqual([]);
+  expect(result.total).toBe(0);
+});
+
+it('passes active listing pagination params to execute', async () => {
+  mockClient.execute.mockReturnValue(
+    Effect.succeed({
+      Ack: 'Success',
+      ActiveList: {
+        ItemArray: null,
+        PaginationResult: { TotalNumberOfEntries: 0 },
+      },
+    }),
+  );
+
+  await Effect.runPromise(api.getActiveListings({ page: 2, entriesPerPage: 25 }));
+
+  expect(mockClient.execute).toHaveBeenCalledWith('GetMyeBaySelling', {
+    ActiveList: {
+      Sort: 'TimeLeft',
+      Pagination: { EntriesPerPage: 25, PageNumber: 2 },
+    },
   });
+});
 
-  describe('createListing', () => {
-    it('should call AddFixedPriceItem', async () => {
-      mockClient.execute.mockResolvedValue({ Ack: 'Success', ItemID: '99999' });
+it('gets one listing by item ID', async () => {
+  mockClient.execute.mockReturnValue(
+    Effect.succeed({
+      Ack: 'Success',
+      Item: [{ ItemID: '12345', Title: 'Test', SKU: 'T1', Quantity: 5 }],
+    }),
+  );
 
-      const item = { Title: 'New Item', SKU: 'NEW', StartPrice: 9.99 };
-      const result = await api.createListing(item);
-      expect(mockClient.execute).toHaveBeenCalledWith('AddFixedPriceItem', {
-        Item: item,
-      });
-      expect(result.ItemID).toBe('99999');
-    });
+  const result = await Effect.runPromise(api.getListing({ itemId: '12345' }));
+
+  expect(mockClient.execute).toHaveBeenCalledWith('GetItem', {
+    ItemID: '12345',
+    DetailLevel: 'ReturnAll',
   });
+  expect(result.ItemID).toBe('12345');
+});
 
-  describe('reviseListing', () => {
-    it('should call ReviseFixedPriceItem with fields', async () => {
-      mockClient.execute.mockResolvedValue({ Ack: 'Success', ItemID: '12345' });
+it('fails getListing when itemId is missing', async () => {
+  const error = await Effect.runPromise(Effect.flip(api.getListing({ itemId: '' })));
 
-      const result = await api.reviseListing('12345', { Quantity: 10 });
-      expect(mockClient.execute).toHaveBeenCalledWith('ReviseFixedPriceItem', {
-        Item: { ItemID: '12345', Quantity: 10 },
-      });
-      expect(result.ItemID).toBe('12345');
-    });
+  expect(error._tag).toBe('EndpointInputError');
+  expect(error.message).toContain('itemId is required');
+});
 
-    it('should throw if itemId is missing', async () => {
-      await expect(api.reviseListing('', {})).rejects.toThrow('itemId is required');
-    });
+it('creates a fixed-price listing', async () => {
+  mockClient.execute.mockReturnValue(Effect.succeed({ Ack: 'Success', ItemID: '99999' }));
+
+  const item = { Title: 'New Item', SKU: 'NEW', StartPrice: 9.99 };
+  const result = await Effect.runPromise(api.createListing({ item }));
+
+  expect(mockClient.execute).toHaveBeenCalledWith('AddFixedPriceItem', {
+    Item: item,
   });
+  expect(result.ItemID).toBe('99999');
+});
 
-  describe('endListing', () => {
-    it('should call EndFixedPriceItem', async () => {
-      mockClient.execute.mockResolvedValue({ Ack: 'Success' });
+it('revises a fixed-price listing', async () => {
+  mockClient.execute.mockReturnValue(Effect.succeed({ Ack: 'Success', ItemID: '12345' }));
 
-      await api.endListing('12345', 'NotAvailable');
-      expect(mockClient.execute).toHaveBeenCalledWith('EndFixedPriceItem', {
-        ItemID: '12345',
-        EndingReason: 'NotAvailable',
-      });
-    });
+  const result = await Effect.runPromise(
+    api.reviseListing({ itemId: '12345', fields: { Quantity: 10 } }),
+  );
 
-    it('should default reason to NotAvailable', async () => {
-      mockClient.execute.mockResolvedValue({ Ack: 'Success' });
-
-      await api.endListing('12345');
-      expect(mockClient.execute).toHaveBeenCalledWith('EndFixedPriceItem', {
-        ItemID: '12345',
-        EndingReason: 'NotAvailable',
-      });
-    });
-
-    it('should throw if itemId is missing', async () => {
-      await expect(api.endListing('')).rejects.toThrow('itemId is required');
-    });
+  expect(mockClient.execute).toHaveBeenCalledWith('ReviseFixedPriceItem', {
+    Item: { ItemID: '12345', Quantity: 10 },
   });
+  expect(result.ItemID).toBe('12345');
+});
 
-  describe('relistItem', () => {
-    it('should call RelistFixedPriceItem', async () => {
-      mockClient.execute.mockResolvedValue({ Ack: 'Success', ItemID: '12345' });
+it('fails reviseListing when itemId is missing', async () => {
+  const error = await Effect.runPromise(Effect.flip(api.reviseListing({ itemId: '', fields: {} })));
 
-      const result = await api.relistItem('12345');
-      expect(mockClient.execute).toHaveBeenCalledWith('RelistFixedPriceItem', {
-        Item: { ItemID: '12345' },
-      });
-      expect(result.ItemID).toBe('12345');
-    });
+  expect(error._tag).toBe('EndpointInputError');
+  expect(error.message).toContain('itemId is required');
+});
 
-    it('should pass optional modifications', async () => {
-      mockClient.execute.mockResolvedValue({ Ack: 'Success', ItemID: '12345' });
+it('ends a fixed-price listing', async () => {
+  mockClient.execute.mockReturnValue(Effect.succeed({ Ack: 'Success' }));
 
-      await api.relistItem('12345', { Quantity: 20, StartPrice: 15.99 });
-      expect(mockClient.execute).toHaveBeenCalledWith('RelistFixedPriceItem', {
-        Item: { ItemID: '12345', Quantity: 20, StartPrice: 15.99 },
-      });
-    });
+  await Effect.runPromise(api.endListing({ itemId: '12345', reason: 'NotAvailable' }));
 
-    it('should throw if itemId is missing', async () => {
-      await expect(api.relistItem('')).rejects.toThrow('itemId is required');
-    });
+  expect(mockClient.execute).toHaveBeenCalledWith('EndFixedPriceItem', {
+    ItemID: '12345',
+    EndingReason: 'NotAvailable',
   });
+});
+
+it('defaults endListing reason to NotAvailable', async () => {
+  mockClient.execute.mockReturnValue(Effect.succeed({ Ack: 'Success' }));
+
+  await Effect.runPromise(api.endListing({ itemId: '12345' }));
+
+  expect(mockClient.execute).toHaveBeenCalledWith('EndFixedPriceItem', {
+    ItemID: '12345',
+    EndingReason: 'NotAvailable',
+  });
+});
+
+it('fails endListing when itemId is missing', async () => {
+  const error = await Effect.runPromise(Effect.flip(api.endListing({ itemId: '' })));
+
+  expect(error._tag).toBe('EndpointInputError');
+  expect(error.message).toContain('itemId is required');
+});
+
+it('relists an ended listing', async () => {
+  mockClient.execute.mockReturnValue(Effect.succeed({ Ack: 'Success', ItemID: '12345' }));
+
+  const result = await Effect.runPromise(api.relistItem({ itemId: '12345' }));
+
+  expect(mockClient.execute).toHaveBeenCalledWith('RelistFixedPriceItem', {
+    Item: { ItemID: '12345' },
+  });
+  expect(result.ItemID).toBe('12345');
+});
+
+it('passes relist modifications', async () => {
+  mockClient.execute.mockReturnValue(Effect.succeed({ Ack: 'Success', ItemID: '12345' }));
+
+  await Effect.runPromise(
+    api.relistItem({ itemId: '12345', modifications: { Quantity: 20, StartPrice: 15.99 } }),
+  );
+
+  expect(mockClient.execute).toHaveBeenCalledWith('RelistFixedPriceItem', {
+    Item: { ItemID: '12345', Quantity: 20, StartPrice: 15.99 },
+  });
+});
+
+it('fails relistItem when itemId is missing', async () => {
+  const error = await Effect.runPromise(Effect.flip(api.relistItem({ itemId: '' })));
+
+  expect(error._tag).toBe('EndpointInputError');
+  expect(error.message).toContain('itemId is required');
 });

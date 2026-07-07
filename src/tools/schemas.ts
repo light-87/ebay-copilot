@@ -21,7 +21,7 @@ import {
   MessageReferenceType,
   FeedbackRating,
   ReportedItemType,
-} from '@/types/ebay-enums.js';
+} from '@/types/ebayEnums.js';
 
 /**
  * Reusable Zod schemas for eBay API tool input validation
@@ -644,64 +644,6 @@ export const infringementDataSchema = z
     reportedItemType: z.nativeEnum(ReportedItemType).optional(),
     reportingReason: z.string().optional(),
     comments: z.string().optional(),
-  })
-  .passthrough();
-
-// VERO API schemas
-/** VeRO report payload for intellectual-property violation submissions. */
-export const veroReportDataSchema = z
-  .object({
-    items: z.array(
-      z.object({
-        itemId: z.string(),
-        reportingReason: z.string(),
-      }),
-    ),
-    rightsOwnerEmail: z.string().email().optional(),
-    message: z.string().optional(),
-  })
-  .passthrough();
-
-/** Shipping quote request payload for estimated shipping rates. */
-export const shippingQuoteRequestSchema = z
-  .object({
-    packageDetails: z
-      .object({
-        weight: z
-          .object({
-            value: z.number(),
-            unit: z.string(),
-          })
-          .passthrough(),
-        dimensions: z
-          .object({
-            height: z.number().optional(),
-            length: z.number().optional(),
-            width: z.number().optional(),
-            unit: z.string().optional(),
-          })
-          .passthrough()
-          .optional(),
-      })
-      .passthrough(),
-    shipFrom: z
-      .object({
-        addressLine1: z.string().optional(),
-        city: z.string().optional(),
-        stateOrProvince: z.string().optional(),
-        postalCode: z.string().optional(),
-        country: z.string(),
-      })
-      .passthrough(),
-    shipTo: z
-      .object({
-        addressLine1: z.string().optional(),
-        city: z.string().optional(),
-        stateOrProvince: z.string().optional(),
-        postalCode: z.string().optional(),
-        country: z.string(),
-      })
-      .passthrough(),
   })
   .passthrough();
 

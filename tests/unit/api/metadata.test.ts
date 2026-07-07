@@ -1,13 +1,14 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { MetadataApi } from '../../../src/api/listing-metadata/metadata.js';
-import type { EbayApiClient } from '../../../src/api/client.js';
+import type { EbayApiClient } from '@/api/client.js';
+import { MetadataApi, compatibilityHeaders } from '@/api/listing-metadata/metadata.js';
+import { invalidInput } from '@tests/helpers/invalidInput.js';
+import { Effect } from 'effect';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('MetadataApi', () => {
-  let metadataApi: MetadataApi;
+  let api: MetadataApi;
   let mockClient: EbayApiClient;
 
   beforeEach(() => {
-    // Create mock client with spy methods
     mockClient = {
       get: vi.fn(),
       post: vi.fn(),
@@ -15,617 +16,524 @@ describe('MetadataApi', () => {
       delete: vi.fn(),
     } as unknown as EbayApiClient;
 
-    metadataApi = new MetadataApi(mockClient);
+    api = new MetadataApi(mockClient);
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('Marketplace Policy Methods', () => {
-    describe('getAutomotivePartsCompatibilityPolicies', () => {
-      it('should get automotive parts compatibility policies without filter', async () => {
-        const mockResponse = {
-          compatibilityPolicies: [{ policyId: '1', categoryId: '100' }],
-        };
+  describe('marketplace policy endpoints', () => {
+    it('gets automotive parts compatibility policies without a filter', async () => {
+      const response = { compatibilityPolicies: [{ policyId: '1', categoryId: '100' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(
+        api.getAutomotivePartsCompatibilityPolicies({ marketplaceId: 'EBAY_US' }),
+      );
 
-        const result = await metadataApi.getAutomotivePartsCompatibilityPolicies('EBAY_US');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_automotive_parts_compatibility_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should get automotive parts compatibility policies with filter', async () => {
-        const mockResponse = { compatibilityPolicies: [] };
-
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
-
-        await metadataApi.getAutomotivePartsCompatibilityPolicies('EBAY_US', 'categoryIds:{12345}');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_automotive_parts_compatibility_policies',
-          { filter: 'categoryIds:{12345}' },
-        );
-      });
-
-      it('should throw error when marketplaceId is missing', async () => {
-        await expect(
-          metadataApi.getAutomotivePartsCompatibilityPolicies('' as any),
-        ).rejects.toThrow('marketplaceId is required and must be a string');
-      });
-
-      it('should throw error when marketplaceId is not a string', async () => {
-        await expect(
-          metadataApi.getAutomotivePartsCompatibilityPolicies(123 as any),
-        ).rejects.toThrow('marketplaceId is required and must be a string');
-      });
-
-      it('should throw error when filter is not a string', async () => {
-        await expect(
-          metadataApi.getAutomotivePartsCompatibilityPolicies('EBAY_US', 123 as any),
-        ).rejects.toThrow('filter must be a string when provided');
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_US/get_automotive_parts_compatibility_policies',
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getCategoryPolicies', () => {
-      it('should get category policies without filter', async () => {
-        const mockResponse = {
-          categoryPolicies: [{ categoryId: '1', policyIds: ['P1'] }],
-        };
+    it('gets automotive parts compatibility policies with a category filter', async () => {
+      const response = { compatibilityPolicies: [] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(
+        api.getAutomotivePartsCompatibilityPolicies({
+          marketplaceId: 'EBAY_US',
+          filter: 'categoryIds:{12345}',
+        }),
+      );
 
-        const result = await metadataApi.getCategoryPolicies('EBAY_US');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_category_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should get category policies with filter', async () => {
-        const mockResponse = { categoryPolicies: [] };
-
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
-
-        await metadataApi.getCategoryPolicies('EBAY_US', 'categoryIds:{12345}');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_category_policies',
-          { filter: 'categoryIds:{12345}' },
-        );
-      });
-
-      it('should throw error when marketplaceId is missing', async () => {
-        await expect(metadataApi.getCategoryPolicies('' as any)).rejects.toThrow(
-          'marketplaceId is required and must be a string',
-        );
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_US/get_automotive_parts_compatibility_policies',
+        { filter: 'categoryIds:{12345}' },
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getExtendedProducerResponsibilityPolicies', () => {
-      it('should get EPR policies without filter', async () => {
-        const mockResponse = {
-          eprPolicies: [{ policyId: 'EPR1' }],
-        };
+    it('rejects invalid marketplace and filter input before requesting automotive policies', async () => {
+      const missingMarketplace = await Effect.runPromise(
+        Effect.flip(
+          api.getAutomotivePartsCompatibilityPolicies(invalidInput({ marketplaceId: '' })),
+        ),
+      );
+      const invalidMarketplace = await Effect.runPromise(
+        Effect.flip(
+          api.getAutomotivePartsCompatibilityPolicies(invalidInput({ marketplaceId: 123 })),
+        ),
+      );
+      const invalidFilter = await Effect.runPromise(
+        Effect.flip(
+          api.getAutomotivePartsCompatibilityPolicies(
+            invalidInput({ marketplaceId: 'EBAY_US', filter: 123 }),
+          ),
+        ),
+      );
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
-
-        const result = await metadataApi.getExtendedProducerResponsibilityPolicies('EBAY_DE');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_DE/get_extended_producer_responsibility_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should get EPR policies with filter', async () => {
-        const mockResponse = { eprPolicies: [] };
-
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
-
-        await metadataApi.getExtendedProducerResponsibilityPolicies(
-          'EBAY_DE',
-          'categoryIds:{12345}',
-        );
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_DE/get_extended_producer_responsibility_policies',
-          { filter: 'categoryIds:{12345}' },
-        );
-      });
+      expect(missingMarketplace._tag).toBe('EndpointInputError');
+      expect(missingMarketplace.parameter).toBe('marketplaceId');
+      expect(invalidMarketplace._tag).toBe('EndpointInputError');
+      expect(invalidFilter._tag).toBe('EndpointInputError');
+      expect(invalidFilter.parameter).toBe('filter');
+      expect(mockClient.get).not.toHaveBeenCalled();
     });
 
-    describe('getHazardousMaterialsLabels', () => {
-      it('should get hazardous materials labels', async () => {
-        const mockResponse = {
-          labels: [{ labelId: 'HAZMAT1', description: 'Flammable' }],
-        };
+    it('gets category policies with and without a category filter', async () => {
+      const response = { categoryPolicies: [{ categoryId: '1', policyIds: ['P1'] }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const unfiltered = await Effect.runPromise(
+        api.getCategoryPolicies({ marketplaceId: 'EBAY_US' }),
+      );
+      const filtered = await Effect.runPromise(
+        api.getCategoryPolicies({ marketplaceId: 'EBAY_US', filter: 'categoryIds:{12345}' }),
+      );
 
-        const result = await metadataApi.getHazardousMaterialsLabels('EBAY_US');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_hazardous_materials_labels',
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should throw error when marketplaceId is missing', async () => {
-        await expect(metadataApi.getHazardousMaterialsLabels('' as any)).rejects.toThrow(
-          'marketplaceId is required and must be a string',
-        );
-      });
+      expect(mockClient.get).toHaveBeenNthCalledWith(
+        1,
+        '/sell/metadata/v1/marketplace/EBAY_US/get_category_policies',
+      );
+      expect(mockClient.get).toHaveBeenNthCalledWith(
+        2,
+        '/sell/metadata/v1/marketplace/EBAY_US/get_category_policies',
+        { filter: 'categoryIds:{12345}' },
+      );
+      expect(unfiltered).toEqual(response);
+      expect(filtered).toEqual(response);
     });
 
-    describe('getItemConditionPolicies', () => {
-      it('should get item condition policies without filter', async () => {
-        const mockResponse = {
-          conditionPolicies: [{ policyId: 'COND1', conditions: ['NEW', 'USED'] }],
-        };
+    it('gets extended producer responsibility policies with and without a category filter', async () => {
+      const response = { eprPolicies: [{ policyId: 'EPR1' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const unfiltered = await Effect.runPromise(
+        api.getExtendedProducerResponsibilityPolicies({ marketplaceId: 'EBAY_DE' }),
+      );
+      const filtered = await Effect.runPromise(
+        api.getExtendedProducerResponsibilityPolicies({
+          marketplaceId: 'EBAY_DE',
+          filter: 'categoryIds:{12345}',
+        }),
+      );
 
-        const result = await metadataApi.getItemConditionPolicies('EBAY_US');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_item_condition_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should get item condition policies with filter', async () => {
-        const mockResponse = { conditionPolicies: [] };
-
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
-
-        await metadataApi.getItemConditionPolicies('EBAY_US', 'categoryIds:{12345}');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_item_condition_policies',
-          { filter: 'categoryIds:{12345}' },
-        );
-      });
+      expect(mockClient.get).toHaveBeenNthCalledWith(
+        1,
+        '/sell/metadata/v1/marketplace/EBAY_DE/get_extended_producer_responsibility_policies',
+      );
+      expect(mockClient.get).toHaveBeenNthCalledWith(
+        2,
+        '/sell/metadata/v1/marketplace/EBAY_DE/get_extended_producer_responsibility_policies',
+        { filter: 'categoryIds:{12345}' },
+      );
+      expect(unfiltered).toEqual(response);
+      expect(filtered).toEqual(response);
     });
 
-    describe('getListingStructurePolicies', () => {
-      it('should get listing structure policies without filter', async () => {
-        const mockResponse = {
-          structurePolicies: [{ policyId: 'STRUCT1' }],
-        };
+    it('gets hazardous materials labels', async () => {
+      const response = { labels: [{ labelId: 'HAZMAT1', description: 'Flammable' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(
+        api.getHazardousMaterialsLabels({ marketplaceId: 'EBAY_US' }),
+      );
 
-        const result = await metadataApi.getListingStructurePolicies('EBAY_UK');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_UK/get_listing_structure_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_US/get_hazardous_materials_labels',
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getNegotiatedPricePolicies', () => {
-      it('should get negotiated price policies without filter', async () => {
-        const mockResponse = {
-          pricePolicies: [{ policyId: 'PRICE1' }],
-        };
+    it('gets item condition policies', async () => {
+      const response = { conditionPolicies: [{ policyId: 'COND1', conditions: ['NEW', 'USED'] }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(
+        api.getItemConditionPolicies({ marketplaceId: 'EBAY_US' }),
+      );
 
-        const result = await metadataApi.getNegotiatedPricePolicies('EBAY_US');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_negotiated_price_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_US/get_item_condition_policies',
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getProductSafetyLabels', () => {
-      it('should get product safety labels', async () => {
-        const mockResponse = {
-          labels: [{ labelId: 'SAFETY1', description: 'CE Mark' }],
-        };
+    it('gets listing structure policies', async () => {
+      const response = { structurePolicies: [{ policyId: 'STRUCT1' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(
+        api.getListingStructurePolicies({ marketplaceId: 'EBAY_GB' }),
+      );
 
-        const result = await metadataApi.getProductSafetyLabels('EBAY_DE');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_DE/get_product_safety_labels',
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_GB/get_listing_structure_policies',
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getRegulatoryPolicies', () => {
-      it('should get regulatory policies without filter', async () => {
-        const mockResponse = {
-          regulatoryPolicies: [{ policyId: 'REG1' }],
-        };
+    it('gets negotiated price policies', async () => {
+      const response = { pricePolicies: [{ policyId: 'PRICE1' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(
+        api.getNegotiatedPricePolicies({ marketplaceId: 'EBAY_US' }),
+      );
 
-        const result = await metadataApi.getRegulatoryPolicies('EBAY_US');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_regulatory_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_US/get_negotiated_price_policies',
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getReturnPolicies', () => {
-      it('should get return policies without filter', async () => {
-        const mockResponse = {
-          returnPolicies: [{ policyId: 'RET1' }],
-        };
+    it('gets product safety labels', async () => {
+      const response = { labels: [{ labelId: 'SAFETY1', description: 'CE Mark' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(
+        api.getProductSafetyLabels({ marketplaceId: 'EBAY_DE' }),
+      );
 
-        const result = await metadataApi.getReturnPolicies('EBAY_US');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_return_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_DE/get_product_safety_labels',
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getShippingCostTypePolicies', () => {
-      it('should get shipping cost type policies without filter', async () => {
-        const mockResponse = {
-          shippingPolicies: [{ policyId: 'SHIP1' }],
-        };
+    it('gets regulatory policies', async () => {
+      const response = { regulatoryPolicies: [{ policyId: 'REG1' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(
+        api.getRegulatoryPolicies({ marketplaceId: 'EBAY_US' }),
+      );
 
-        const result = await metadataApi.getShippingCostTypePolicies('EBAY_US');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_shipping_cost_type_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_US/get_regulatory_policies',
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getClassifiedAdPolicies', () => {
-      it('should get classified ad policies without filter', async () => {
-        const mockResponse = {
-          classifiedPolicies: [{ policyId: 'CLASS1' }],
-        };
+    it('gets return policies', async () => {
+      const response = { returnPolicies: [{ policyId: 'RET1' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(api.getReturnPolicies({ marketplaceId: 'EBAY_US' }));
 
-        const result = await metadataApi.getClassifiedAdPolicies('EBAY_MOTORS');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_MOTORS/get_classified_ad_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_US/get_return_policies',
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getCurrencies', () => {
-      it('should get currencies for marketplace', async () => {
-        const mockResponse = {
-          currencies: [
-            { currency: 'USD', description: 'US Dollar' },
-            { currency: 'CAD', description: 'Canadian Dollar' },
-          ],
-        };
+    it('gets classified ad policies', async () => {
+      const response = { classifiedPolicies: [{ policyId: 'CLASS1' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(
+        api.getClassifiedAdPolicies({ marketplaceId: 'EBAY_MOTORS' }),
+      );
 
-        const result = await metadataApi.getCurrencies('EBAY_US');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_currencies',
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_MOTORS/get_classified_ad_policies',
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getListingTypePolicies', () => {
-      it('should get listing type policies without filter', async () => {
-        const mockResponse = {
-          listingTypePolicies: [{ policyId: 'TYPE1' }],
-        };
+    it('gets currencies', async () => {
+      const response = {
+        currencies: [
+          { currency: 'USD', description: 'US Dollar' },
+          { currency: 'CAD', description: 'Canadian Dollar' },
+        ],
+      };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(api.getCurrencies({ marketplaceId: 'EBAY_US' }));
 
-        const result = await metadataApi.getListingTypePolicies('EBAY_US');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_listing_type_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_US/get_currencies',
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getMotorsListingPolicies', () => {
-      it('should get motors listing policies without filter', async () => {
-        const mockResponse = {
-          motorsPolicies: [{ policyId: 'MOTORS1' }],
-        };
+    it('gets listing type policies', async () => {
+      const response = { listingTypePolicies: [{ policyId: 'TYPE1' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(
+        api.getListingTypePolicies({ marketplaceId: 'EBAY_US' }),
+      );
 
-        const result = await metadataApi.getMotorsListingPolicies('EBAY_MOTORS');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_MOTORS/get_motors_listing_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_US/get_listing_type_policies',
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getShippingPolicies', () => {
-      it('should get shipping policies without filter', async () => {
-        const mockResponse = {
-          shippingPolicies: [{ policyId: 'SHIP1' }],
-        };
+    it('gets Motors listing policies', async () => {
+      const response = { motorsPolicies: [{ policyId: 'MOTORS1' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(
+        api.getMotorsListingPolicies({ marketplaceId: 'EBAY_MOTORS' }),
+      );
 
-        const result = await metadataApi.getShippingPolicies('EBAY_US');
-
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_shipping_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_MOTORS/get_motors_listing_policies',
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getSiteVisibilityPolicies', () => {
-      it('should get site visibility policies without filter', async () => {
-        const mockResponse = {
-          visibilityPolicies: [{ policyId: 'VIS1' }],
-        };
+    it('gets shipping policies', async () => {
+      const response = { shippingPolicies: [{ policyId: 'SHIP1' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(api.getShippingPolicies({ marketplaceId: 'EBAY_US' }));
 
-        const result = await metadataApi.getSiteVisibilityPolicies('EBAY_US');
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_US/get_shipping_policies',
+      );
+      expect(result).toEqual(response);
+    });
 
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/marketplace/EBAY_US/get_site_visibility_policies',
-          {},
-        );
-        expect(result).toEqual(mockResponse);
-      });
+    it('gets site visibility policies', async () => {
+      const response = { visibilityPolicies: [{ policyId: 'VIS1' }] };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
+
+      const result = await Effect.runPromise(
+        api.getSiteVisibilityPolicies({ marketplaceId: 'EBAY_US' }),
+      );
+
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/marketplace/EBAY_US/get_site_visibility_policies',
+      );
+      expect(result).toEqual(response);
     });
   });
 
-  describe('Compatibility Methods', () => {
-    describe('getCompatibilitiesBySpecification', () => {
-      it('should get compatibilities by specification', async () => {
-        const specification = {
-          compatibilityProperties: [
-            { name: 'Make', value: 'Toyota' },
-            { name: 'Model', value: 'Camry' },
-          ],
-        };
+  describe('compatibility endpoints', () => {
+    it('gets compatibilities by specification with the marketplace header', async () => {
+      const specification = {
+        categoryId: '6016',
+        specifications: [
+          { propertyName: 'Make', propertyValue: 'Toyota' },
+          { propertyName: 'Model', propertyValue: 'Camry' },
+        ],
+      };
+      const response = { compatibilityDetails: [{ productFamilyId: '12345', productId: '67890' }] };
+      vi.mocked(mockClient.post).mockResolvedValue(response);
 
-        const mockResponse = {
-          compatibilities: [{ productFamilyId: '12345', productId: '67890' }],
-        };
+      const result = await Effect.runPromise(
+        api.getCompatibilitiesBySpecification({ marketplaceId: 'EBAY_US', specification }),
+      );
 
-        vi.spyOn(mockClient, 'post').mockResolvedValue(mockResponse);
-
-        const result = await metadataApi.getCompatibilitiesBySpecification(specification);
-
-        expect(mockClient.post).toHaveBeenCalledWith(
-          '/sell/metadata/v1/compatibilities/get_compatibilities_by_specification',
-          specification,
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should throw error when specification is missing', async () => {
-        await expect(metadataApi.getCompatibilitiesBySpecification(null as any)).rejects.toThrow(
-          'specification is required and must be an object',
-        );
-      });
-
-      it('should throw error when specification is not an object', async () => {
-        await expect(
-          metadataApi.getCompatibilitiesBySpecification('invalid' as any),
-        ).rejects.toThrow('specification is required and must be an object');
-      });
+      expect(mockClient.post).toHaveBeenCalledWith(
+        '/sell/metadata/v1/compatibilities/get_compatibilities_by_specification',
+        specification,
+        compatibilityHeaders('EBAY_US'),
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getCompatibilityPropertyNames', () => {
-      it('should get compatibility property names', async () => {
-        const data = {
-          categoryTreeId: '0',
-          categoryId: '6016',
-        };
+    it('rejects invalid compatibility specification input before requesting eBay', async () => {
+      const missingSpecification = await Effect.runPromise(
+        Effect.flip(
+          api.getCompatibilitiesBySpecification(
+            invalidInput({ marketplaceId: 'EBAY_US', specification: null }),
+          ),
+        ),
+      );
+      const invalidInputObject = await Effect.runPromise(
+        Effect.flip(api.getCompatibilitiesBySpecification(invalidInput('invalid'))),
+      );
 
-        const mockResponse = {
-          names: ['Make', 'Model', 'Year'],
-        };
-
-        vi.spyOn(mockClient, 'post').mockResolvedValue(mockResponse);
-
-        const result = await metadataApi.getCompatibilityPropertyNames(data);
-
-        expect(mockClient.post).toHaveBeenCalledWith(
-          '/sell/metadata/v1/compatibilities/get_compatibility_property_names',
-          data,
-        );
-        expect(result).toEqual(mockResponse);
-      });
-
-      it('should throw error when data is missing', async () => {
-        await expect(metadataApi.getCompatibilityPropertyNames(null as any)).rejects.toThrow(
-          'data is required and must be an object',
-        );
-      });
+      expect(missingSpecification._tag).toBe('EndpointInputError');
+      expect(missingSpecification.parameter).toBe('specification');
+      expect(invalidInputObject._tag).toBe('EndpointInputError');
+      expect(invalidInputObject.parameter).toBe('input');
+      expect(mockClient.post).not.toHaveBeenCalled();
     });
 
-    describe('getCompatibilityPropertyValues', () => {
-      it('should get compatibility property values', async () => {
-        const data = {
-          categoryTreeId: '0',
-          categoryId: '6016',
-          compatibilityProperty: 'Make',
-        };
+    it('gets compatibility property names with the generated request body', async () => {
+      const data = {
+        categoryId: '6016',
+        dataset: ['Searchable'],
+      };
+      const response = { properties: [{ dataset: 'Searchable', propertyNames: [] }] };
+      vi.mocked(mockClient.post).mockResolvedValue(response);
 
-        const mockResponse = {
-          values: ['Toyota', 'Honda', 'Ford'],
-        };
+      const result = await Effect.runPromise(
+        api.getCompatibilityPropertyNames({ marketplaceId: 'EBAY_US', data }),
+      );
 
-        vi.spyOn(mockClient, 'post').mockResolvedValue(mockResponse);
-
-        const result = await metadataApi.getCompatibilityPropertyValues(data);
-
-        expect(mockClient.post).toHaveBeenCalledWith(
-          '/sell/metadata/v1/compatibilities/get_compatibility_property_values',
-          data,
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(mockClient.post).toHaveBeenCalledWith(
+        '/sell/metadata/v1/compatibilities/get_compatibility_property_names',
+        data,
+        compatibilityHeaders('EBAY_US'),
+      );
+      expect(result).toEqual(response);
     });
 
-    describe('getMultiCompatibilityPropertyValues', () => {
-      it('should get multi compatibility property values', async () => {
-        const data = {
-          categoryTreeId: '0',
-          categoryId: '6016',
-          compatibilityProperties: [{ name: 'Make', value: 'Toyota' }],
-        };
+    it('rejects invalid compatibility property-name data before requesting eBay', async () => {
+      const error = await Effect.runPromise(
+        Effect.flip(
+          api.getCompatibilityPropertyNames(invalidInput({ marketplaceId: 'EBAY_US', data: null })),
+        ),
+      );
 
-        const mockResponse = {
-          propertyValues: [{ propertyName: 'Model', values: ['Camry', 'Corolla'] }],
-        };
-
-        vi.spyOn(mockClient, 'post').mockResolvedValue(mockResponse);
-
-        const result = await metadataApi.getMultiCompatibilityPropertyValues(data);
-
-        expect(mockClient.post).toHaveBeenCalledWith(
-          '/sell/metadata/v1/compatibilities/get_multi_compatibility_property_values',
-          data,
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      expect(error._tag).toBe('EndpointInputError');
+      expect(error.parameter).toBe('data');
+      expect(mockClient.post).not.toHaveBeenCalled();
     });
 
-    describe('getProductCompatibilities', () => {
-      it('should get product compatibilities', async () => {
-        const data = {
-          categoryTreeId: '0',
-          epid: '12345',
-        };
+    it('gets compatibility property values with the generated request body', async () => {
+      const data = {
+        categoryId: '6016',
+        propertyName: 'Make',
+        propertyFilters: [{ propertyName: 'Year', propertyValue: '2022' }],
+        sortOrder: 'Ascending',
+      };
+      const response = { propertyName: 'Make', propertyValues: [] };
+      vi.mocked(mockClient.post).mockResolvedValue(response);
 
-        const mockResponse = {
-          compatibilities: [
-            {
-              compatibilityProperties: [
-                { name: 'Make', value: 'Toyota' },
-                { name: 'Model', value: 'Camry' },
-              ],
-            },
-          ],
-        };
+      const result = await Effect.runPromise(
+        api.getCompatibilityPropertyValues({ marketplaceId: 'EBAY_US', data }),
+      );
 
-        vi.spyOn(mockClient, 'post').mockResolvedValue(mockResponse);
+      expect(mockClient.post).toHaveBeenCalledWith(
+        '/sell/metadata/v1/compatibilities/get_compatibility_property_values',
+        data,
+        compatibilityHeaders('EBAY_US'),
+      );
+      expect(result).toEqual(response);
+    });
 
-        const result = await metadataApi.getProductCompatibilities(data);
+    it('gets multiple compatibility property values with the generated request body', async () => {
+      const data = {
+        categoryId: '6016',
+        propertyFilters: [{ propertyName: 'Make', propertyValue: 'Toyota' }],
+        propertyNames: ['Model', 'Trim'],
+      };
+      const response = { compatibilities: [{ compatibilityProperties: [] }] };
+      vi.mocked(mockClient.post).mockResolvedValue(response);
 
-        expect(mockClient.post).toHaveBeenCalledWith(
-          '/sell/metadata/v1/compatibilities/get_product_compatibilities',
-          data,
-        );
-        expect(result).toEqual(mockResponse);
-      });
+      const result = await Effect.runPromise(
+        api.getMultiCompatibilityPropertyValues({ marketplaceId: 'EBAY_US', data }),
+      );
+
+      expect(mockClient.post).toHaveBeenCalledWith(
+        '/sell/metadata/v1/compatibilities/get_multi_compatibility_property_values',
+        data,
+        compatibilityHeaders('EBAY_US'),
+      );
+      expect(result).toEqual(response);
+    });
+
+    it('gets product compatibilities with the generated request body', async () => {
+      const data = {
+        productIdentifier: { epid: '12345' },
+        dataset: ['Searchable'],
+        applicationPropertyFilters: [{ propertyName: 'Make', propertyValue: 'Toyota' }],
+      };
+      const response = { compatibilityDetails: [{ productDetails: [] }] };
+      vi.mocked(mockClient.post).mockResolvedValue(response);
+
+      const result = await Effect.runPromise(
+        api.getProductCompatibilities({ marketplaceId: 'EBAY_US', data }),
+      );
+
+      expect(mockClient.post).toHaveBeenCalledWith(
+        '/sell/metadata/v1/compatibilities/get_product_compatibilities',
+        data,
+        compatibilityHeaders('EBAY_US'),
+      );
+      expect(result).toEqual(response);
     });
   });
 
-  describe('Tax Methods', () => {
-    describe('getSalesTaxJurisdictions', () => {
-      it('should get sales tax jurisdictions for country', async () => {
-        const mockResponse = {
-          salesTaxJurisdictions: [
-            {
-              salesTaxJurisdictionId: 'CA',
-              salesTaxPercentage: '7.25',
-            },
-            {
-              salesTaxJurisdictionId: 'NY',
-              salesTaxPercentage: '4.00',
-            },
-          ],
-        };
+  describe('country tax endpoints', () => {
+    it('gets sales tax jurisdictions for a country', async () => {
+      const response = {
+        salesTaxJurisdictions: [
+          { salesTaxJurisdictionId: 'CA', salesTaxPercentage: '7.25' },
+          { salesTaxJurisdictionId: 'NY', salesTaxPercentage: '4.00' },
+        ],
+      };
+      vi.mocked(mockClient.get).mockResolvedValue(response);
 
-        vi.spyOn(mockClient, 'get').mockResolvedValue(mockResponse);
+      const result = await Effect.runPromise(api.getSalesTaxJurisdictions({ countryCode: 'US' }));
 
-        const result = await metadataApi.getSalesTaxJurisdictions('US');
+      expect(mockClient.get).toHaveBeenCalledWith(
+        '/sell/metadata/v1/country/US/sales_tax_jurisdiction',
+      );
+      expect(result).toEqual(response);
+    });
 
-        expect(mockClient.get).toHaveBeenCalledWith(
-          '/sell/metadata/v1/country/US/sales_tax_jurisdiction',
-        );
-        expect(result).toEqual(mockResponse);
-      });
+    it('rejects invalid sales-tax jurisdiction country input before requesting eBay', async () => {
+      const missingCountry = await Effect.runPromise(
+        Effect.flip(api.getSalesTaxJurisdictions(invalidInput({ countryCode: '' }))),
+      );
+      const invalidCountry = await Effect.runPromise(
+        Effect.flip(api.getSalesTaxJurisdictions(invalidInput({ countryCode: 123 }))),
+      );
 
-      it('should throw error when countryCode is missing', async () => {
-        await expect(metadataApi.getSalesTaxJurisdictions('' as any)).rejects.toThrow(
-          'countryCode is required and must be a string',
-        );
-      });
-
-      it('should throw error when countryCode is not a string', async () => {
-        await expect(metadataApi.getSalesTaxJurisdictions(123 as any)).rejects.toThrow(
-          'countryCode is required and must be a string',
-        );
-      });
+      expect(missingCountry._tag).toBe('EndpointInputError');
+      expect(missingCountry.parameter).toBe('countryCode');
+      expect(invalidCountry._tag).toBe('EndpointInputError');
+      expect(mockClient.get).not.toHaveBeenCalled();
     });
   });
 
-  describe('Error Handling', () => {
-    it('should handle HTTP errors from get requests', async () => {
-      const error = new Error('Network error');
-      vi.spyOn(mockClient, 'get').mockRejectedValue(error);
+  describe('error handling', () => {
+    it('returns tagged API errors from GET requests', async () => {
+      const cause = new Error('Network error');
+      vi.mocked(mockClient.get).mockRejectedValue(cause);
 
-      await expect(metadataApi.getCategoryPolicies('EBAY_US')).rejects.toThrow(
-        'Failed to get category policies: Network error',
+      const error = await Effect.runPromise(
+        Effect.flip(api.getCategoryPolicies({ marketplaceId: 'EBAY_US' })),
       );
+
+      expect(error._tag).toBe('EbayApiError');
+      expect(error.method).toBe('GET');
+      expect(error.path).toBe('/sell/metadata/v1/marketplace/EBAY_US/get_category_policies');
+      expect(error.cause).toBe(cause);
     });
 
-    it('should handle HTTP errors from post requests', async () => {
-      const error = new Error('Invalid data');
-      vi.spyOn(mockClient, 'post').mockRejectedValue(error);
+    it('returns tagged API errors from POST requests', async () => {
+      const cause = new Error('Invalid data');
+      vi.mocked(mockClient.post).mockRejectedValue(cause);
 
-      await expect(metadataApi.getCompatibilitiesBySpecification({ test: 'data' })).rejects.toThrow(
-        'Failed to get compatibilities by specification: Invalid data',
+      const error = await Effect.runPromise(
+        Effect.flip(
+          api.getCompatibilitiesBySpecification({
+            marketplaceId: 'EBAY_US',
+            specification: { categoryId: '6016' },
+          }),
+        ),
       );
+
+      expect(error._tag).toBe('EbayApiError');
+      expect(error.method).toBe('POST');
+      expect(error.path).toBe(
+        '/sell/metadata/v1/compatibilities/get_compatibilities_by_specification',
+      );
+      expect(error.cause).toBe(cause);
     });
 
-    it('should handle unknown errors', async () => {
-      vi.spyOn(mockClient, 'get').mockRejectedValue('string error');
+    it('keeps non-Error causes on tagged API errors', async () => {
+      vi.mocked(mockClient.get).mockRejectedValue('string error');
 
-      await expect(metadataApi.getHazardousMaterialsLabels('EBAY_US')).rejects.toThrow(
-        'Failed to get hazardous materials labels: Unknown error',
+      const error = await Effect.runPromise(
+        Effect.flip(api.getHazardousMaterialsLabels({ marketplaceId: 'EBAY_US' })),
       );
+
+      expect(error._tag).toBe('EbayApiError');
+      expect(error.cause).toBe('string error');
     });
   });
 });

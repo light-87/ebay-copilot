@@ -10,7 +10,12 @@
  * @param fallback - Message to use when `error` is not an `Error`. Pass the
  *   call site's original fallback (e.g. `String(error)` or a domain-specific
  *   string) to preserve existing behavior; defaults to `'Unknown error'`.
+ * @returns Human-readable error message.
+ *
+ * @example
+ * ```ts
+ * const message = getErrorMessage(error, 'Request failed');
+ * ```
  */
-export function getErrorMessage(error: unknown, fallback = 'Unknown error'): string {
-  return error instanceof Error ? error.message : fallback;
-}
+export const getErrorMessage = (error: unknown, fallback = 'Unknown error'): string =>
+  error instanceof Error ? error.message : fallback;

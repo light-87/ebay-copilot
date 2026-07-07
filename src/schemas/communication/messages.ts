@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { MessageReferenceType, FeedbackRating } from '@/types/ebay-enums.js';
+import { MessageReferenceType, FeedbackRating } from '@/types/ebayEnums.js';
 
 /**
  * Communication API Schemas - Messages, Feedback, and Notifications
@@ -405,54 +405,20 @@ export const sendOfferToInterestedBuyersOutputSchema = z.object({
   warnings: z.array(errorSchema).optional(),
 });
 
-/**
- * Validates the Communication API get offers to buyers request payload.
- */
-export const getOffersToBuyersInputSchema = z.object({
-  filter: z.string().optional().describe('Filter criteria'),
-  limit: z.number().optional().describe('Number of offers to return'),
-  offset: z.number().optional().describe('Number of offers to skip'),
-});
-
-/**
- * Validates the Communication API get offers to buyers response payload.
- */
-export const getOffersToBuyersOutputSchema = z.object({
-  offers: z
-    .array(
-      z.object({
-        offerToInterestedBuyersId: z.string().optional(),
-        offeredItems: z
-          .array(
-            z.object({
-              offerId: z.string().optional(),
-              price: amountSchema.optional(),
-              quantity: z.number().optional(),
-            }),
-          )
-          .optional(),
-        creationDate: z.string().optional(),
-        status: z.string().optional(),
-      }),
-    )
-    .optional(),
-  href: z.string().optional(),
-  limit: z.number().optional(),
-  next: z.string().optional(),
-  offset: z.number().optional(),
-  prev: z.string().optional(),
-  total: z.number().optional(),
-  warnings: z.array(errorSchema).optional(),
-});
-
 // ============================================================================
 // JSON Schema Conversion Functions
 // ============================================================================
 
 /**
- * Convert Zod schemas to JSON Schema format for MCP tools
+ * Converts Communication API Zod schemas to JSON Schema format for MCP tools.
+ *
+ * @returns Communication API JSON schemas keyed by endpoint or shared model name.
+ * @example
+ * ```ts
+ * const schemas = getCommunicationJsonSchemas();
+ * ```
  */
-export function getCommunicationJsonSchemas() {
+export const getCommunicationJsonSchemas = () => {
   return {
     // Message API
     sendMessageInput: zodToJsonSchema(sendMessageInputSchema, 'sendMessageInput'),
@@ -532,10 +498,5 @@ export function getCommunicationJsonSchemas() {
       sendOfferToInterestedBuyersOutputSchema,
       'sendOfferToInterestedBuyersOutput',
     ),
-    getOffersToBuyersInput: zodToJsonSchema(getOffersToBuyersInputSchema, 'getOffersToBuyersInput'),
-    getOffersToBuyersOutput: zodToJsonSchema(
-      getOffersToBuyersOutputSchema,
-      'getOffersToBuyersOutput',
-    ),
   };
-}
+};

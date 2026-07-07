@@ -6,8 +6,17 @@ Guidance for coding agents (and humans) working **on** this repo. For using the 
 
 A local [MCP](https://modelcontextprotocol.io) server exposing 322 tools across 100% of eBay's Sell APIs. TypeScript/Node.js (ESM), built with `@modelcontextprotocol/sdk`, Zod validation, and OpenAPI-generated types.
 
-- **Entry points:** `src/index.ts` (STDIO transport — default) and `src/server-http.ts` (HTTP transport).
+- **Entry points:** `src/index.ts` (STDIO transport — default) and `src/serverHttp.ts` (HTTP transport).
 - **Runtime:** Node.js ≥ 20. Package manager: pnpm (`pnpm@10.14.0`); npm scripts work too.
+
+## Instruction sources
+
+- **Shared agent contract:** this `AGENTS.md`.
+- **Claude Code:** [CLAUDE.md](CLAUDE.md) imports `AGENTS.md`; keep Claude-only notes there only when needed.
+- **Code style:** [CODE-STYLE.md](CODE-STYLE.md) owns the full rules; the digest below must stay aligned with it.
+- **Domain/architecture read order:** [CONTEXT.md](CONTEXT.md), [LANGUAGE.md](LANGUAGE.md), [ARCHITECTURE.md](ARCHITECTURE.md), then relevant ADRs in `docs/adr/current/`.
+- **User docs:** [README.md](README.md) is for installing and using the server, not contributor or agent rules.
+- **Other agent surfaces:** add `GEMINI.md`, `.cursor/rules`, `.kiro/steering`, `.roo/rules*`, or Copilot instructions only for genuinely tool-specific or path-scoped behavior.
 
 ## Validation commands
 
@@ -43,22 +52,22 @@ Other useful scripts:
 | Path             | Owns                                                                                                                                                                                                                                                                                                                                         |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `index.ts`       | MCP server entry point (STDIO)                                                                                                                                                                                                                                                                                                               |
-| `server-http.ts` | HTTP transport entry point                                                                                                                                                                                                                                                                                                                   |
+| `serverHttp.ts` | HTTP transport entry point                                                                                                                                                                                                                                                                                                                   |
 | `api/`           | eBay API client implementations (one area per file)                                                                                                                                                                                                                                                                                          |
 | `auth/`          | OAuth 2.0 flow and token management                                                                                                                                                                                                                                                                                                          |
 | `config/`        | Environment loading, constants, marketplace defaults                                                                                                                                                                                                                                                                                         |
-| `tools/`         | MCP tool wiring — `registry.ts`, `contracts.ts`, `schemas.ts`, `define-tool.ts`, and `categories/` (13 family files that co-locate each tool definition with its handler via `defineTool`: connector, token-management, account, inventory, fulfillment, marketing, analytics, metadata, taxonomy, communication, other, developer, trading) |
+| `tools/`         | MCP tool wiring — `registry.ts`, `contracts.ts`, `schemas.ts`, `defineTool.ts`, and `categories/` (family files co-locate each tool definition with its handler via `defineTool`; marketing pairs a large definition catalog with a handler map and must keep one public definition per handler) |
 | `skills/`        | Agent-skills generator (`ebay-mcp skills`) — renders using/contributing skills for Codex, Claude Code, and Cursor                                                                                                                                                                                                                            |
 | `schemas/`       | Shared Zod schemas                                                                                                                                                                                                                                                                                                                           |
 | `types/`         | TypeScript types — **auto-generated** from OpenAPI specs (don't hand-edit)                                                                                                                                                                                                                                                                   |
-| `scripts/`       | CLI tooling: `setup.ts`, `skills.ts`, `dev-sync.ts`, `diagnostics.ts`                                                                                                                                                                                                                                                                        |
+| `scripts/`       | CLI tooling: `setup.ts`, `skills.ts`, `devSync.ts`, `diagnostics.ts`                                                                                                                                                                                                                                                                        |
 | `utils/`         | Shared utilities (logging, http, errors)                                                                                                                                                                                                                                                                                                     |
 
 ## Adding a new API endpoint
 
-1. `npm run sync` — downloads the latest eBay specs, regenerates types, and reports missing endpoints (full list in `dev-sync-report.json`).
+1. `npm run sync` — downloads the latest eBay specs, regenerates types, and reports missing endpoints (full list in `devSyncReport.json`).
 2. Add the API method in `src/api/`.
-3. Add a `defineTool({ ... handler })` entry in the matching `src/tools/categories/<family>.ts` — the definition and its handler live together; `registry.ts` derives everything from `categories/index.ts`.
+3. Add a `defineTool({ ... handler })` entry in the matching `src/tools/categories/<family>.ts` — the definition and its handler live together; `registry.ts` derives everything from `categories/index.ts`. For marketing, close any definition/handler mismatch before moving a slice into `defineTool`.
 4. Add tests in `tests/`.
 5. `npm run check && npm test`.
 
@@ -67,13 +76,18 @@ Other useful scripts:
 <!-- rules digest — full guide in CODE-STYLE.md; edit there -->
 
 - **Imports:** `@/` alias for anything outside the current folder; `./sibling.js` only for same-dir. Keep NodeNext `.js` extensions (not `.ts`).
+- **Files:** hand-written source/test/UI filenames are camelCase; generated specs/types and external docs keep upstream names.
+- **Functions & exports:** new/migrated exported functions use `export const ... = (...) =>`; named exports only (no default exports). Existing API classes may stay classes, with migrated endpoint methods as public arrow properties. Tool-loader config files may use `module.exports` only when the tool cannot load named exports.
+- **Effect & errors:** fallible async/API work returns `Effect.Effect<Success, TaggedError, Requirements>`; run with `Effect.runPromise` only at MCP/HTTP/CLI boundaries. No endpoint/tool `try/catch`; migrated API code uses typed tagged errors.
+- **Docs:** endpoint-backed API methods require TSDoc with `@param`, `@returns`, a small `@example`, and the official eBay `@see` URL. Exported shared utilities document params/returns; public generated-response aliases include `@see`.
 - **Types:** no `as any` — narrow, or use a documented boundary cast; no hand-written source excluded from typecheck. `types/` is generated — model new shapes from the specs, don't hand-edit.
-- **Functions & exports:** `export function` declarations, named exports only (no default exports).
-- **Errors:** thin handlers delegate one line to `api.<area>.<method>`; area methods wrap I/O in `withApiError`; the `instanceof Error` idiom is centralised in `getErrorMessage`. No custom `Error` subclasses.
-- **Tools:** the Zod raw shape in `defineTool` is the SSOT for both the wire schema and the handler's arg types; derive related schemas rather than duplicating fields.
-- **Size:** Biome warns past ~300 lines/file and ~60 lines/function on logic dirs; `schemas/`, `tools/definitions/`, `tools/categories/`, `types/`, `scripts/` are exempt.
-- **Logs** go to **stderr** only (stdout is reserved for the MCP protocol) — see [docs/logging.md](docs/logging.md).
-- **Tool exposure** is gated by `EBAY_MCP_TOOLS` (`all` | `dynamic` | family list). The env parsing/validation lives in `src/config/tool-families.ts` (kept free of tool-tree imports to avoid a cycle with `config/environment.ts`); the dynamic-mode discovery meta-tools and catalogue live in `src/mcp/tool-gating.ts`; `src/mcp/runtime.ts` applies the mode. Family keys must stay in sync with `toolCategories` (a unit test enforces this).
+- **Tools:** the Zod endpoint input schema is the SSOT; `defineTool` derives the wire schema from `.shape`, and handlers run one endpoint Effect without response reshaping. Marketing's catalog adapter must keep one public definition per handler and is not a pattern for new tools.
+- **API params:** endpoint methods pass an allowed-key object to the shared params builder. The builder owns omission/normalization; endpoints own wire names.
+- **Mapping/UI:** API returns generated eBay DTOs. UI maps only at the presentation boundary; no one-use `toXRow` helpers and no `?? 'unknown'` display fallbacks.
+- **Size:** split by purpose, not line count alone. Biome warns past ~300 lines/file and ~60 lines/function on logic dirs; declarative/generated/table files stay warning-exempt.
+- **Logs** go to **stderr** in runtime code (stdout is reserved for the MCP protocol) — see [docs/logging.md](docs/logging.md). Human CLI commands may print to stdout.
+- **CLI:** keep the hand-written router lean. Bare TTY commands may prompt; flags or non-TTY must never hang. Scriptable diagnostics/plans should provide stable exit codes and `--json`.
+- **Tool exposure** is gated by `EBAY_MCP_TOOLS` (`all` | `dynamic` | family list). The env parsing/validation lives in `src/config/toolFamilies.ts` (kept free of tool-tree imports to avoid a cycle with `config/environment.ts`); the dynamic-mode discovery meta-tools and catalogue live in `src/mcp/toolGating.ts`; `src/mcp/runtime.ts` applies the mode. Family keys must stay in sync with `toolCategories` (a unit test enforces this).
 - Commit with [Conventional Commits](https://www.conventionalcommits.org/) (releases are changeset-driven).
 
 Full style guide: [CODE-STYLE.md](CODE-STYLE.md). Architecture map: [ARCHITECTURE.md](ARCHITECTURE.md).

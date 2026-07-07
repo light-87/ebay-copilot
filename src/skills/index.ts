@@ -6,7 +6,7 @@ import type {
   SkillTarget,
   WritePlan,
 } from '@/skills/types.js';
-import { buildRegistrySnapshot } from '@/skills/registry-snapshot.js';
+import { buildRegistrySnapshot } from '@/skills/registrySnapshot.js';
 import { buildContributingDoc, buildUsingDoc } from '@/skills/content.js';
 import { renderSkill } from '@/skills/render.js';
 import { resolveTargets } from '@/skills/targets.js';
@@ -14,7 +14,7 @@ import { planWrite } from '@/skills/install.js';
 import type { RegistrySnapshot } from '@/skills/types.js';
 
 export * from '@/skills/types.js';
-export { buildRegistrySnapshot } from '@/skills/registry-snapshot.js';
+export { buildRegistrySnapshot } from '@/skills/registrySnapshot.js';
 export { buildUsingDoc, buildContributingDoc } from '@/skills/content.js';
 export {
   renderSkill,
@@ -36,26 +36,37 @@ export { planWrite, applyWrite, type ApplyResult } from '@/skills/install.js';
  *
  * @param layer Which audience the skill serves.
  * @param snapshot Live registry snapshot (defaults to a fresh one).
+ * @returns Provider-neutral skill document for the requested layer.
+ *
+ * @example
+ * ```ts
+ * const doc = buildSkillDoc('using');
+ * ```
  */
-export function buildSkillDoc(
+export const buildSkillDoc = (
   layer: SkillLayer,
   snapshot: RegistrySnapshot = buildRegistrySnapshot(),
-): SkillDoc {
-  return layer === 'using' ? buildUsingDoc(snapshot) : buildContributingDoc(snapshot);
-}
+): SkillDoc => (layer === 'using' ? buildUsingDoc(snapshot) : buildContributingDoc(snapshot));
 
 /** Inputs for {@link buildSkillPlans}. */
 export interface BuildPlansOptions {
+  /** Providers to render skills for. */
   providers: readonly SkillProvider[];
+  /** Skill layers to render. */
   layers: readonly SkillLayer[];
+  /** Requested install scope. */
   scope: SkillScope;
+  /** Optional project root override. */
   cwd?: string;
+  /** Optional home directory override. */
   home?: string;
+  /** Optional precomputed registry snapshot. */
   snapshot?: RegistrySnapshot;
 }
 
 /** A resolved target paired with its rendered payload, ready to plan/apply. */
 export interface RenderedTarget {
+  /** Concrete file/block destination for this rendered payload. */
   target: SkillTarget;
   /** Full file for owned targets; inner block content for managed targets. */
   payload: string;
@@ -68,8 +79,13 @@ export interface RenderedTarget {
  *
  * @param options Providers, layers, scope, and optional cwd/home/snapshot overrides.
  * @returns One {@link RenderedTarget} per provider/layer target.
+ *
+ * @example
+ * ```ts
+ * const rendered = renderSkillTargets({ providers: ['codex'], layers: ['using'], scope: 'project' });
+ * ```
  */
-export function renderSkillTargets(options: BuildPlansOptions): RenderedTarget[] {
+export const renderSkillTargets = (options: BuildPlansOptions): RenderedTarget[] => {
   const snapshot = options.snapshot ?? buildRegistrySnapshot();
   const docByLayer: Record<SkillLayer, SkillDoc> = {
     using: buildUsingDoc(snapshot),
@@ -86,7 +102,7 @@ export function renderSkillTargets(options: BuildPlansOptions): RenderedTarget[]
     target,
     payload: renderSkill(target.provider, docByLayer[target.layer], target.layer),
   }));
-}
+};
 
 /**
  * Builds preview write plans for the chosen providers × layers. Note: when two
@@ -98,9 +114,11 @@ export function renderSkillTargets(options: BuildPlansOptions): RenderedTarget[]
  *
  * @param options Providers, layers, scope, and optional cwd/home/snapshot overrides.
  * @returns One {@link WritePlan} per provider/layer target.
+ *
+ * @example
+ * ```ts
+ * const plans = buildSkillPlans({ providers: ['codex'], layers: ['using'], scope: 'project' });
+ * ```
  */
-export function buildSkillPlans(options: BuildPlansOptions): WritePlan[] {
-  return renderSkillTargets(options).map((rendered) =>
-    planWrite(rendered.target, rendered.payload),
-  );
-}
+export const buildSkillPlans = (options: BuildPlansOptions): WritePlan[] =>
+  renderSkillTargets(options).map((rendered) => planWrite(rendered.target, rendered.payload));

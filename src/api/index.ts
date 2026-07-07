@@ -18,15 +18,18 @@ import { EDeliveryApi } from '@/api/other/edelivery.js';
 import { IdentityApi } from '@/api/other/identity.js';
 import { TranslationApi } from '@/api/other/translation.js';
 import { VeroApi } from '@/api/other/vero.js';
-import { TradingApiClient } from '@/api/client-trading.js';
+import { TradingApiClient } from '@/api/clientTrading.js';
 import { TradingApi } from '@/api/trading/trading.js';
+import type { EbayOAuthError } from '@/auth/oauth.js';
 import type { EbayConfig } from '@/types/ebay.js';
+import { Effect } from 'effect';
 
 /**
  * Main API facade providing access to all eBay APIs
  */
 export class EbaySellerApi {
   private client: EbayApiClient;
+  private readonly config: EbayConfig;
 
   // API categories
   public account: AccountApi;
@@ -51,6 +54,7 @@ export class EbaySellerApi {
   public trading: TradingApi;
 
   constructor(config: EbayConfig) {
+    this.config = config;
     this.client = new EbayApiClient(config);
 
     // Initialize API category handlers
@@ -80,9 +84,7 @@ export class EbaySellerApi {
   /**
    * Initialize the API (load tokens from storage)
    */
-  async initialize(): Promise<void> {
-    await this.client.initialize();
-  }
+  initialize = (): Effect.Effect<void, EbayOAuthError> => this.client.initialize();
 
   /**
    * Check if the API client is authenticated
@@ -101,25 +103,33 @@ export class EbaySellerApi {
   /**
    * Set user access and refresh tokens
    */
-  async setUserTokens(
+  setUserTokens = (
     accessToken: string,
     refreshToken: string,
     accessTokenExpiry?: number,
     refreshTokenExpiry?: number,
-  ): Promise<void> {
-    await this.client.setUserTokens(
-      accessToken,
-      refreshToken,
-      accessTokenExpiry,
-      refreshTokenExpiry,
-    );
-  }
+  ): Effect.Effect<void, EbayOAuthError> =>
+    this.client.setUserTokens(accessToken, refreshToken, accessTokenExpiry, refreshTokenExpiry);
 
   /**
    * Get OAuth client for advanced operations
    */
   getAuthClient(): EbayApiClient {
     return this.client;
+  }
+
+  /**
+   * Returns the validated runtime configuration used to construct this API facade.
+   *
+   * @returns eBay API runtime configuration with credentials, environment, and proxy flags.
+   *
+   * @example
+   * ```ts
+   * const environment = api.getConfig().environment;
+   * ```
+   */
+  getConfig(): EbayConfig {
+    return this.config;
   }
 
   /**
@@ -151,4 +161,4 @@ export * from '@/api/other/translation.js';
 export * from '@/api/other/vero.js';
 export * from '@/api/developer/developer.js';
 export * from '@/api/trading/trading.js';
-export * from '@/api/client-trading.js';
+export * from '@/api/clientTrading.js';

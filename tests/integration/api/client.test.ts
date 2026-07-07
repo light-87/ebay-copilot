@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import nock from 'nock';
-import { EbayApiClient } from '../../../src/api/client.js';
-import type { EbayConfig } from '../../../src/types/ebay.js';
-import { mockEbayApiEndpoint, mockEbayApiError, cleanupMocks } from '../../helpers/mock-http.js';
+import { EbayApiClient } from '@/api/client.js';
+import type { EbayConfig } from '@/types/ebay.js';
+import { mockEbayApiEndpoint, mockEbayApiError, cleanupMocks } from '@tests/helpers/mockHttp.js';
+import process from 'node:process';
+import { Effect } from 'effect';
 
 // Mock EbayOAuthClient to provide tokens without environment variables
 const mockOAuthClient = {
@@ -52,11 +54,11 @@ describe('EbayApiClient Integration Tests', () => {
 
     // Setup mock OAuth client to return tokens
     mockOAuthClient.hasUserTokens.mockReturnValue(true);
-    mockOAuthClient.getAccessToken.mockResolvedValue('mock_access_token');
-    mockOAuthClient.initialize.mockResolvedValue(undefined);
+    mockOAuthClient.getAccessToken.mockReturnValue(Effect.succeed('mock_access_token'));
+    mockOAuthClient.initialize.mockReturnValue(Effect.succeed(undefined));
 
     apiClient = new EbayApiClient(config);
-    await apiClient.initialize();
+    await Effect.runPromise(apiClient.initialize());
   });
 
   afterEach(() => {
@@ -67,7 +69,7 @@ describe('EbayApiClient Integration Tests', () => {
   });
 
   describe('HTTP GET Requests', () => {
-    it('should make successful GET request', async () => {
+    it('make successful GET request', async () => {
       const mockResponse = {
         total: 10,
         limit: 25,
@@ -84,7 +86,7 @@ describe('EbayApiClient Integration Tests', () => {
       expect(result).toEqual(mockResponse);
     });
 
-    it('should include query parameters in GET request', async () => {
+    it('include query parameters in GET request', async () => {
       const mockResponse = { limit: 10, offset: 0, total: 5 };
 
       mockEbayApiEndpoint(
@@ -102,7 +104,7 @@ describe('EbayApiClient Integration Tests', () => {
       expect(result).toEqual(mockResponse);
     });
 
-    it('should handle GET request errors', async () => {
+    it('handle GET request errors', async () => {
       mockEbayApiError(
         '/sell/inventory/v1/inventory_item/INVALID-SKU',
         'get',
@@ -118,7 +120,7 @@ describe('EbayApiClient Integration Tests', () => {
   });
 
   describe('HTTP POST Requests', () => {
-    it('should make successful POST request', async () => {
+    it('make successful POST request', async () => {
       const requestData = {
         sku: 'TEST-001',
         marketplaceId: 'EBAY_US',
@@ -137,7 +139,7 @@ describe('EbayApiClient Integration Tests', () => {
       expect(result).toEqual(mockResponse);
     });
 
-    it('should handle POST request validation errors', async () => {
+    it('handle POST request validation errors', async () => {
       const invalidData = {
         sku: 'TEST-001',
         // Missing required fields
@@ -158,7 +160,7 @@ describe('EbayApiClient Integration Tests', () => {
   });
 
   describe('HTTP PUT Requests', () => {
-    it('should make successful PUT request', async () => {
+    it('make successful PUT request', async () => {
       const updateData = {
         availability: {
           shipToLocationAvailability: {
@@ -181,7 +183,7 @@ describe('EbayApiClient Integration Tests', () => {
       expect(true).toBe(true);
     });
 
-    it('should handle PUT request errors', async () => {
+    it('handle PUT request errors', async () => {
       mockEbayApiError(
         '/sell/inventory/v1/inventory_item/TEST-001',
         'put',
@@ -197,7 +199,7 @@ describe('EbayApiClient Integration Tests', () => {
   });
 
   describe('HTTP DELETE Requests', () => {
-    it('should make successful DELETE request', async () => {
+    it('make successful DELETE request', async () => {
       mockEbayApiEndpoint(
         '/sell/inventory/v1/inventory_item/TEST-001',
         'delete',
@@ -212,7 +214,7 @@ describe('EbayApiClient Integration Tests', () => {
       expect(true).toBe(true);
     });
 
-    it('should handle DELETE request errors', async () => {
+    it('handle DELETE request errors', async () => {
       mockEbayApiError(
         '/sell/inventory/v1/inventory_item/TEST-001',
         'delete',
@@ -228,7 +230,7 @@ describe('EbayApiClient Integration Tests', () => {
   });
 
   describe('Authentication', () => {
-    it('should inject Bearer token in request headers', async () => {
+    it('inject Bearer token in request headers', async () => {
       const mockResponse = { items: [] };
 
       const scope = mockEbayApiEndpoint(
@@ -246,23 +248,23 @@ describe('EbayApiClient Integration Tests', () => {
       expect(scope.isDone()).toBe(true);
     });
 
-    it('should throw error when no user tokens are available', async () => {
+    it('throw error when no user tokens are available', async () => {
       mockOAuthClient.hasUserTokens.mockReturnValue(false);
-      mockOAuthClient.getAccessToken.mockResolvedValue(null);
+      mockOAuthClient.getAccessToken.mockReturnValue(Effect.succeed(null));
 
       const clientWithoutTokens = new EbayApiClient(config);
-      await clientWithoutTokens.initialize();
+      await Effect.runPromise(clientWithoutTokens.initialize());
 
       await expect(clientWithoutTokens.get('/sell/inventory/v1/inventory_item')).rejects.toThrow(
         'Access token is missing',
       );
     });
 
-    it('should refresh token when expired', async () => {
+    it('refresh token when expired', async () => {
       // First call returns expired token, second call returns new token after refresh
       mockOAuthClient.getAccessToken
-        .mockResolvedValueOnce('expired_token')
-        .mockResolvedValueOnce('new_access_token');
+        .mockReturnValueOnce(Effect.succeed('expired_token'))
+        .mockReturnValueOnce(Effect.succeed('new_access_token'));
 
       // Mock API call
       mockEbayApiEndpoint('/sell/inventory/v1/inventory_item', 'get', 'sandbox', { items: [] });
@@ -274,7 +276,7 @@ describe('EbayApiClient Integration Tests', () => {
   });
 
   describe('Error Handling', () => {
-    it('should extract eBay error message from longMessage', async () => {
+    it('extract eBay error message from longMessage', async () => {
       const errorResponse = {
         errors: [
           {
@@ -294,7 +296,7 @@ describe('EbayApiClient Integration Tests', () => {
       );
     });
 
-    it('should fallback to message when longMessage not available', async () => {
+    it('fallback to message when longMessage not available', async () => {
       const errorResponse = {
         errors: [
           {
@@ -311,35 +313,35 @@ describe('EbayApiClient Integration Tests', () => {
       await expect(apiClient.post('/sell/inventory/v1/offer', {})).rejects.toThrow('Error message');
     });
 
-    it('should handle network errors', async () => {
+    it('handle network errors', async () => {
       // Don't mock the endpoint, causing a network error
       await expect(apiClient.get('/sell/inventory/v1/inventory_item')).rejects.toThrow();
-    }, 12000);
+    }, 12_000);
 
-    it('should handle timeout errors', async () => {
+    it('handle timeout errors', async () => {
       // Create a client with very short timeout
       const quickTimeoutConfig = { ...config };
       const quickClient = new EbayApiClient(quickTimeoutConfig);
-      await quickClient.initialize();
+      await Effect.runPromise(quickClient.initialize());
 
       // Mock a slow response using nock directly (delay longer than timeout)
       nock('https://api.sandbox.ebay.com')
         .get('/sell/inventory/v1/inventory_item')
-        .delay(35000) // Delay 35 seconds (longer than default 30s timeout)
+        .delay(35_000) // Delay 35 seconds (longer than default 30s timeout)
         .reply(200, { items: [] });
 
       await expect(quickClient.get('/sell/inventory/v1/inventory_item')).rejects.toThrow();
-    }, 40000); // Increase test timeout to 40s
+    }, 40_000); // Increase test timeout to 40s
   });
 
   describe('Environment Configuration', () => {
-    it('should use sandbox base URL for sandbox environment', async () => {
+    it('use sandbox base URL for sandbox environment', async () => {
       const sandboxClient = new EbayApiClient({
         ...config,
         environment: 'sandbox',
       });
 
-      await sandboxClient.initialize();
+      await Effect.runPromise(sandboxClient.initialize());
 
       const scope = mockEbayApiEndpoint('/sell/inventory/v1/inventory_item', 'get', 'sandbox', {
         items: [],
@@ -350,11 +352,11 @@ describe('EbayApiClient Integration Tests', () => {
       expect(scope.isDone()).toBe(true);
     });
 
-    it('should use production base URL for production environment', async () => {
+    it('use production base URL for production environment', async () => {
       const prodConfig = { ...config, environment: 'production' as const };
       const prodClient = new EbayApiClient(prodConfig);
 
-      await prodClient.initialize();
+      await Effect.runPromise(prodClient.initialize());
 
       const scope = mockEbayApiEndpoint('/sell/inventory/v1/inventory_item', 'get', 'production', {
         items: [],

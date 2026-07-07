@@ -1,9 +1,11 @@
-import { EbayOAuthClient } from '@/auth/oauth.js';
+import { EbayOAuthClient, type EbayOAuthError } from '@/auth/oauth.js';
 import { getBaseUrl } from '@/config/environment.js';
 import type { EbayConfig } from '@/types/ebay.js';
-import { httpRequest, isHttpError } from '@/utils/http.js';
-import { isRecord } from '@/utils/type-guards.js';
+import { getErrorMessage } from '@/utils/errors.js';
+import { httpRequestEffect, isHttpError, type ResponseType } from '@/utils/http.js';
+import { isRecord } from '@/utils/typeGuards.js';
 import { apiLogger, logRequest, logResponse, logErrorResponse } from '@/utils/logger.js';
+import { Effect } from 'effect';
 
 /**
  * Per-request overrides accepted by the verb helpers ({@link EbayApiClient.get}
@@ -12,16 +14,63 @@ import { apiLogger, logRequest, logResponse, logErrorResponse } from '@/utils/lo
  * query string — useful for POSTs that also take query parameters.
  */
 export interface EbayRequestConfig {
+  /** Headers merged over the client defaults before auth is applied. */
   headers?: Record<string, string>;
+  /** Query parameters appended to the request URL. */
   params?: Record<string, unknown>;
+  /** Successful response decoder for non-JSON endpoints such as binary evidence files. */
+  responseType?: ResponseType;
 }
+
+/** Normalized request options used by the client transport Effect. */
+interface EbayRequestOptions {
+  /** Query-string parameters appended to the request URL. */
+  readonly params?: Record<string, unknown>;
+  /** JSON/XML/form body passed to the HTTP adapter. */
+  readonly data?: unknown;
+  /** Headers merged over the client defaults before auth is applied. */
+  readonly headers?: Record<string, string>;
+  /** Successful response decoder for non-JSON endpoints. */
+  readonly responseType?: ResponseType;
+  /** Whether `endpoint` was already an absolute URL. */
+  readonly absolute?: boolean;
+}
+
+/** Retry counters carried between recursive request attempts. */
+interface RequestRetryState {
+  /** Whether a 401 already triggered the one allowed token-refresh retry. */
+  readonly authRetried: boolean;
+  /** Number of server-error backoff retries already attempted. */
+  readonly serverRetries: number;
+}
+
+/** Context required to turn an HTTP failure into a retry or final error. */
+interface RequestFailureContext {
+  /** HTTP method used for this request. */
+  readonly method: string;
+  /** Fully qualified request URL. */
+  readonly url: string;
+  /** Normalized request options for a retry. */
+  readonly options: EbayRequestOptions;
+  /** Retry counters for this attempt. */
+  readonly state: RequestRetryState;
+}
+
+/** Sleep for a retry backoff delay without exposing timers to callers. */
+const sleep = (delayMs: number): Effect.Effect<void> =>
+  Effect.promise(
+    () =>
+      new Promise<void>((resolve) => {
+        setTimeout(resolve, delayMs);
+      }),
+  );
 
 /**
  * Rate limit tracking
  */
 class RateLimitTracker {
   private requestTimestamps: number[] = [];
-  private readonly windowMs = 60000; // 1 minute window
+  private readonly windowMs = 60_000; // 1 minute window
   private readonly maxRequests = 5000; // Conservative limit
 
   canMakeRequest(): boolean {
@@ -64,7 +113,7 @@ export class EbayApiClient {
   private baseUrl: string;
   private rateLimitTracker: RateLimitTracker;
   private config: EbayConfig;
-  private readonly timeoutMs = 30000;
+  private readonly timeoutMs = 30_000;
 
   /**
    * Build default request headers based on configured marketplace and language.
@@ -94,11 +143,11 @@ export class EbayApiClient {
   }
 
   /**
-   * Validate that access token is available before making API request
+   * Return the credential validation error that would block an authenticated request.
    */
-  private validateAccessToken(): void {
-    if (!this.config.clientId || !this.config.clientSecret) {
-      throw new Error(
+  private accessTokenValidationError(): Error | undefined {
+    if (!(this.config.clientId && this.config.clientSecret)) {
+      return new Error(
         'Missing required eBay credentials. Please set EBAY_CLIENT_ID and EBAY_CLIENT_SECRET in your .env file.',
       );
     }
@@ -118,54 +167,59 @@ export class EbayApiClient {
         }
       }
     }
-    return undefined;
   }
 
   /**
-   * Core request path shared by every verb. Injects auth + default headers,
-   * enforces the rate limit, logs, and applies eBay's retry/refresh semantics.
-   * Resolves with the decoded response body; throws an `Error` with a
-   * caller-friendly message on failure.
-   *
-   * @param absolute - When true, `endpoint` is treated as a full URL (used by
-   *   APIs on a different host, e.g. Identity on `apiz.ebay.com`).
+   * Core request boundary shared by every verb.
    */
   private async request<T>(
     method: string,
     endpoint: string,
-    options: {
-      params?: Record<string, unknown>;
-      data?: unknown;
-      headers?: Record<string, string>;
-      absolute?: boolean;
-    },
+    options: EbayRequestOptions,
   ): Promise<T> {
-    // In proxy auth mode the upstream proxy supplies credentials, so the server
-    // neither requires nor validates its own. See EBAY_MCP_DISABLE_AUTH_HEADER.
-    if (!this.config.disableAuthHeader) {
-      this.validateAccessToken();
-    }
+    return await Effect.runPromise(this.requestEffect<T>(method, endpoint, options));
+  }
 
+  /**
+   * Build the request Effect that owns auth, logging, retry, and transport errors.
+   */
+  private requestEffect<T>(
+    method: string,
+    endpoint: string,
+    options: EbayRequestOptions,
+  ): Effect.Effect<T, unknown> {
     const url = options.absolute ? endpoint : `${this.baseUrl}${endpoint}`;
-    let authRetried = false;
-    let serverRetries = 0;
+    return this.sendWithRetry<T>(method, url, options, {
+      authRetried: false,
+      serverRetries: 0,
+    });
+  }
 
-    // Retry loop: each pass either returns the body (success), `continue`s to
-    // retry, or throws. Retries are bounded so this can never spin forever —
-    // `authRetried` allows one token-refresh retry on 401, and `serverRetries`
-    // allows up to three backoff retries on 5xx. Once both are spent, the next
-    // failure throws and the loop exits.
-    //
-    // Example: a 401 then two 503s then success runs four passes —
-    //   pass 1: 401  → refresh token, continue   (authRetried → true)
-    //   pass 2: 503  → backoff, continue          (serverRetries → 1)
-    //   pass 3: 503  → backoff, continue          (serverRetries → 2)
-    //   pass 4: 200  → return response.data
-    while (true) {
+  /**
+   * Execute one request attempt, recursively re-entering for bounded retries.
+   */
+  private sendWithRetry<T>(
+    method: string,
+    url: string,
+    options: EbayRequestOptions,
+    state: RequestRetryState,
+  ): Effect.Effect<T, unknown> {
+    return Effect.gen(this, function* () {
+      // In proxy auth mode the upstream proxy supplies credentials, so the server
+      // neither requires nor validates its own. See EBAY_MCP_DISABLE_AUTH_HEADER.
+      if (!this.config.disableAuthHeader) {
+        const validationError = this.accessTokenValidationError();
+        if (validationError) {
+          return yield* Effect.fail(validationError);
+        }
+      }
+
       if (!this.rateLimitTracker.canMakeRequest()) {
         const stats = this.rateLimitTracker.getStats();
-        throw new Error(
-          `Rate limit exceeded: ${stats.current}/${stats.max} requests in ${stats.windowMs}ms window. Please wait before making more requests.`,
+        return yield* Effect.fail(
+          new Error(
+            `Rate limit exceeded: ${stats.current}/${stats.max} requests in ${stats.windowMs}ms window. Please wait before making more requests.`,
+          ),
         );
       }
 
@@ -177,10 +231,12 @@ export class EbayApiClient {
       // Proxy auth mode: attach no Authorization header and acquire no token —
       // the upstream proxy injects whatever credentials eBay requires.
       if (!this.config.disableAuthHeader) {
-        const token = await this.authClient.getAccessToken();
+        const token = yield* this.authClient.getAccessToken();
         if (!token) {
-          throw new Error(
-            'Access token is missing. Provide EBAY_USER_REFRESH_TOKEN or valid app credentials, then retry.',
+          return yield* Effect.fail(
+            new Error(
+              'Access token is missing. Provide EBAY_USER_REFRESH_TOKEN or valid app credentials, then retry.',
+            ),
           );
         }
         headers.Authorization = `Bearer ${token}`;
@@ -189,99 +245,130 @@ export class EbayApiClient {
       this.rateLimitTracker.recordRequest();
       logRequest(method, url, options.params, options.data);
 
-      try {
-        const response = await httpRequest<T>({
-          method,
-          url,
-          params: options.params,
-          headers,
-          body: options.data,
-          timeoutMs: this.timeoutMs,
-        });
-
-        logResponse(
-          response.status,
-          response.statusText,
-          response.data,
-          response.headers['x-ebay-c-ratelimit-remaining'],
-          response.headers['x-ebay-c-ratelimit-limit'],
-        );
-
-        return response.data;
-      } catch (error) {
-        if (!isHttpError(error)) {
-          throw error;
-        }
-
-        if (error.status != null) {
-          logErrorResponse(error.status, error.statusText, url, error.data);
-        } else {
-          apiLogger.error('No response received from server', { url });
-        }
-
-        // 401 — refresh the token once, then retry the request. Skipped in proxy
-        // auth mode: the server holds no token to refresh, so a 401 (the proxy's
-        // own auth failing) is surfaced directly rather than retried.
-        if (error.status === 401 && !this.config.disableAuthHeader) {
-          if (!authRetried) {
-            authRetried = true;
-            apiLogger.warn('Authentication error (401). Attempting to refresh user token...');
-
-            try {
-              await this.authClient.getAccessToken();
-            } catch (refreshError) {
-              const reason = refreshError instanceof Error ? refreshError.message : 'Unknown error';
-              apiLogger.error('Failed to refresh token', { error: reason });
-
-              const detail = this.ebayErrorDetail(error.data) ?? 'Invalid access token';
-              throw new Error(
-                `${detail}. Token refresh failed: ${reason}. ` +
-                  `Please use the ebay_set_user_tokens_with_expiry tool to provide valid tokens.`,
-              );
-            }
-
-            apiLogger.info('Token refreshed successfully. Retrying request...');
-            continue;
-          }
-
-          const detail = this.ebayErrorDetail(error.data) ?? 'Invalid access token';
-          throw new Error(
-            `${detail}. Automatic token refresh failed. ` +
-              `Please use the ebay_set_user_tokens_with_expiry tool to provide valid tokens.`,
+      return yield* httpRequestEffect<T>({
+        method,
+        url,
+        params: options.params,
+        headers,
+        body: options.data,
+        timeoutMs: this.timeoutMs,
+        responseType: options.responseType,
+      }).pipe(
+        Effect.map((response) => {
+          logResponse(
+            response.status,
+            response.statusText,
+            response.data,
+            response.headers['x-ebay-c-ratelimit-remaining'],
+            response.headers['x-ebay-c-ratelimit-limit'],
           );
-        }
 
-        // 429 — surface a clear rate-limit message with the server's retry hint.
-        if (error.status === 429) {
-          const retryAfter = error.headers['retry-after'];
-          const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : 60000;
-          throw new Error(
-            `eBay API rate limit exceeded. Retry after ${waitTime / 1000} seconds. ` +
-              `Consider reducing request frequency or upgrading to user tokens for higher limits.`,
-          );
-        }
+          return response.data;
+        }),
+        Effect.catchAll((error) =>
+          this.handleRequestFailure<T>(error, { method, url, options, state }),
+        ),
+      );
+    });
+  }
 
-        // 5xx — retry up to three times with exponential backoff.
-        if (error.status != null && error.status >= 500 && serverRetries < 3) {
-          const delay = Math.pow(2, serverRetries) * 1000;
-          serverRetries++;
-          apiLogger.warn(`Server error (${error.status}). Retrying...`, {
-            attempt: `${serverRetries}/3`,
-            delayMs: Math.min(delay, 5000),
-          });
-          await new Promise<void>((resolve) => {
-            setTimeout(resolve, Math.min(delay, 5000));
-          });
-          continue;
-        }
+  /**
+   * Convert an HTTP failure into a bounded retry or final request error.
+   */
+  private handleRequestFailure<T>(
+    error: unknown,
+    context: RequestFailureContext,
+  ): Effect.Effect<T, unknown> {
+    const { method, url, options, state } = context;
 
-        if (error.status != null) {
-          throw new Error(`eBay API Error: ${this.ebayErrorDetail(error.data) ?? error.message}`);
-        }
-
-        throw error;
-      }
+    if (!isHttpError(error)) {
+      return Effect.fail(error);
     }
+
+    if (error.status == null) {
+      apiLogger.error('No response received from server', { url });
+    } else {
+      logErrorResponse(error.status, error.statusText, url, error.data);
+    }
+
+    // 401 — refresh the token once, then retry the request. Skipped in proxy
+    // auth mode: the server holds no token to refresh, so a 401 (the proxy's
+    // own auth failing) is surfaced directly rather than retried.
+    if (error.status === 401 && !this.config.disableAuthHeader) {
+      if (!state.authRetried) {
+        apiLogger.warn('Authentication error (401). Attempting to refresh user token...');
+
+        return this.authClient.getAccessToken().pipe(
+          Effect.catchAll((refreshError) => {
+            const reason = getErrorMessage(refreshError);
+            apiLogger.error('Failed to refresh token', { error: reason });
+
+            const detail = this.ebayErrorDetail(error.data) ?? 'Invalid access token';
+            return Effect.fail(
+              new Error(
+                `${detail}. Token refresh failed: ${reason}. ` +
+                  'Please use the ebay_set_user_tokens_with_expiry tool to provide valid tokens.',
+              ),
+            );
+          }),
+          Effect.flatMap(() => {
+            apiLogger.info('Token refreshed successfully. Retrying request...');
+            return this.sendWithRetry<T>(method, url, options, {
+              ...state,
+              authRetried: true,
+            });
+          }),
+        );
+      }
+
+      const detail = this.ebayErrorDetail(error.data) ?? 'Invalid access token';
+      return Effect.fail(
+        new Error(
+          `${detail}. Automatic token refresh failed. ` +
+            'Please use the ebay_set_user_tokens_with_expiry tool to provide valid tokens.',
+        ),
+      );
+    }
+
+    // 429 — surface a clear rate-limit message with the server's retry hint.
+    if (error.status === 429) {
+      const retryAfter = error.headers['retry-after'];
+      const waitTime = retryAfter ? Number.parseInt(retryAfter, 10) * 1000 : 60_000;
+      return Effect.fail(
+        new Error(
+          `eBay API rate limit exceeded. Retry after ${waitTime / 1000} seconds. ` +
+            'Consider reducing request frequency or upgrading to user tokens for higher limits.',
+        ),
+      );
+    }
+
+    // 5xx — retry up to three times with exponential backoff.
+    if (error.status != null && error.status >= 500 && state.serverRetries < 3) {
+      const delay = 2 ** state.serverRetries * 1000;
+      const delayMs = Math.min(delay, 5000);
+      const nextServerRetries = state.serverRetries + 1;
+      apiLogger.warn(`Server error (${error.status}). Retrying...`, {
+        attempt: `${nextServerRetries}/3`,
+        delayMs,
+      });
+
+      return sleep(delayMs).pipe(
+        Effect.flatMap(() =>
+          this.sendWithRetry<T>(method, url, options, {
+            ...state,
+            serverRetries: nextServerRetries,
+          }),
+        ),
+      );
+    }
+
+    if (error.status != null) {
+      return Effect.fail(
+        new Error(`eBay API Error: ${this.ebayErrorDetail(error.data) ?? error.message}`),
+      );
+    }
+
+    return Effect.fail(error);
   }
 
   /**
@@ -295,6 +382,7 @@ export class EbayApiClient {
     return await this.request<T>('GET', endpoint, {
       params: { ...params, ...config?.params },
       headers: config?.headers,
+      responseType: config?.responseType,
     });
   }
 
@@ -310,6 +398,7 @@ export class EbayApiClient {
       data,
       params: config?.params,
       headers: config?.headers,
+      responseType: config?.responseType,
     });
   }
 
@@ -321,6 +410,7 @@ export class EbayApiClient {
       data,
       params: config?.params,
       headers: config?.headers,
+      responseType: config?.responseType,
     });
   }
 
@@ -331,15 +421,14 @@ export class EbayApiClient {
     return await this.request<T>('DELETE', endpoint, {
       params: config?.params,
       headers: config?.headers,
+      responseType: config?.responseType,
     });
   }
 
   /**
    * Initialize the client (load user tokens from storage)
    */
-  async initialize(): Promise<void> {
-    await this.authClient.initialize();
-  }
+  initialize = (): Effect.Effect<void, EbayOAuthError> => this.authClient.initialize();
 
   /**
    * Check if client is authenticated
@@ -358,15 +447,13 @@ export class EbayApiClient {
   /**
    * Set user access and refresh tokens
    */
-  setUserTokens(
+  setUserTokens = (
     accessToken: string,
     refreshToken: string,
     accessTokenExpiry?: number,
     refreshTokenExpiry?: number,
-  ): Promise<void> {
+  ): Effect.Effect<void, EbayOAuthError> =>
     this.authClient.setUserTokens(accessToken, refreshToken, accessTokenExpiry, refreshTokenExpiry);
-    return Promise.resolve();
-  }
 
   /**
    * Get token information for debugging
@@ -401,9 +488,7 @@ export class EbayApiClient {
    * This is useful when you encounter "Invalid access token" errors
    * The token will be automatically saved to storage after refresh
    */
-  async refreshUserToken(): Promise<void> {
-    await this.authClient.refreshUserToken();
-  }
+  refreshUserToken = (): Effect.Effect<void, EbayOAuthError> => this.authClient.refreshUserToken();
 
   /**
    * Make a GET request with a full URL (for APIs that use different base URLs)

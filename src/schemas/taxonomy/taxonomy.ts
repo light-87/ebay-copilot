@@ -609,9 +609,15 @@ const specificationRequestSchema = z.object({
 // ============================================================================
 
 /**
- * Convert Zod schemas to JSON Schema format for MCP tools
+ * Converts Taxonomy API Zod schemas to JSON Schema format for MCP tools.
+ *
+ * @returns Taxonomy API JSON schemas keyed by endpoint or shared model name.
+ * @example
+ * ```ts
+ * const schemas = getTaxonomyJsonSchemas();
+ * ```
  */
-export function getTaxonomyJsonSchemas() {
+export const getTaxonomyJsonSchemas = () => {
   return {
     // Category Policies
     getCategoryPoliciesOutput: zodToJsonSchema(
@@ -756,4 +762,4 @@ export function getTaxonomyJsonSchemas() {
     propertyFilterInner: zodToJsonSchema(propertyFilterInnerSchema, 'propertyFilterInner'),
     productIdentifier: zodToJsonSchema(productIdentifierSchema, 'productIdentifier'),
   };
-}
+};

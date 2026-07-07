@@ -162,22 +162,30 @@ const reportSchema = z.object({
 // Input Schemas for Operations
 // ============================================================================
 
-const getCustomerServiceMetricInputSchema = z.object({
-  customer_service_metric_type: z.string(),
-  evaluation_type: z.string(),
-  evaluation_marketplace_id: z.string(),
+/** Input accepted by Analytics API findSellerStandardsProfiles. */
+export const findSellerStandardsProfilesInputSchema = z.object({});
+
+/** Input accepted by Analytics API getCustomerServiceMetric. */
+export const getCustomerServiceMetricInputSchema = z.object({
+  customerServiceMetricType: z
+    .string()
+    .describe('Customer service metric type, e.g., ITEM_NOT_AS_DESCRIBED'),
+  evaluationType: z.string().describe('Evaluation type, e.g., CURRENT or PROJECTED'),
+  evaluationMarketplaceId: z.string().describe('Marketplace ID used for the evaluation'),
 });
 
-const getSellerStandardsProfileInputSchema = z.object({
-  program: z.string(),
-  cycle: z.string(),
+/** Input accepted by Analytics API getSellerStandardsProfile. */
+export const getSellerStandardsProfileInputSchema = z.object({
+  program: z.string().describe('Seller standards program identifier'),
+  cycle: z.string().describe('Seller standards cycle, e.g., CURRENT or PROJECTED'),
 });
 
-const getTrafficReportInputSchema = z.object({
-  dimension: z.string().optional(),
-  filter: z.string().optional(),
-  metric: z.string().optional(),
-  sort: z.string().optional(),
+/** Input accepted by Analytics API getTrafficReport. */
+export const getTrafficReportInputSchema = z.object({
+  dimension: z.string().describe('Report dimension, e.g., LISTING or DAY'),
+  filter: z.string().describe('eBay traffic report filter expression'),
+  metric: z.string().describe('Comma-delimited report metrics to retrieve'),
+  sort: z.string().optional().describe('Optional metric sort expression'),
 });
 
 // ============================================================================
@@ -185,9 +193,15 @@ const getTrafficReportInputSchema = z.object({
 // ============================================================================
 
 /**
- * Convert Zod schemas to JSON Schema format for MCP tools
+ * Converts Analytics API Zod schemas to JSON Schema format for MCP tools.
+ *
+ * @returns Analytics API JSON schemas keyed by endpoint or shared model name.
+ * @example
+ * ```ts
+ * const schemas = getAnalyticsJsonSchemas();
+ * ```
  */
-export function getAnalyticsJsonSchemas() {
+export const getAnalyticsJsonSchemas = () => {
   return {
     // Customer Service Metrics
     getCustomerServiceMetricInput: zodToJsonSchema(
@@ -200,6 +214,10 @@ export function getAnalyticsJsonSchemas() {
     ),
 
     // Seller Standards Profiles
+    findSellerStandardsProfilesInput: zodToJsonSchema(
+      findSellerStandardsProfilesInputSchema,
+      'findSellerStandardsProfilesInput',
+    ),
     findSellerStandardsProfilesOutput: zodToJsonSchema(
       findSellerStandardsProfilesResponseSchema,
       'findSellerStandardsProfilesOutput',
@@ -239,4 +257,4 @@ export function getAnalyticsJsonSchemas() {
     standardsProfile: zodToJsonSchema(standardsProfileSchema, 'standardsProfile'),
     value: zodToJsonSchema(valueSchema, 'value'),
   };
-}
+};

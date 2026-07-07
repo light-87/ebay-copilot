@@ -218,7 +218,7 @@ Os limites do token de usuário variam conforme o nível da conta (Individual 10
 
 ### Compatibilidade de clientes MCP
 
-Autoconfigurados pelo `npm run setup`. Requer Node.js ≥ 18 e o protocolo MCP 1.0+ via STDIO (padrão) ou HTTP.
+Autoconfigurados pelo `npm run setup`. Requer Node.js ≥ 20 e o protocolo MCP 1.0+ via STDIO (padrão) ou HTTP.
 
 | Cliente                | Plataforma            | Caminho de configuração                                                     |
 | ---------------------- | --------------------- | --------------------------------------------------------------------------- |
@@ -248,7 +248,7 @@ Autoconfigurados pelo `npm run setup`. Requer Node.js ≥ 18 e o protocolo MCP 1
 | [Taxonomy](src/tools/categories/taxonomy.ts) | Árvores de categorias, aspectos de itens, condições de itens |
 | [Trading (XML legado)](src/tools/categories/trading.ts) | Criar, revisar, republicar e encerrar anúncios de preço fixo |
 | [Developer](src/tools/categories/developer.ts) | Limites de taxa, chaves de assinatura, registro de clientes |
-| [Token Management](src/tools/categories/token-management.ts) | Geração de URL de OAuth e gestão de tokens |
+| [Token Management](src/tools/categories/tokenManagement.ts) | Geração de URL de OAuth e gestão de tokens |
 
 **Ferramentas de exemplo:** `ebay_get_inventory_items`, `ebay_get_orders`, `ebay_create_offer`, `ebay_get_campaigns`, `ebay_get_oauth_url`.
 
@@ -326,7 +326,7 @@ Roda inteiramente na sua máquina via STDIO (ou HTTP local). Não há relay na n
 
 ### O que preciso para começar?
 
-Node.js ≥ 18, uma [conta de desenvolvedor do eBay](https://developer.ebay.com/) gratuita (Client ID + Client Secret) e então rodar `npm run setup`.
+Node.js ≥ 20, uma [conta de desenvolvedor do eBay](https://developer.ebay.com/) gratuita (Client ID + Client Secret) e então rodar `npm run setup`.
 
 ### Quais são os limites de taxa da API do eBay?
 

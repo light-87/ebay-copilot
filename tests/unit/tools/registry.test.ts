@@ -7,6 +7,7 @@ import {
   validateToolContracts,
   validateToolRegistry,
 } from '@/tools/index.js';
+import { Effect } from 'effect';
 
 describe('tool registry', () => {
   it('keeps registered definitions unique and executable', () => {
@@ -38,19 +39,19 @@ describe('tool registry', () => {
   it('executes public handlers added by the registry instead of falling through', async () => {
     const api = {
       feedback: {
-        getFeedbackRatingSummary: vi.fn().mockResolvedValue({ positive: 1 }),
+        getFeedbackRatingSummary: vi.fn().mockReturnValue(Effect.succeed({ positive: 1 })),
       },
     };
 
     await executeTool(api as never, 'ebay_get_feedback_rating_summary', {
-      user_id: 'seller',
+      userId: 'seller',
       filter: 'ratingType:ALL',
     });
 
     expect(api.feedback.getFeedbackRatingSummary).toHaveBeenCalledOnce();
   });
 
-  it('keeps the legacy unknown-tool error', async () => {
+  it('returns the current unknown-tool error', async () => {
     await expect(executeTool({} as never, 'unknown_tool', {})).rejects.toThrow(
       'Unknown tool: unknown_tool',
     );

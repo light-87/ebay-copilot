@@ -25,11 +25,7 @@ import { useApp, useHostStyles } from '@modelcontextprotocol/ext-apps/react';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { type ReactNode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import type {
-  ToolCallRef,
-  ViewArchetype,
-  ViewModelByArchetype,
-} from '../src/tools/ui/view-models.ts';
+import type { ToolCallRef, ViewArchetype, ViewModelByArchetype } from '@/tools/ui/viewModels.js';
 
 /**
  * Narrows a raw tool result to the view model for `archetype`, or `null` if the
@@ -37,10 +33,10 @@ import type {
  * boundary where untyped wire data (`structuredContent`) becomes a typed
  * {@link ViewModel}; the discriminant check guards the single cast.
  */
-function extractView<A extends ViewArchetype>(
+const extractView = <A extends ViewArchetype>(
   result: CallToolResult,
   archetype: A,
-): ViewModelByArchetype[A] | null {
+): ViewModelByArchetype[A] | null => {
   const structured = result.structuredContent;
   if (
     structured &&
@@ -53,7 +49,7 @@ function extractView<A extends ViewArchetype>(
     return structured as unknown as ViewModelByArchetype[A];
   }
   return null;
-}
+};
 
 /**
  * Connection + data state for an archetype view.
@@ -76,8 +72,16 @@ export interface ViewState<A extends ViewArchetype> {
  * model for the given archetype. The tool-result handler is registered in
  * `onAppCreated` (before the handshake completes) so the first result is never
  * missed.
+ *
+ * @param archetype - View archetype this app instance renders.
+ * @returns Connection state, app handle, and typed view model for the archetype.
+ *
+ * @example
+ * ```tsx
+ * const { view, app, isConnected, error } = useViewModel('table');
+ * ```
  */
-export function useViewModel<A extends ViewArchetype>(archetype: A): ViewState<A> {
+export const useViewModel = <A extends ViewArchetype>(archetype: A): ViewState<A> => {
   const [view, setView] = useState<ViewModelByArchetype[A] | null>(null);
   const { app, isConnected, error } = useApp({
     appInfo: { name: `ebay-${archetype}-view`, version: '1.0.0' },
@@ -95,21 +99,31 @@ export function useViewModel<A extends ViewArchetype>(archetype: A): ViewState<A
   useHostStyles(app, app?.getHostContext());
 
   return { view, app, isConnected, error };
+};
+
+/** Props for the shared app state wrapper. */
+interface AppShellProps {
+  /** Whether the MCP Apps host handshake completed. */
+  isConnected: boolean;
+  /** Connection error reported by the host app hook. */
+  error: Error | null;
+  /** Rendered app contents once connected. */
+  children: ReactNode;
 }
 
 /**
  * Renders the shared connecting / error chrome and shows `children` only once
  * the handshake has completed successfully.
+ *
+ * @param props - Connection state and child content for the app shell.
+ * @returns Error, connecting, or child content node.
+ *
+ * @example
+ * ```tsx
+ * <AppShell isConnected={isConnected} error={error}>{children}</AppShell>
+ * ```
  */
-export function AppShell({
-  isConnected,
-  error,
-  children,
-}: {
-  isConnected: boolean;
-  error: Error | null;
-  children: ReactNode;
-}): ReactNode {
+export const AppShell = ({ isConnected, error, children }: AppShellProps): ReactNode => {
   if (error) {
     return <div className="state state--error">Unable to load view: {error.message}</div>;
   }
@@ -117,28 +131,53 @@ export function AppShell({
     return <div className="state">Connecting…</div>;
   }
   return children;
+};
+
+/** Props for the connected-but-empty placeholder. */
+interface EmptyStateProps {
+  /** Placeholder text shown inside the empty state. */
+  label: string;
 }
 
-/** Placeholder shown when the app is connected but no view model has arrived yet. */
-export function EmptyState({ label }: { label: string }): ReactNode {
-  return <div className="state">{label}</div>;
-}
+/**
+ * Placeholder shown when the app is connected but no view model has arrived yet.
+ *
+ * @param props - Empty-state label.
+ * @returns Placeholder node.
+ *
+ * @example
+ * ```tsx
+ * <EmptyState label="No results" />
+ * ```
+ */
+export const EmptyState = ({ label }: EmptyStateProps): ReactNode => (
+  <div className="state">{label}</div>
+);
 
 /** Turns a {@link ToolCallRef} into a concise natural-language instruction. */
-function describeRef(ref: ToolCallRef): string {
+const describeRef = (ref: ToolCallRef): string => {
   const args = Object.entries(ref.arguments)
     .map(([key, value]) => `${key}=${String(value)}`)
     .join(', ');
   return `Run the ${ref.tool} tool${args ? ` with ${args}` : ''}.`;
-}
+};
 
 /**
  * Drills from a list into a detail view. Because a different archetype cannot
  * render in place, this hands off to the host conversation via `sendMessage` —
  * the host's model then calls the referenced read-only tool, which opens the
  * detail card as its own app.
+ *
+ * @param app - Connected MCP Apps host instance, or null before connection.
+ * @param ref - Tool call reference attached to the clicked row.
+ * @returns Nothing; sends a host message when connected.
+ *
+ * @example
+ * ```ts
+ * drill(app, row.drill);
+ * ```
  */
-export function drill(app: App | null, ref: ToolCallRef): void {
+export const drill = (app: App | null, ref: ToolCallRef): void => {
   if (!app) {
     return;
   }
@@ -146,31 +185,51 @@ export function drill(app: App | null, ref: ToolCallRef): void {
     role: 'user',
     content: [{ type: 'text', text: describeRef(ref) }],
   });
-}
+};
 
 /**
  * Runs a same-archetype read-only call (paging / refresh) and returns the
  * resulting view model, or `null` if it came back empty or for another
  * archetype. Unlike {@link drill}, the result returns to this app to update in
  * place.
+ *
+ * @param app - Connected MCP Apps host instance, or null before connection.
+ * @param ref - Tool call reference to invoke through the host.
+ * @param archetype - Expected archetype of the returned structured content.
+ * @returns The next typed view model, or null when unavailable or mismatched.
+ *
+ * @example
+ * ```ts
+ * const next = await runServerTool(app, loadMore, 'table');
+ * ```
  */
-export async function runServerTool<A extends ViewArchetype>(
+export const runServerTool = async <A extends ViewArchetype>(
   app: App | null,
   ref: ToolCallRef,
   archetype: A,
-): Promise<ViewModelByArchetype[A] | null> {
+): Promise<ViewModelByArchetype[A] | null> => {
   if (!app) {
     return null;
   }
   const result = await app.callServerTool({ name: ref.tool, arguments: ref.arguments });
   return extractView(result, archetype);
-}
+};
 
-/** Mounts an archetype app into the page's `#root`, shared by all three entries. */
-export function mount(node: ReactNode): void {
+/**
+ * Mounts an archetype app into the page's `#root`, shared by all three entries.
+ *
+ * @param node - React node to render into the root container.
+ * @returns Nothing; mutates the DOM by mounting the React root.
+ *
+ * @example
+ * ```tsx
+ * mount(<TableApp />);
+ * ```
+ */
+export const mount = (node: ReactNode): void => {
   const container = document.getElementById('root');
   if (!container) {
     throw new Error('Missing #root container');
   }
   createRoot(container).render(node);
-}
+};

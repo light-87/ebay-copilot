@@ -8,12 +8,23 @@ import type {
   SkillTarget,
   SkillTargetKind,
 } from '@/skills/types.js';
+import process from 'node:process';
 
 /** All providers we can render for, in display order. */
 export const ALL_PROVIDERS: readonly SkillProvider[] = ['claude', 'cursor', 'codex'];
 
-/** Human label for a provider, used in the wizard and reports. */
-export function providerLabel(provider: SkillProvider): string {
+/**
+ * Builds the human label for a provider, used in the wizard and reports.
+ *
+ * @param provider - Skill provider to label.
+ * @returns Display label including the provider's native instruction location.
+ *
+ * @example
+ * ```ts
+ * const label = providerLabel('codex');
+ * ```
+ */
+export const providerLabel = (provider: SkillProvider): string => {
   switch (provider) {
     case 'claude':
       return 'Claude Code (.claude/skills)';
@@ -22,30 +33,37 @@ export function providerLabel(provider: SkillProvider): string {
     case 'codex':
       return 'Codex (AGENTS.md)';
   }
-}
+};
 
 /**
  * Whether a provider supports a given scope. Cursor only reads project-local
  * rule files, so it has no global scope.
+ *
+ * @param provider - Skill provider being installed.
+ * @param scope - Requested install scope.
+ * @returns True when the provider can use that scope.
+ *
+ * @example
+ * ```ts
+ * const supported = supportsScope('cursor', 'project');
+ * ```
  */
-export function supportsScope(provider: SkillProvider, scope: SkillScope): boolean {
+export const supportsScope = (provider: SkillProvider, scope: SkillScope): boolean => {
   if (provider === 'cursor') return scope === 'project';
   return true;
-}
+};
 
 /** The filename slug for a layer, shared by Claude skill dirs and Cursor rule files. */
-function slug(layer: SkillLayer): string {
-  return `ebay-mcp-${layer}`;
-}
+const slug = (layer: SkillLayer): string => `ebay-mcp-${layer}`;
 
 /** Absolute path of the rendered file for a provider/layer/scope. */
-function resolvePath(
+const resolvePath = (
   provider: SkillProvider,
   layer: SkillLayer,
   scope: SkillScope,
   cwd: string,
   home: string,
-): string {
+): string => {
   const base = scope === 'project' ? cwd : home;
   switch (provider) {
     case 'claude':
@@ -55,12 +73,11 @@ function resolvePath(
     case 'codex':
       return scope === 'project' ? join(cwd, 'AGENTS.md') : join(home, '.codex', 'AGENTS.md');
   }
-}
+};
 
 /** Codex shares one `AGENTS.md` (managed block); the others own their own file. */
-function targetKind(provider: SkillProvider): SkillTargetKind {
-  return provider === 'codex' ? 'managed-block' : 'owned-file';
-}
+const targetKind = (provider: SkillProvider): SkillTargetKind =>
+  provider === 'codex' ? 'managed-block' : 'owned-file';
 
 /**
  * Detects whether a provider already has a footprint at this scope, so the
@@ -68,13 +85,24 @@ function targetKind(provider: SkillProvider): SkillTargetKind {
  * provider's instruction directory/file rather than the MCP client config —
  * this is about where agent instructions live, which the MCP detector does not
  * model.
+ *
+ * @param provider - Skill provider to detect.
+ * @param scope - Install scope to inspect.
+ * @param cwd - Project root path.
+ * @param home - User home path.
+ * @returns True when the provider has a footprint at that scope.
+ *
+ * @example
+ * ```ts
+ * const detected = detectProvider('claude', 'project', cwd, home);
+ * ```
  */
-export function detectProvider(
+export const detectProvider = (
   provider: SkillProvider,
   scope: SkillScope,
   cwd: string,
   home: string,
-): boolean {
+): boolean => {
   switch (provider) {
     case 'claude':
       return existsSync(join(scope === 'project' ? cwd : home, '.claude'));
@@ -85,7 +113,7 @@ export function detectProvider(
         ? existsSync(join(cwd, 'AGENTS.md'))
         : existsSync(join(home, '.codex'));
   }
-}
+};
 
 /**
  * Resolves the concrete write targets for the chosen providers × layers at a
@@ -98,14 +126,19 @@ export function detectProvider(
  * @param cwd Project root (defaults to `process.cwd()`).
  * @param home User home (defaults to `os.homedir()`).
  * @returns One {@link SkillTarget} per provider/layer.
+ *
+ * @example
+ * ```ts
+ * const targets = resolveTargets(['codex'], ['using'], 'project', cwd, home);
+ * ```
  */
-export function resolveTargets(
+export const resolveTargets = (
   providers: readonly SkillProvider[],
   layers: readonly SkillLayer[],
   scope: SkillScope,
   cwd: string = process.cwd(),
   home: string = homedir(),
-): SkillTarget[] {
+): SkillTarget[] => {
   const targets: SkillTarget[] = [];
   for (const provider of providers) {
     const effectiveScope: SkillScope = supportsScope(provider, scope) ? scope : 'project';
@@ -121,4 +154,4 @@ export function resolveTargets(
     }
   }
   return targets;
-}
+};

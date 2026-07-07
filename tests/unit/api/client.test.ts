@@ -4,6 +4,8 @@ import { EbayApiClient } from '@/api/client.js';
 import { getEbayConfig } from '@/config/environment.js';
 import type { EbayConfig } from '@/types/ebay.js';
 import { apiLogger } from '@/utils/logger.js';
+import process from 'node:process';
+import { Effect } from 'effect';
 
 // Mock EbayOAuthClient
 const mockOAuthClient = {
@@ -47,8 +49,9 @@ describe('EbayApiClient Unit Tests', () => {
 
     // Setup mock OAuth client
     mockOAuthClient.hasUserTokens.mockReturnValue(true);
-    mockOAuthClient.getAccessToken.mockResolvedValue('mock_access_token');
-    mockOAuthClient.initialize.mockResolvedValue(undefined);
+    mockOAuthClient.getAccessToken.mockReturnValue(Effect.succeed('mock_access_token'));
+    mockOAuthClient.initialize.mockReturnValue(Effect.succeed(undefined));
+    mockOAuthClient.setUserTokens.mockReturnValue(Effect.succeed(undefined));
     mockOAuthClient.isAuthenticated.mockReturnValue(true);
     mockOAuthClient.getTokenInfo.mockReturnValue({
       hasUserTokens: true,
@@ -57,16 +60,17 @@ describe('EbayApiClient Unit Tests', () => {
     });
 
     apiClient = new EbayApiClient(config);
-    await apiClient.initialize();
+    await Effect.runPromise(apiClient.initialize());
   });
 
   afterEach(() => {
     nock.cleanAll();
     nock.enableNetConnect();
+    vi.unstubAllEnvs();
   });
 
   describe('Rate Limiting', () => {
-    it('should track request counts', async () => {
+    it('track request counts', async () => {
       // Mock a series of successful API calls
       for (let i = 0; i < 5; i++) {
         nock('https://api.sandbox.ebay.com')
@@ -82,10 +86,10 @@ describe('EbayApiClient Unit Tests', () => {
       const stats = apiClient.getRateLimitStats();
       expect(stats.current).toBe(5);
       expect(stats.max).toBe(5000);
-      expect(stats.windowMs).toBe(60000);
+      expect(stats.windowMs).toBe(60_000);
     });
 
-    it('should reset rate limit count after time window', async () => {
+    it('reset rate limit count after time window', async () => {
       // This test would require mocking time, which is complex
       // Instead we'll test the stats method
       const stats = apiClient.getRateLimitStats();
@@ -96,37 +100,30 @@ describe('EbayApiClient Unit Tests', () => {
   });
 
   describe('Default marketplace and language headers', () => {
-    it('should include EBAY_US and en-US headers by default', async () => {
-      const originalEnv = process.env;
-      process.env = { ...originalEnv };
+    it('include EBAY_US and en-US headers by default', async () => {
+      vi.stubEnv('EBAY_CLIENT_ID', 'test_client_id');
+      vi.stubEnv('EBAY_CLIENT_SECRET', 'test_client_secret');
+      vi.stubEnv('EBAY_MARKETPLACE_ID', undefined);
+      vi.stubEnv('EBAY_CONTENT_LANGUAGE', undefined);
+      vi.stubEnv('EBAY_ENVIRONMENT', 'sandbox');
 
-      try {
-        process.env.EBAY_CLIENT_ID = 'test_client_id';
-        process.env.EBAY_CLIENT_SECRET = 'test_client_secret';
-        delete process.env.EBAY_MARKETPLACE_ID;
-        delete process.env.EBAY_CONTENT_LANGUAGE;
-        process.env.EBAY_ENVIRONMENT = 'sandbox';
+      const defaultClient = new EbayApiClient(getEbayConfig());
+      await Effect.runPromise(defaultClient.initialize());
 
-        const defaultClient = new EbayApiClient(getEbayConfig());
-        await defaultClient.initialize();
+      nock('https://api.sandbox.ebay.com', {
+        reqheaders: {
+          'x-ebay-c-marketplace-id': 'EBAY_US',
+          'content-language': 'en-US',
+        },
+      })
+        .get('/sell/inventory/v1/test')
+        .reply(200, { success: true });
 
-        nock('https://api.sandbox.ebay.com', {
-          reqheaders: {
-            'x-ebay-c-marketplace-id': 'EBAY_US',
-            'content-language': 'en-US',
-          },
-        })
-          .get('/sell/inventory/v1/test')
-          .reply(200, { success: true });
-
-        const result = await defaultClient.get('/sell/inventory/v1/test');
-        expect(result).toEqual({ success: true });
-      } finally {
-        process.env = originalEnv;
-      }
+      const result = await defaultClient.get('/sell/inventory/v1/test');
+      expect(result).toEqual({ success: true });
     });
 
-    it('should override headers when config provides values', async () => {
+    it('override headers when config provides values', async () => {
       const customClient = new EbayApiClient({
         clientId: 'test_client_id',
         clientSecret: 'test_client_secret',
@@ -135,7 +132,7 @@ describe('EbayApiClient Unit Tests', () => {
         marketplaceId: 'EBAY_DE',
         contentLanguage: 'de-DE',
       });
-      await customClient.initialize();
+      await Effect.runPromise(customClient.initialize());
 
       nock('https://api.sandbox.ebay.com', {
         reqheaders: {
@@ -152,7 +149,7 @@ describe('EbayApiClient Unit Tests', () => {
   });
 
   describe('429 Rate Limit Errors', () => {
-    it('should handle 429 errors with Retry-After header', async () => {
+    it('handle 429 errors with Retry-After header', async () => {
       nock('https://api.sandbox.ebay.com')
         .get('/sell/inventory/v1/test')
         .reply(429, { error: 'Rate limit exceeded' }, { 'retry-after': '60' });
@@ -162,7 +159,7 @@ describe('EbayApiClient Unit Tests', () => {
       );
     });
 
-    it('should handle 429 errors without Retry-After header', async () => {
+    it('handle 429 errors without Retry-After header', async () => {
       nock('https://api.sandbox.ebay.com')
         .get('/sell/inventory/v1/test')
         .reply(429, { error: 'Rate limit exceeded' });
@@ -174,7 +171,7 @@ describe('EbayApiClient Unit Tests', () => {
   });
 
   describe('Server Error Retry Logic', () => {
-    it('should retry on 500 errors with exponential backoff', async () => {
+    it('retry on 500 errors with exponential backoff', async () => {
       const apiErrorSpy = vi.spyOn(apiLogger, 'error').mockImplementation(() => {});
 
       // First two attempts fail with 500
@@ -197,9 +194,9 @@ describe('EbayApiClient Unit Tests', () => {
       expect(apiErrorSpy).toHaveBeenCalled();
 
       apiErrorSpy.mockRestore();
-    }, 10000);
+    }, 10_000);
 
-    it('should give up after 3 retry attempts', async () => {
+    it('give up after 3 retry attempts', async () => {
       const apiErrorSpy = vi.spyOn(apiLogger, 'error').mockImplementation(() => {});
 
       // All 4 attempts fail (original + 3 retries)
@@ -212,9 +209,9 @@ describe('EbayApiClient Unit Tests', () => {
       await expect(apiClient.get('/sell/inventory/v1/test')).rejects.toThrow();
 
       apiErrorSpy.mockRestore();
-    }, 15000);
+    }, 15_000);
 
-    it('should retry on 502 errors', async () => {
+    it('retry on 502 errors', async () => {
       const apiErrorSpy = vi.spyOn(apiLogger, 'error').mockImplementation(() => {});
 
       nock('https://api.sandbox.ebay.com')
@@ -229,9 +226,9 @@ describe('EbayApiClient Unit Tests', () => {
       expect(result).toEqual({ success: true });
 
       apiErrorSpy.mockRestore();
-    }, 10000);
+    }, 10_000);
 
-    it('should retry on 503 errors', async () => {
+    it('retry on 503 errors', async () => {
       const apiErrorSpy = vi.spyOn(apiLogger, 'error').mockImplementation(() => {});
 
       nock('https://api.sandbox.ebay.com')
@@ -246,9 +243,9 @@ describe('EbayApiClient Unit Tests', () => {
       expect(result).toEqual({ success: true });
 
       apiErrorSpy.mockRestore();
-    }, 10000);
+    }, 10_000);
 
-    it('should retry on 504 errors', async () => {
+    it('retry on 504 errors', async () => {
       const apiErrorSpy = vi.spyOn(apiLogger, 'error').mockImplementation(() => {});
 
       nock('https://api.sandbox.ebay.com')
@@ -263,11 +260,11 @@ describe('EbayApiClient Unit Tests', () => {
       expect(result).toEqual({ success: true });
 
       apiErrorSpy.mockRestore();
-    }, 10000);
+    }, 10_000);
   });
 
   describe('Rate Limit Header Tracking', () => {
-    it('should log rate limit headers when present', async () => {
+    it('log rate limit headers when present', async () => {
       const apiHttpSpy = vi.spyOn(apiLogger, 'http').mockImplementation(() => {});
 
       nock('https://api.sandbox.ebay.com').get('/sell/inventory/v1/test').reply(
@@ -290,7 +287,7 @@ describe('EbayApiClient Unit Tests', () => {
       apiHttpSpy.mockRestore();
     });
 
-    it('should not log when rate limit headers are absent', async () => {
+    it('not log when rate limit headers are absent', async () => {
       const apiHttpSpy = vi.spyOn(apiLogger, 'http').mockImplementation(() => {});
 
       nock('https://api.sandbox.ebay.com')
@@ -310,34 +307,36 @@ describe('EbayApiClient Unit Tests', () => {
   });
 
   describe('Client Helper Methods', () => {
-    it('should return isAuthenticated status', () => {
+    it('return isAuthenticated status', () => {
       const isAuth = apiClient.isAuthenticated();
       expect(typeof isAuth).toBe('boolean');
     });
 
-    it('should return hasUserTokens status', () => {
+    it('return hasUserTokens status', () => {
       mockOAuthClient.hasUserTokens.mockReturnValue(true);
       const hasTokens = apiClient.hasUserTokens();
       expect(typeof hasTokens).toBe('boolean');
     });
 
-    it('should set user tokens', async () => {
-      await apiClient.setUserTokens(
-        'new-access-token',
-        'new-refresh-token',
-        Date.now() + 7200000,
-        Date.now() + 47304000000,
+    it('set user tokens', async () => {
+      await Effect.runPromise(
+        apiClient.setUserTokens(
+          'new-access-token',
+          'new-refresh-token',
+          Date.now() + 7_200_000,
+          Date.now() + 47_304_000_000,
+        ),
       );
 
       expect(mockOAuthClient.setUserTokens).toHaveBeenCalled();
     });
 
-    it('should return token info', () => {
+    it('return token info', () => {
       const tokenInfo = apiClient.getTokenInfo();
       expect(tokenInfo).toBeDefined();
     });
 
-    it('should return OAuth client instance', () => {
+    it('return OAuth client instance', () => {
       const oauthClient = apiClient.getOAuthClient();
       expect(oauthClient).toBeDefined();
     });
@@ -356,7 +355,7 @@ describe('EbayApiClient Unit Tests', () => {
 
     it('omits the Authorization header and acquires no token', async () => {
       const proxyClient = createProxyClient();
-      await proxyClient.initialize();
+      await Effect.runPromise(proxyClient.initialize());
 
       const scope = nock('http://localhost:8099', { badheaders: ['authorization'] })
         .get('/sell/inventory/v1/test')
@@ -371,7 +370,7 @@ describe('EbayApiClient Unit Tests', () => {
 
     it('routes requests to the overridden base URL', async () => {
       const proxyClient = createProxyClient('production');
-      await proxyClient.initialize();
+      await Effect.runPromise(proxyClient.initialize());
 
       nock('http://localhost:8099').get('/sell/account/v1/test').reply(200, { routed: true });
 
@@ -382,7 +381,7 @@ describe('EbayApiClient Unit Tests', () => {
     it('surfaces a 401 without attempting a token refresh', async () => {
       const apiErrorSpy = vi.spyOn(apiLogger, 'error').mockImplementation(() => {});
       const proxyClient = createProxyClient();
-      await proxyClient.initialize();
+      await Effect.runPromise(proxyClient.initialize());
 
       nock('http://localhost:8099')
         .get('/sell/inventory/v1/test')

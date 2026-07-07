@@ -3,11 +3,11 @@ import {
   getDefaultScopes,
   validateScopes,
   getOAuthAuthorizationUrl,
-} from '../../../src/config/environment.js';
+} from '@/config/environment.js';
 
 describe('Scope Validation', () => {
   describe('getDefaultScopes', () => {
-    it('should return production scopes for production environment', () => {
+    it('return production scopes for production environment', () => {
       const scopes = getDefaultScopes('production');
 
       expect(scopes).toBeInstanceOf(Array);
@@ -17,7 +17,7 @@ describe('Scope Validation', () => {
       expect(scopes).toContain('https://api.ebay.com/oauth/api_scope/commerce.shipping');
     });
 
-    it('should return sandbox scopes for sandbox environment', () => {
+    it('return sandbox scopes for sandbox environment', () => {
       const scopes = getDefaultScopes('sandbox');
 
       expect(scopes).toBeInstanceOf(Array);
@@ -27,7 +27,7 @@ describe('Scope Validation', () => {
       expect(scopes).toContain('https://api.ebay.com/oauth/api_scope/sell.item');
     });
 
-    it('should include common scopes in both environments', () => {
+    it('include common scopes in both environments', () => {
       const productionScopes = getDefaultScopes('production');
       const sandboxScopes = getDefaultScopes('sandbox');
 
@@ -44,7 +44,7 @@ describe('Scope Validation', () => {
       });
     });
 
-    it('should not include sandbox-only scopes in production', () => {
+    it('not include sandbox-only scopes in production', () => {
       const productionScopes = getDefaultScopes('production');
 
       const sandboxOnlyScopes = [
@@ -58,7 +58,7 @@ describe('Scope Validation', () => {
       });
     });
 
-    it('should not include production-only scopes in sandbox', () => {
+    it('not include production-only scopes in sandbox', () => {
       const sandboxScopes = getDefaultScopes('sandbox');
 
       const productionOnlyScopes = [
@@ -75,7 +75,7 @@ describe('Scope Validation', () => {
   });
 
   describe('validateScopes', () => {
-    it('should validate all common scopes successfully for production', () => {
+    it('validate all common scopes successfully for production', () => {
       const commonScopes = [
         'https://api.ebay.com/oauth/api_scope/sell.inventory',
         'https://api.ebay.com/oauth/api_scope/sell.fulfillment',
@@ -87,7 +87,7 @@ describe('Scope Validation', () => {
       expect(result.validScopes).toEqual(commonScopes);
     });
 
-    it('should validate all common scopes successfully for sandbox', () => {
+    it('validate all common scopes successfully for sandbox', () => {
       const commonScopes = [
         'https://api.ebay.com/oauth/api_scope/sell.inventory',
         'https://api.ebay.com/oauth/api_scope/sell.fulfillment',
@@ -99,7 +99,7 @@ describe('Scope Validation', () => {
       expect(result.validScopes).toEqual(commonScopes);
     });
 
-    it('should warn when requesting sandbox-only scope in production', () => {
+    it('warn when requesting sandbox-only scope in production', () => {
       const sandboxOnlyScopes = [
         'https://api.ebay.com/oauth/api_scope/sell.item.draft',
         'https://api.ebay.com/oauth/api_scope/sell.item',
@@ -113,7 +113,7 @@ describe('Scope Validation', () => {
       expect(result.validScopes).toEqual(sandboxOnlyScopes);
     });
 
-    it('should not warn for common scopes that exist in both environments', () => {
+    it('not warn for common scopes that exist in both environments', () => {
       const commonScopes = [
         'https://api.ebay.com/oauth/api_scope/sell.inventory',
         'https://api.ebay.com/oauth/api_scope/sell.fulfillment',
@@ -125,7 +125,7 @@ describe('Scope Validation', () => {
       expect(result.validScopes).toEqual(commonScopes);
     });
 
-    it('should warn for unrecognized scopes', () => {
+    it('warn for unrecognized scopes', () => {
       const unknownScopes = ['https://api.ebay.com/oauth/api_scope/unknown.scope'];
 
       const result = validateScopes(unknownScopes, 'production');
@@ -136,7 +136,7 @@ describe('Scope Validation', () => {
       expect(result.validScopes).toEqual(unknownScopes);
     });
 
-    it('should handle mix of valid and invalid scopes', () => {
+    it('handle mix of valid and invalid scopes', () => {
       const mixedScopes = [
         'https://api.ebay.com/oauth/api_scope/sell.inventory', // Valid for production
         'https://api.ebay.com/oauth/api_scope/sell.item.draft', // Sandbox-only
@@ -149,14 +149,14 @@ describe('Scope Validation', () => {
       expect(result.validScopes).toEqual(mixedScopes); // All included
     });
 
-    it('should return no warnings for empty scope list', () => {
+    it('return no warnings for empty scope list', () => {
       const result = validateScopes([], 'production');
 
       expect(result.warnings).toHaveLength(0);
       expect(result.validScopes).toEqual([]);
     });
 
-    it('should provide detailed warning messages', () => {
+    it('provide detailed warning messages', () => {
       const sandboxOnlyScope = ['https://api.ebay.com/oauth/api_scope/sell.item.draft'];
 
       const result = validateScopes(sandboxOnlyScope, 'production');
@@ -171,7 +171,7 @@ describe('Scope Validation', () => {
     const clientId = 'test_client_id';
     const redirectUri = 'https://localhost/callback';
 
-    it('should generate direct branded OAuth URL for production', () => {
+    it('generate direct branded OAuth URL for production', () => {
       const url = getOAuthAuthorizationUrl(clientId, redirectUri, 'production');
       const parsed = new URL(url);
 
@@ -187,7 +187,7 @@ describe('Scope Validation', () => {
       expect(url).not.toContain('AppName');
     });
 
-    it('should generate direct branded OAuth URL for sandbox', () => {
+    it('generate direct branded OAuth URL for sandbox', () => {
       const url = getOAuthAuthorizationUrl(clientId, redirectUri, 'sandbox');
       const parsed = new URL(url);
 
@@ -203,7 +203,7 @@ describe('Scope Validation', () => {
       expect(url).not.toContain('AppName');
     });
 
-    it('should include default scopes when no scopes provided', () => {
+    it('include default scopes when no scopes provided', () => {
       const url = getOAuthAuthorizationUrl(clientId, redirectUri, 'production');
       const parsed = new URL(url);
 
@@ -212,7 +212,7 @@ describe('Scope Validation', () => {
       expect(scope).toContain('sell.inventory');
     });
 
-    it('should include custom scopes when provided', () => {
+    it('include custom scopes when provided', () => {
       const customScopes = [
         'https://api.ebay.com/oauth/api_scope/sell.inventory',
         'https://api.ebay.com/oauth/api_scope/sell.fulfillment',
@@ -227,30 +227,23 @@ describe('Scope Validation', () => {
       });
     });
 
-    it('should include state parameter when provided', () => {
+    it('include state parameter when provided', () => {
       const state = 'random_state_12345';
 
-      const url = getOAuthAuthorizationUrl(
-        clientId,
-        redirectUri,
-        'production',
-        undefined,
-        undefined,
-        state,
-      );
+      const url = getOAuthAuthorizationUrl(clientId, redirectUri, 'production', undefined, state);
       const parsed = new URL(url);
 
       expect(parsed.searchParams.get('state')).toBe(state);
     });
 
-    it('should not include state parameter when not provided', () => {
+    it('not include state parameter when not provided', () => {
       const url = getOAuthAuthorizationUrl(clientId, redirectUri, 'production');
       const parsed = new URL(url);
 
       expect(parsed.searchParams.has('state')).toBe(false);
     });
 
-    it('should properly encode special characters in redirect URI', () => {
+    it('properly encode special characters in redirect URI', () => {
       const specialRedirectUri = 'https://localhost/callback?param=value&other=test';
 
       const url = getOAuthAuthorizationUrl(clientId, specialRedirectUri, 'production');
@@ -259,7 +252,7 @@ describe('Scope Validation', () => {
       expect(parsed.searchParams.get('redirect_uri')).toBe(specialRedirectUri);
     });
 
-    it('should join multiple scopes with %20 and not percent-encode scope URIs', () => {
+    it('join multiple scopes with %20 and not percent-encode scope URIs', () => {
       const scopes = [
         'https://api.ebay.com/oauth/api_scope/sell.inventory',
         'https://api.ebay.com/oauth/api_scope/sell.fulfillment',

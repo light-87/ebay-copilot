@@ -1,187 +1,582 @@
 # CODE-STYLE.md
 
 The single source of truth for **how code is written** in this repo. Rules record
-the _desired_ end-state — where the code already matches, it's evidence; where it
-doesn't yet, the gap is the backlog (Biome surfaces it as warnings; `deslop`
-closes it per-diff). Formatting is delegated to Biome (`biome.json`); this file
-owns the judgment calls a formatter can't make.
+the desired end-state. Where current code differs, treat the gap as migration
+work and close it in the same ownership slice.
 
 > Digest lives in [AGENTS.md](AGENTS.md#conventions); the full guide is here.
-> Library decisions are in [docs/adr/current/](docs/adr/current/).
+> Library and CLI decisions live in [docs/adr/current/](docs/adr/current/).
+
+## Stack & Framework Practices
+
+This repo is TypeScript/Node ESM, MCP SDK, Zod, Effect, Biome, Vitest, and a
+small MCP Apps React surface.
+
+- MCP tools/transports -> [Model Context Protocol](https://modelcontextprotocol.io)
+  and `@modelcontextprotocol/sdk`.
+- Effect programs/errors -> [Effect documentation](https://effect.website/docs).
+- eBay endpoint behavior -> each generated OpenAPI file plus the matching
+  official eBay endpoint URL.
+
+This guide covers repo-specific rules on top of those sources.
 
 ## Rules
 
-### 1. Imports — `@/` alias except same-dir siblings
+### Function Form And Exports · [lint: style/noDefaultExport]
 
-Use the `@/` path alias (→ `src/`) for anything outside the current folder. Only a
-**same-directory** sibling uses a relative path. Keep the NodeNext `.js`
-extension on every relative/alias import (the build is ESM `Node16`). Do **not**
-use `.ts` extensions — they're incompatible with the `@/` alias under `tsc`
-(error TS2877); this was tried and reverted.
+Use exported `const` arrow functions for new/migrated exported functions. Keep
+named exports only. Existing API area classes may stay classes, but new endpoint
+methods should be public arrow properties so the method shape matches the
+exported-function style. Tool-loader config files may use `module.exports` only
+when the tool cannot load a named export; do not use default exports.
 
 ```ts
-// ✗ don't — mixing aliased and parent-relative in one file
-import { defineTool } from '@/tools/define-tool.js'; // aliased
-import { fulfillmentPolicySchema } from '../schemas.js'; // relative-to-parent ✗
+// chosen
+export const buildEndpointParams = (...): QueryParams | undefined => { ... };
+public getCustomPolicies = (...): Effect.Effect<Response, EbayApiError> => { ... };
+module.exports = vitestConfig; // only in CommonJS loader configs
+
+// not this
+export function buildEndpointParams(...) { ... }
+export default logger;
 ```
 
-```ts
-// after — one rule: @/ unless the file is in this same folder
-import { defineTool } from '@/tools/define-tool.js';
-import { fulfillmentPolicySchema } from '@/tools/schemas.js'; // aliased
-```
+_Why:_ One visible declaration style for new code, while named exports keep
+imports discoverable.
 
-`./sibling.js` stays relative; `../anything.js` becomes `@/…`.
+### Effect At Fallible Boundaries · [taste]
 
-### 2. Casts — boundary-only; never `as any`
-
-Two documented boundary casts are sanctioned because they sit at a type-erasure
-seam the compiler can't see across; everything else narrows. `as any` is banned,
-and **no hand-written source file may be excluded from typecheck**.
+Fallible async work returns `Effect.Effect<Success, TaggedError, Requirements>`.
+Run it with `Effect.runPromise` only at external boundaries: MCP handlers, HTTP
+adapters, and CLI entrypoints. Do not add `try/catch` in endpoint or tool code.
 
 ```ts
-// sanctioned — the zod→JSON-schema wire boundary (src/tools/categories/*.ts)
-outputSchema: zodToJsonSchema(kycOutputSchema, { name: 'KYCResponse' }) as OutputArgs,
+// chosen
+return Effect.tryPromise({
+  try: () => this.client.get<Response>(path, params),
+  catch: (cause) => new EbayApiError({ method: 'GET', path, cause }),
+});
 
-// sanctioned — result type-erasure in defineTool (src/tools/define-tool.ts)
-map: (result: unknown): ViewModel => ui.map(result as Result),
-```
-
-```ts
-const x = payload as any; // ✗ narrow the type instead
-```
-
-### 3. Function form & exports — declarations, named-only
-
-Exported functions are `export function` **declarations** (≈190 in `src/`; the
-arrow-const-export form is essentially absent). Exports are **named** — there is a
-single default export in the whole tree, and no new ones should appear.
-
-```ts
-// src/tools/define-tool.ts
-export function defineTool<Shape extends z.ZodRawShape, Result>(
-  spec: ToolSpec<Shape, Result>,
-): ToolEntry { … }
-```
-
-### 4. Thin handlers + throw-based errors
-
-A tool handler delegates in one line to `api.<area>.<method>`. The area method
-wraps its I/O in `withApiError` (prefixing failures with context); nothing throws
-custom `Error` subclasses. The `error instanceof Error ? … : …` idiom is
-centralised in `getErrorMessage`.
-
-```ts
-// handler — src/tools/categories/account.ts
-handler: (api, args) => api.account.getKyc(),
-
-// area method — wraps I/O with a contextual message (src/api/**)
-return await withApiError('Failed to get KYC', () => this.client.get<KycResponse>(path));
-
-// the one true instanceof idiom — src/utils/errors.ts
-export function getErrorMessage(error: unknown, fallback = 'Unknown error'): string {
-  return error instanceof Error ? error.message : fallback;
+// not this
+try {
+  return await this.client.get<Response>(path, params);
+} catch (error) {
+  throw new Error(`Failed: ${getErrorMessage(error)}`);
 }
 ```
 
-`withApiError` has 19 call sites; `getErrorMessage` 13. Reach for them instead of
-re-implementing the pattern.
+_Why:_ Failures stay typed and composable until the protocol/CLI boundary
+converts them.
 
-### 5. Zod raw shape is the single source of truth
+### Tagged Errors · [taste]
 
-`defineTool({ inputSchema })` takes a Zod **raw shape**. That one shape backs both
-the schema advertised to MCP clients _and_ the compile-time type of the handler's
-`args`. Renaming a field or changing its type is a `tsc` error at the call site,
-not a runtime surprise — so handlers read `args.sku` as `string`, never cast.
-Derive related schemas (`.pick`/`.extend`) rather than duplicating fields.
+Use Effect tagged errors such as `Data.TaggedError('EbayApiError')`. Endpoint
+methods should return typed Effects; `runApiRequest` is only for Promise-shaped
+call sites that are being migrated in the same ownership slice.
 
-### 6. Size caps — realistic, and off for declarative files
+```ts
+// chosen
+export class EbayApiError extends Data.TaggedError('EbayApiError')<{
+  readonly method: 'GET';
+  readonly path: string;
+  readonly cause: unknown;
+}> {}
 
-Biome warns past **~300 lines/file** and **~60 lines/function** on logic
-directories. Declarative, generated, or table-like files are exempt
-(`src/schemas/**`, `src/tools/definitions/**`, `src/tools/categories/**`,
-`src/types/**`, `src/scripts/**`) — a 900-line generated types file or a flat
-tool-definition table is not a smell. Caps are **warnings**, not errors: they
-guide extraction, they don't block.
+// not this
+throw new Error(`Failed to get custom policies: ${getErrorMessage(error)}`);
+```
 
-### 7. JSDoc — explain the _why_, not the obvious
+_Why:_ Tests and callers should assert error tags, not fragile message strings.
 
-Document non-obvious intent, invariants, and the reason a seam exists (see the
-`defineTool` doc comment on why re-validation is intentional). Do **not** add
-boilerplate JSDoc that restates a trivial signature.
+### Endpoint Docs · [taste]
 
-### 8. Naming, async, formatting
+Every endpoint-backed API method has TSDoc with `@param`, `@returns`, a small
+`@example`, and `@see` linking to the official eBay endpoint URL from the OpenAPI
+operation. Exported shared utilities also document every parameter and return
+when they cross file boundaries.
 
-- **Files** are kebab-case (`define-tool.ts`, `token-verifier.ts`).
-- **Async** is `async`/`await`, not raw `.then()` chains.
-- **Formatting** is Biome's job: single quotes, semicolons, trailing commas
-  everywhere, width 100, 2-space indent. Never hand-format against it; run
-  `pnpm run fix`.
+````ts
+// chosen
+/**
+ * Builds query params from an endpoint-owned allow-list.
+ *
+ * @param params - Camel-case local parameter names mapped to eBay wire names and values.
+ * @returns A query object for the request adapter, or undefined when every value is omitted.
+ *
+ * @example
+ * ```ts
+ * buildEndpointParams({ policyTypes: { wireName: 'policy_types', value } });
+ * ```
+ */
+export const buildEndpointParams = (...): QueryParams | undefined => { ... };
 
-### 9. Tests
+// not this
+/** Build params. */
+export const buildEndpointParams = (...): QueryParams | undefined => { ... };
+````
 
-Tests mirror `src/` under `tests/unit/**` and `tests/integration/**`, named
-`*.test.ts`, run by Vitest, with shared fixtures in `tests/helpers/`. Integration
-specs are **hermetic** — `nock` with net-connect disabled, no live eBay calls.
-Unit is the fast default (`pnpm test`); integration runs via
-`pnpm run test:integration`.
+_Why:_ Endpoint code is documentation-heavy by design because every method
+mirrors a public eBay contract.
+
+### Generated Response Types And `@see` · [taste]
+
+Do not invent internal domain models for every endpoint. API methods return
+generated eBay DTOs. Public aliases/interfaces built from generated responses
+get a concise comment and `@see` to the official endpoint.
+
+```ts
+// chosen
+/**
+ * Response returned by eBay Account API getCustomPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/account/resources/custom_policy/methods/getCustomPolicies
+ */
+export type GetCustomPoliciesResponse = components['schemas']['CustomPolicyResponse'];
+
+// not this
+export interface CustomPoliciesModel {
+  policies: PolicyRow[];
+}
+```
+
+_Why:_ The OpenAPI types are the contract; internal models are only for
+presentation boundaries.
+
+### Zod Schema Is The Tool Input SSOT · [taste]
+
+The endpoint/tool input schema is the single source of truth. MCP tools derive
+`inputSchema` from `.shape`; handlers receive typed args from `defineTool`. Use
+branded/opaque types for stable IDs before deeper Effect code when an identifier
+crosses layers.
+
+```ts
+// chosen
+export const getCustomPoliciesInputSchema = z.object({ policyTypes: z.string().optional() });
+inputSchema: getCustomPoliciesInputSchema.shape,
+handler: (api, args) => Effect.runPromise(api.account.getCustomPolicies(args)),
+
+// not this
+inputSchema: { policyTypes: z.string().optional() },
+handler: (api, args) => api.account.getCustomPolicies(args.policyTypes as string),
+```
+
+_Why:_ One schema prevents schema/handler drift.
+
+### Unified Params Builder · [taste]
+
+Endpoint methods own the allowed keys and wire names, then pass them to one
+shared params builder. The builder omits undefined/empty values and returns the
+endpoint-specific params object. Do not hand-roll query strings or endpoint-local
+generic builders.
+
+```ts
+// chosen
+const params = buildEndpointParams({
+  policyTypes: { wireName: 'policy_types', value: input.policyTypes },
+});
+
+// not this
+const params = input.policyTypes ? { policy_types: input.policyTypes } : undefined;
+```
+
+_Why:_ Each endpoint shows its contract while omission/normalization stays
+consistent.
+
+### Request Adapter Boundary · [taste]
+
+Endpoint methods assemble only the endpoint path, body, and allowed params, then
+call the shared request adapter/client. The adapter owns HTTP execution, auth
+headers, logging, rate-limit metadata, JSON/XML parsing, and transport-error
+conversion.
+
+```ts
+// chosen
+const path = `${this.basePath}/custom_policy/`;
+return requestGetEffect<GetCustomPoliciesResponse>(this.client, path, params);
+
+// not this
+const response = await fetch(url);
+if (!response.ok) throw new Error(...);
+```
+
+_Why:_ Endpoint files should read as endpoint contracts, not HTTP plumbing.
+
+### Collection Operations · [taste]
+
+Use `Effect.forEach`, `Effect.all`, and `Effect.reduce` when callbacks can fail,
+touch I/O, or need concurrency. Keep pure table/view projections as `map`. Use
+loops when branching accumulation is clearer. Do not extract one-use row mappers
+that only hide object construction.
+
+```ts
+// chosen
+rows: orders.map((order, index) => ({
+  id: order.orderId ?? `order-${index}`,
+  cells: { orderId: order.orderId ?? null },
+})),
+
+// not this
+rows: orders.map(toOrderRow);
+```
+
+_Why:_ Presentation field choices should stay visible at the layer that owns the
+shape.
+
+### Mapping Fallbacks · [taste]
+
+Do not use semantic display fallbacks such as `?? 'unknown'` or `?? 'N/A'` in
+mapping code. Missing display data is `null` or an empty value rendered by the
+view. Technical fallback IDs are allowed only when they are not user-visible.
+
+```ts
+// chosen
+id: order.orderId ?? `order-${index}`,
+cells: { orderId: order.orderId ?? null },
+
+// not this
+cells: { buyer: order.buyer?.username ?? 'unknown' },
+```
+
+_Why:_ Invented values are data corruption in the UI.
+
+### Control Flow · [lint: style/noNestedTernary]
+
+Use explicit assembly and small domain-named helpers when repetition is real. Ban
+nested/duplicated ternaries and generic helper names like `joinDefined`.
+
+```ts
+// chosen
+const query = buildEndpointParams({ ... });
+if (!query) return undefined;
+
+// not this
+const label = a ? b : c ? d : e;
+```
+
+_Why:_ Endpoint and CLI code should be readable under pressure.
+
+### Types And Interfaces · [taste]
+
+Use interfaces for public object contracts, type aliases for
+unions/functions/brands/error payload-style shapes, and `readonly` on stable
+contracts. Public shared interfaces/types get a concise comment when source,
+side effect, or external reference matters.
+
+```ts
+// chosen
+/** One endpoint-owned query parameter allowed by the shared params builder. */
+export interface EndpointParamSpec {
+  /** Query-string key expected by eBay, usually snake_case from the OpenAPI spec. */
+  readonly wireName: string;
+  /** Already-typed local value; undefined and empty strings are omitted. */
+  readonly value: string | number | undefined;
+}
+
+// not this
+type Params = { wireName: string; value?: string | number };
+```
+
+_Why:_ Shared object contracts should be inspectable and stable.
+
+### Imports And Filenames · [lint: style/useFilenamingConvention]
+
+Use the `@/` alias for anything outside the current folder and `./sibling.js`
+only for same-directory imports. Keep NodeNext `.js` extensions. Hand-written
+source/test/UI files use camelCase filenames. Generated files, upstream specs,
+and external docs keep their upstream naming.
+
+```ts
+// chosen
+import { getCustomPoliciesInputSchema } from '@/schemas/account-management/account.js';
+import { helper } from './helper.js';
+
+// not this
+import { getCustomPoliciesInputSchema } from '../../schemas/account-management/account.js';
+```
+
+_Why:_ Imports and filenames should be predictable across `src`, tests, and UI.
+
+If a hand-written source/test/UI filename is introduced or found in kebab-case,
+rename it in the same diff. User-facing enum values such as the
+`token-management` tool family key are data contracts, not filenames.
+
+### Module Boundaries · [taste]
+
+Shared modules must be dependency-light. `utils/`, `config/`, shared schemas, and
+generated types cannot import tool categories or API area modules.
+Feature-specific helpers stay beside the feature until reused by at least two
+real call sites.
+
+_Why:_ Shared code should not know feature wiring.
+
+### Config And Environment · [lint: style/noProcessEnv]
+
+All env reads go through `src/config/*` validated modules or top-level bootstrap
+scripts. Endpoint/API/tool code receives typed config values. Missing config
+becomes a typed Effect error when code is migrated.
+
+_Why:_ Env behavior should be validated once and testable.
+
+### Logging And Stdout · [lint: suspicious/noConsole]
+
+MCP STDIO mode never writes to stdout. Runtime modules use the shared logger to
+stderr/file transports. Human-facing CLI scripts may print prompts/results to
+stdout; reusable modules under `src/utils`, `src/api`, `src/tools`, `src/mcp`,
+and `src/auth` should not call `console.*` directly.
+
+_Why:_ stdout is the MCP protocol channel.
+
+### Tool And Handler Shape · [taste]
+
+Tools stay co-located with handlers via `defineTool` by default. A handler
+validates/brands args, runs exactly one endpoint Effect program, and does no
+`try/catch`, mapping, or response reshaping except presentation-only UI maps.
+If a large catalog still pairs definitions and handlers from separate files, it
+must enforce one public definition per handler and must not keep hidden aliases.
+New or migrated tools should close schema/handler mismatches first, then move
+into a co-located `defineTool` entry.
+
+_Why:_ Registry entries should make the tool-to-endpoint link obvious.
+
+### UI Boundary · [taste]
+
+React entry files stay tiny archetype apps that render `ViewModel` shapes. eBay
+DTO projection lives in `src/tools/ui/maps.ts` as the presentation boundary, with
+inline object construction and no one-use row-builder helpers. Keep state local
+to each archetype unless two views genuinely share it.
+
+_Why:_ The UI layer owns only presentation, not API normalization.
+
+### React Component Contracts · [taste]
+
+Use function components returning `ReactNode`. Export reusable shared components
+by name. Private tiny props can be inline; exported components get a named
+interface with meaningful one-line member comments when the contract is not
+obvious.
+
+_Why:_ MCP Apps code must stay type-checkable across the server/UI boundary.
+
+### Tests · [taste]
+
+Use behavior names without `should` where practical. Keep unit tests under
+`tests/unit/<area>` and integration tests under `tests/integration`. Prefer
+focused inline fixtures for small DTOs; extract helpers only when they remove
+real duplication across tests.
+
+_Why:_ Test names should read as behavior, not implementation instructions.
+
+### Effect Tests · [taste]
+
+Run successful Effects with `Effect.runPromise(program)` at the test boundary.
+Expected failures assert typed tagged errors, not message-only `toThrow`, except
+Promise boundary adapters that intentionally convert an Effect failure into a
+thrown protocol/CLI error. HTTP/request tests assert endpoint path, method,
+params/body, and error tag.
+
+_Why:_ Tests should lock the contract, not prose.
+
+### File And Module Size · [lint: complexity/noExcessiveLinesPerFunction]
+
+Split by purpose. Keep Biome size caps as warnings, not blind split triggers.
+Split when a file has multiple jobs, not because endpoint docs, schemas, or
+generated declarations are long.
+
+_Why:_ Locality beats shallow files.
+
+### Formatting And Package Management · [lint: formatter]
+
+Biome owns formatting: 2 spaces, single quotes, semicolons, trailing commas, 100
+columns. Use `pnpm` for installs and lockfile changes. `npm run ...` remains
+acceptable for scripts because the repo documents npm-compatible scripts.
+
+_Why:_ One lockfile keeps installs reproducible.
+
+## Canonical Example
+
+The agreed style assembled on one endpoint slice. It is illustrative
+documentation, not a direct patch.
+
+````ts
+import { Data, Effect } from 'effect';
+import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
+import type { EbayApiClient } from '@/api/client.js';
+import type { QueryParams } from '@/api/shared/request.js';
+import { customPolicyResponseSchema } from '@/schemas/account-management/account.js';
+import type { OutputArgs } from '@/tools/definitions/types.js';
+import { defineTool } from '@/tools/defineTool.js';
+import type { components } from '@/types/sell-apps/account-management/sellAccountV1Oas3.js';
+
+type GetCustomPoliciesInput = z.infer<typeof getCustomPoliciesInputSchema>;
+
+/**
+ * Response returned by eBay Account API getCustomPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/account/resources/custom_policy/methods/getCustomPolicies
+ */
+export type GetCustomPoliciesResponse = components['schemas']['CustomPolicyResponse'];
+
+/** Input accepted by the MCP tool and Account API method for getCustomPolicies. */
+export const getCustomPoliciesInputSchema = z.object({
+  /** Comma-delimited custom policy types, e.g. PRODUCT_COMPLIANCE,TAKE_BACK. */
+  policyTypes: z.string().optional(),
+});
+
+/** API failure returned by endpoint Effects after the request adapter catches transport errors. */
+export class EbayApiError extends Data.TaggedError('EbayApiError')<{
+  readonly method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  readonly path: string;
+  readonly cause: unknown;
+}> {}
+
+/** One endpoint-owned query parameter allowed by the shared params builder. */
+export interface EndpointParamSpec {
+  /** Query-string key expected by eBay, usually snake_case from the OpenAPI spec. */
+  readonly wireName: string;
+  /** Already-typed local value; undefined and empty strings are omitted. */
+  readonly value: string | number | undefined;
+}
+
+/**
+ * Builds query params from an endpoint-owned allow-list.
+ *
+ * @param params - Camel-case local parameter names mapped to their eBay wire names and values.
+ * @returns A query object for the request adapter, or undefined when every value is omitted.
+ *
+ * @example
+ * ```ts
+ * const params = buildEndpointParams({
+ *   policyTypes: { wireName: 'policy_types', value: input.policyTypes },
+ * });
+ * ```
+ */
+export const buildEndpointParams = (
+  params: Record<string, EndpointParamSpec>,
+): QueryParams | undefined => {
+  const query: QueryParams = {};
+
+  for (const param of Object.values(params)) {
+    if (param.value !== undefined && param.value !== '') {
+      query[param.wireName] = param.value;
+    }
+  }
+
+  return Object.keys(query).length > 0 ? query : undefined;
+};
+
+export class AccountApi {
+  private readonly basePath = '/sell/account/v1';
+
+  public constructor(private readonly client: EbayApiClient) {}
+
+  /**
+   * Retrieves custom policies defined for the seller account.
+   *
+   * @param input - Optional filter containing comma-delimited custom policy types.
+   * @returns An Effect that succeeds with eBay's generated CustomPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   accountApi.getCustomPolicies({ policyTypes: 'TAKE_BACK' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/custom_policy/methods/getCustomPolicies
+   */
+  public getCustomPolicies = (
+    input: GetCustomPoliciesInput = {},
+  ): Effect.Effect<GetCustomPoliciesResponse, EbayApiError> => {
+    const path = `${this.basePath}/custom_policy/`;
+    const params = buildEndpointParams({
+      policyTypes: { wireName: 'policy_types', value: input.policyTypes },
+    });
+
+    return Effect.tryPromise({
+      try: () => this.client.get<GetCustomPoliciesResponse>(path, params),
+      catch: (cause) => new EbayApiError({ method: 'GET', path, cause }),
+    });
+  };
+}
+
+export const accountEntries = [
+  defineTool({
+    name: 'ebay_get_custom_policies',
+    description: 'Retrieve custom policies defined for the seller account',
+    inputSchema: getCustomPoliciesInputSchema.shape,
+    outputSchema: zodToJsonSchema(customPolicyResponseSchema, {
+      name: 'CustomPoliciesResponse',
+      $refStrategy: 'none',
+    }) as OutputArgs,
+    handler: (api, args) => Effect.runPromise(api.account.getCustomPolicies(args)),
+  }),
+];
+````
 
 ## Recipes
 
-### Add an API endpoint + tool
+### Add An API Endpoint + MCP Tool
 
-1. `pnpm run sync` — refresh specs, regenerate `src/types/`, list missing endpoints.
-2. Add the method on the matching area class in `src/api/<area>/`, wrapping I/O in
-   `withApiError`.
-3. Add a `defineTool({ … handler })` entry in the matching
-   `src/tools/categories/<family>.ts` — definition and handler live together.
-4. Add unit tests under `tests/unit/`; add an integration spec if it crosses HTTP.
-5. `pnpm run check && pnpm test`.
+1. Find the operation in `docs/sell-apps/**/<spec>.json` and copy the official
+   eBay docs URL for the method.
+2. Add or reuse a Zod input schema. The tool derives `inputSchema` from `.shape`.
+3. Add generated response aliases from `src/types/**`, with `@see` when exported.
+4. Add the API method as an Effect-returning endpoint method with full TSDoc.
+5. Build query params through the shared params builder; do not hand-roll query
+   strings.
+6. Add a co-located `defineTool` entry whose handler runs the Effect at the MCP
+   boundary.
+7. Add unit tests for path/method/params/body and typed error tags; add
+   integration coverage when HTTP behavior changes.
+8. Run `npm run typecheck`, `npm run check:ci`, `npm test`, and relevant
+   integration tests.
 
-### Add a CLI command
+### Add Or Change A CLI Command
 
-The bin (`src/index.ts`) routes subcommands (`setup`, `skills`), then runs the
-MCP stdio server by default. A command must be **dual-mode**: a bare invocation
-in a TTY opens the menu; flags or a non-TTY defer and **never hang**; both routes
-call the same `run*` function, reusing the existing `prompts`/`isTTY`/`cli-ui`
-wizards. A CLI framework (commander) was evaluated and **dropped as unused** (ADR
-0002 → 0006); extend the hand-router until a real need justifies a dependency.
+1. Export one `run*({ argv, stdio })` function that contains the command journey.
+2. Route the bin through the hand-written router; do not add a CLI framework
+   unless a new ADR proves the need.
+3. TTY with no flags may prompt. Flags or non-TTY must never hang.
+4. Machine-consumable commands add `--json` and stable exit codes.
+5. Human output may use stdout, color, prompts, and progress; MCP STDIO mode may
+   not.
 
-## Exemplar files
+### Add A UI Projection
 
-| File                            | Shows                                            |
-| ------------------------------- | ------------------------------------------------ |
-| `src/tools/define-tool.ts`      | The contract; Zod-shape SSOT; sanctioned casts; why-JSDoc |
-| `src/utils/errors.ts`           | The one `instanceof Error` idiom                 |
-| `src/api/shared/request.ts`     | `withApiError` I/O wrapper                        |
-| `src/tools/categories/account.ts` | A representative tool family (defineTool usage) |
-| `src/index.ts`                  | Bin entry / subcommand routing                   |
+1. Return generated eBay DTOs from the API layer.
+2. Map to `TableViewModel`, `CardViewModel`, `ChartViewModel`, or `StatViewModel`
+   only at `src/tools/ui/maps.ts`.
+3. Keep object construction inline in the mapper that owns the target shape.
+4. Use `null`/empty values for missing display data and let the React view render
+   the placeholder.
 
-## Scripts layout — `scripts/dev/` is gitignored
+## Exemplars
 
-**Rule:** if you create scripts for local debugging, smoke-testing, or one-off experiments, put them in `scripts/dev/`. This folder is **gitignored** — it never reaches the remote. Production/CI scripts stay at the `scripts/` root.
+Current files are temporary exemplars until the Effect migration creates a full
+API exemplar:
 
-When creating a new script, ask: _"Would CI or another contributor need this?"_ If **no** → `scripts/dev/`.
+- `src/tools/defineTool.ts` - typed `defineTool`, schema SSOT, and useful
+  boundary comments.
+- `ui/host.tsx` - concise TSDoc around a real trust boundary and small reusable
+  UI primitives.
+- `tests/unit/tools/uiMaps.test.ts` - behavior-named tests and focused inline
+  fixtures.
 
 ## Never
 
-- **Never** `as any` — narrow, or use a documented boundary cast.
-- **Never** exclude a hand-written source file from typecheck.
-- **Never** import a parent path (`../x.js`) when `@/x.js` says it plainer.
-- **Never** write to **stdout** — it's the MCP protocol channel; logs go to
-  **stderr** (see [docs/logging.md](docs/logging.md)).
-- **Never** hand-edit `src/types/**` — it's generated by `pnpm run sync`.
-- **Never** add a **new** custom `Error` subclass — throw with `withApiError`
-  context. (The one sanctioned exception is `HttpError` in `src/utils/http.ts` —
-  the low-level HTTP carrier recording `status`/`statusText`/`url`, which
-  `withApiError` wraps.)
-- **Never** add a default export — named exports only.
-- **Never** let a bare CLI invocation hang in a non-TTY — defer, don't block.
-
-## Framework practices
-
-This is a pure `@modelcontextprotocol/sdk` + Express/Node/Zod/Biome/Vitest
-project — no Cloudflare/Expo/Anthropic-SDK best-practices skill applies. For MCP
-semantics (tools, schemas, transports), defer to the SDK and
-[modelcontextprotocol.io](https://modelcontextprotocol.io); this guide does not
-restate them.
+- Never use `as any`; narrow or use a documented boundary cast.
+- Never add default exports.
+- Never add or keep kebab-case hand-written source/test/UI filenames.
+- Never use `try/catch` in endpoint/tool code when the work can be an Effect.
+- Never throw custom untagged errors from migrated API code.
+- Never use `?? 'unknown'`, `?? 'N/A'`, or invented semantic display fallbacks in
+  maps.
+- Never extract one-use `toXRow`/`buildXModel` helpers that only hide object
+  construction.
+- Never add generic micro-helpers such as `isRecord` or `ensureArray` unless they
+  guard a true trust boundary.
+- Never add nested or duplicated ternaries.
+- Never scatter raw `process.env` outside config/bootstrap.
+- Never let reusable runtime modules call `console.*` directly.
+- Never hand-edit `src/types/**`; regenerate from OpenAPI.
+- Never let a bare CLI invocation hang in non-TTY mode.

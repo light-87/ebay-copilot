@@ -1603,27 +1603,6 @@ export const findListingRecommendationRequestSchema = z.object({
   listingIds: z.array(z.string()).optional(),
 });
 
-// Input Schemas for Find Listing Recommendations
-/**
- * Validates the Marketing API find listing recommendations request payload.
- */
-export const findListingRecommendationsInputSchema = z.object({
-  filter: z
-    .string()
-    .optional()
-    .describe('Filter by recommendation types (e.g., recommendationTypes:{AD})'),
-  limit: z
-    .string()
-    .optional()
-    .describe('Maximum number of ads to return per page (default: 10, max: 500)'),
-  offset: z
-    .string()
-    .optional()
-    .describe('Number of ads to skip before returning results (default: 0)'),
-  'X-EBAY-C-MARKETPLACE-ID': z.string().describe('eBay marketplace ID where items are listed'),
-  body: findListingRecommendationRequestSchema.optional(),
-});
-
 // ============================================================================
 // Aspect Schema
 // ============================================================================
@@ -1637,13 +1616,591 @@ export const aspectSchema = z.object({
 });
 
 // ============================================================================
+// Email Campaign Request Schemas
+// ============================================================================
+
+/** Validates the Marketing API update email campaign request model. */
+export const updateEmailCampaignRequestSchema = z.object({
+  audienceCodes: z.array(z.string()).optional(),
+  categoryId: z.string().optional(),
+  categoryType: z.string().optional(),
+  itemIds: z.array(z.string()).optional(),
+  itemSelectMode: z.string().optional(),
+  personalizedMessage: z.string().optional(),
+  priceRange: priceRangeSchema.optional(),
+  promotionId: z.string().optional(),
+  promotionSelectModeEnum: z.string().optional(),
+  scheduleDate: z.string().optional(),
+  sort: z.string().optional(),
+  subject: z.string().optional(),
+});
+
+// ============================================================================
+// Endpoint Input Schemas (OpenAPI Operations)
+// ============================================================================
+
+/** Validates the Marketing API bulkCreateAdsByInventoryReference endpoint input. */
+export const bulkCreateAdsByInventoryReferenceInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: bulkCreateAdsByInventoryReferenceRequestSchema.describe(
+    'Bulk create ads by inventory reference request body',
+  ),
+});
+
+/** Validates the Marketing API bulkCreateAdsByListingId endpoint input. */
+export const bulkCreateAdsByListingIdInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: bulkCreateAdRequestSchema.describe('Bulk create ads by listing id request body'),
+});
+
+/** Validates the Marketing API bulkDeleteAdsByInventoryReference endpoint input. */
+export const bulkDeleteAdsByInventoryReferenceInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: bulkDeleteAdsByInventoryReferenceRequestSchema.describe(
+    'Bulk delete ads by inventory reference request body',
+  ),
+});
+
+/** Validates the Marketing API bulkDeleteAdsByListingId endpoint input. */
+export const bulkDeleteAdsByListingIdInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: bulkDeleteAdRequestSchema.describe('Bulk delete ads by listing id request body'),
+});
+
+/** Validates the Marketing API bulkUpdateAdsBidByInventoryReference endpoint input. */
+export const bulkUpdateAdsBidByInventoryReferenceInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: bulkCreateAdsByInventoryReferenceRequestSchema.describe(
+    'Bulk update ads bid by inventory reference request body',
+  ),
+});
+
+/** Validates the Marketing API bulkUpdateAdsBidByListingId endpoint input. */
+export const bulkUpdateAdsBidByListingIdInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: bulkCreateAdRequestSchema.describe('Bulk update ads bid by listing id request body'),
+});
+
+/** Validates the Marketing API bulkUpdateAdsStatus endpoint input. */
+export const bulkUpdateAdsStatusInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: bulkUpdateAdStatusRequestSchema.describe('Bulk update ads status request body'),
+});
+
+/** Validates the Marketing API bulkUpdateAdsStatusByListingId endpoint input. */
+export const bulkUpdateAdsStatusByListingIdInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: bulkUpdateAdStatusByListingIdRequestSchema.describe(
+    'Bulk update ads status by listing id request body',
+  ),
+});
+
+/** Validates the Marketing API getAds endpoint input. */
+export const getAdsInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  adGroupIds: z.string().describe('adGroupIds optional endpoint parameter').optional(),
+  adStatus: z.string().describe('adStatus optional endpoint parameter').optional(),
+  limit: z.number().describe('limit optional endpoint parameter').optional(),
+  listingIds: z.string().describe('listingIds optional endpoint parameter').optional(),
+  offset: z.number().describe('offset optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API createAdByListingId endpoint input. */
+export const createAdByListingIdInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: createAdRequestSchema.describe('Create ad by listing id request body'),
+});
+
+/** Validates the Marketing API createAdsByInventoryReference endpoint input. */
+export const createAdsByInventoryReferenceInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: createAdsByInventoryReferenceRequestSchema.describe(
+    'Create ads by inventory reference request body',
+  ),
+});
+
+/** Validates the Marketing API getAd endpoint input. */
+export const getAdInputSchema = z.object({
+  adId: z.string().describe('adId required endpoint parameter'),
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+});
+
+/** Validates the Marketing API deleteAd endpoint input. */
+export const deleteAdInputSchema = z.object({
+  adId: z.string().describe('adId required endpoint parameter'),
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+});
+
+/** Validates the Marketing API deleteAdsByInventoryReference endpoint input. */
+export const deleteAdsByInventoryReferenceInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: deleteAdsByInventoryReferenceRequestSchema.describe(
+    'Delete ads by inventory reference request body',
+  ),
+});
+
+/** Validates the Marketing API getAdsByInventoryReference endpoint input. */
+export const getAdsByInventoryReferenceInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  inventoryReferenceId: z.string().describe('inventoryReferenceId required endpoint parameter'),
+  inventoryReferenceType: z.string().describe('inventoryReferenceType required endpoint parameter'),
+});
+
+/** Validates the Marketing API updateBid endpoint input. */
+export const updateBidInputSchema = z.object({
+  adId: z.string().describe('adId required endpoint parameter'),
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: updateBidPercentageRequestSchema.describe('Update bid request body'),
+});
+
+/** Validates the Marketing API getAdGroups endpoint input. */
+export const getAdGroupsInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  adGroupStatus: z.string().describe('adGroupStatus optional endpoint parameter').optional(),
+  limit: z.number().describe('limit optional endpoint parameter').optional(),
+  offset: z.number().describe('offset optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API createAdGroup endpoint input. */
+export const createAdGroupInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: createAdGroupRequestSchema.describe('Create ad group request body'),
+});
+
+/** Validates the Marketing API getAdGroup endpoint input. */
+export const getAdGroupInputSchema = z.object({
+  adGroupId: z.string().describe('adGroupId required endpoint parameter'),
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+});
+
+/** Validates the Marketing API updateAdGroup endpoint input. */
+export const updateAdGroupInputSchema = z.object({
+  adGroupId: z.string().describe('adGroupId required endpoint parameter'),
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: updateAdGroupRequestSchema.describe('Update ad group request body'),
+});
+
+/** Validates the Marketing API suggestBids endpoint input. */
+export const suggestBidsInputSchema = z.object({
+  adGroupId: z.string().describe('adGroupId required endpoint parameter'),
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: targetedBidRequestSchema.describe('Suggest bids request body'),
+});
+
+/** Validates the Marketing API suggestKeywords endpoint input. */
+export const suggestKeywordsInputSchema = z.object({
+  adGroupId: z.string().describe('adGroupId required endpoint parameter'),
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: targetedKeywordRequestSchema.describe('Suggest keywords request body'),
+});
+
+/** Validates the Marketing API cloneCampaign endpoint input. */
+export const cloneCampaignInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: cloneCampaignRequestSchema.describe('Clone campaign request body'),
+});
+
+/** Validates the Marketing API getCampaigns endpoint input. */
+export const getCampaignsInputSchema = z.object({
+  campaignName: z.string().describe('campaignName optional endpoint parameter').optional(),
+  campaignStatus: z.string().describe('campaignStatus optional endpoint parameter').optional(),
+  campaignTargetingTypes: z
+    .string()
+    .describe('campaignTargetingTypes optional endpoint parameter')
+    .optional(),
+  channels: z.string().describe('channels optional endpoint parameter').optional(),
+  endDateRange: z.string().describe('endDateRange optional endpoint parameter').optional(),
+  fundingStrategy: z.string().describe('fundingStrategy optional endpoint parameter').optional(),
+  limit: z.number().describe('limit optional endpoint parameter').optional(),
+  offset: z.number().describe('offset optional endpoint parameter').optional(),
+  startDateRange: z.string().describe('startDateRange optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API createCampaign endpoint input. */
+export const createCampaignInputSchema = z.object({
+  request: createCampaignRequestSchema.describe('Create campaign request body'),
+});
+
+/** Validates the Marketing API getCampaign endpoint input. */
+export const getCampaignInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+});
+
+/** Validates the Marketing API deleteCampaign endpoint input. */
+export const deleteCampaignInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+});
+
+/** Validates the Marketing API endCampaign endpoint input. */
+export const endCampaignInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+});
+
+/** Validates the Marketing API findCampaignByAdReference endpoint input. */
+export const findCampaignByAdReferenceInputSchema = z.object({
+  inventoryReferenceId: z
+    .string()
+    .describe('inventoryReferenceId optional endpoint parameter')
+    .optional(),
+  inventoryReferenceType: z
+    .string()
+    .describe('inventoryReferenceType optional endpoint parameter')
+    .optional(),
+  listingId: z.string().describe('listingId optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API getCampaignByName endpoint input. */
+export const getCampaignByNameInputSchema = z.object({
+  campaignName: z.string().describe('campaignName required endpoint parameter'),
+});
+
+/** Validates the Marketing API launchCampaign endpoint input. */
+export const launchCampaignInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+});
+
+/** Validates the Marketing API pauseCampaign endpoint input. */
+export const pauseCampaignInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+});
+
+/** Validates the Marketing API resumeCampaign endpoint input. */
+export const resumeCampaignInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+});
+
+/** Validates the Marketing API setupQuickCampaign endpoint input. */
+export const setupQuickCampaignInputSchema = z.object({
+  request: quickSetupRequestSchema.describe('Setup quick campaign request body'),
+});
+
+/** Validates the Marketing API suggestBudget endpoint input. */
+export const suggestBudgetInputSchema = z.object({
+  marketplaceId: z.string().describe('Marketplace ID sent as X-EBAY-C-MARKETPLACE-ID'),
+});
+
+/** Validates the Marketing API suggestItems endpoint input. */
+export const suggestItemsInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  categoryIds: z.string().describe('categoryIds optional endpoint parameter').optional(),
+  limit: z.number().describe('limit optional endpoint parameter').optional(),
+  offset: z.number().describe('offset optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API suggestMaxCpc endpoint input. */
+export const suggestMaxCpcInputSchema = z.object({
+  request: suggestMaxCpcRequestSchema.describe('Suggest max cpc request body'),
+});
+
+/** Validates the Marketing API updateAdRateStrategy endpoint input. */
+export const updateAdRateStrategyInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: updateAdrateStrategyRequestSchema.describe('Update ad rate strategy request body'),
+});
+
+/** Validates the Marketing API updateBiddingStrategy endpoint input. */
+export const updateBiddingStrategyInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: updateBiddingStrategyRequestSchema.describe('Update bidding strategy request body'),
+});
+
+/** Validates the Marketing API updateCampaignBudget endpoint input. */
+export const updateCampaignBudgetInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: updateCampaignBudgetRequestSchema.describe('Update campaign budget request body'),
+});
+
+/** Validates the Marketing API updateCampaignIdentification endpoint input. */
+export const updateCampaignIdentificationInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: updateCampaignIdentificationRequestSchema.describe(
+    'Update campaign identification request body',
+  ),
+});
+
+/** Validates the Marketing API bulkCreateKeyword endpoint input. */
+export const bulkCreateKeywordInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: bulkCreateKeywordRequestSchema.describe('Bulk create keyword request body'),
+});
+
+/** Validates the Marketing API bulkUpdateKeyword endpoint input. */
+export const bulkUpdateKeywordInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: bulkUpdateKeywordRequestSchema.describe('Bulk update keyword request body'),
+});
+
+/** Validates the Marketing API getKeywords endpoint input. */
+export const getKeywordsInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  adGroupIds: z.string().describe('adGroupIds optional endpoint parameter').optional(),
+  keywordStatus: z.string().describe('keywordStatus optional endpoint parameter').optional(),
+  limit: z.number().describe('limit optional endpoint parameter').optional(),
+  offset: z.number().describe('offset optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API createKeyword endpoint input. */
+export const createKeywordInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  request: createKeywordRequestSchema.describe('Create keyword request body'),
+});
+
+/** Validates the Marketing API getKeyword endpoint input. */
+export const getKeywordInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  keywordId: z.string().describe('keywordId required endpoint parameter'),
+});
+
+/** Validates the Marketing API updateKeyword endpoint input. */
+export const updateKeywordInputSchema = z.object({
+  campaignId: z.string().describe('campaignId required endpoint parameter'),
+  keywordId: z.string().describe('keywordId required endpoint parameter'),
+  request: updateKeywordRequestSchema.describe('Update keyword request body'),
+});
+
+/** Validates the Marketing API bulkCreateNegativeKeyword endpoint input. */
+export const bulkCreateNegativeKeywordInputSchema = z.object({
+  request: bulkCreateNegativeKeywordRequestSchema.describe(
+    'Bulk create negative keyword request body',
+  ),
+});
+
+/** Validates the Marketing API bulkUpdateNegativeKeyword endpoint input. */
+export const bulkUpdateNegativeKeywordInputSchema = z.object({
+  request: bulkUpdateNegativeKeywordRequestSchema.describe(
+    'Bulk update negative keyword request body',
+  ),
+});
+
+/** Validates the Marketing API getNegativeKeywords endpoint input. */
+export const getNegativeKeywordsInputSchema = z.object({
+  adGroupIds: z.string().describe('adGroupIds optional endpoint parameter').optional(),
+  campaignIds: z.string().describe('campaignIds optional endpoint parameter').optional(),
+  limit: z.number().describe('limit optional endpoint parameter').optional(),
+  negativeKeywordStatus: z
+    .string()
+    .describe('negativeKeywordStatus optional endpoint parameter')
+    .optional(),
+  offset: z.number().describe('offset optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API createNegativeKeyword endpoint input. */
+export const createNegativeKeywordInputSchema = z.object({
+  request: createNegativeKeywordRequestSchema.describe('Create negative keyword request body'),
+});
+
+/** Validates the Marketing API getNegativeKeyword endpoint input. */
+export const getNegativeKeywordInputSchema = z.object({
+  negativeKeywordId: z.string().describe('negativeKeywordId required endpoint parameter'),
+});
+
+/** Validates the Marketing API updateNegativeKeyword endpoint input. */
+export const updateNegativeKeywordInputSchema = z.object({
+  negativeKeywordId: z.string().describe('negativeKeywordId required endpoint parameter'),
+  request: updateNegativeKeywordRequestSchema.describe('Update negative keyword request body'),
+});
+
+/** Validates the Marketing API getReport endpoint input. */
+export const getReportInputSchema = z.object({
+  reportId: z.string().describe('reportId required endpoint parameter'),
+});
+
+/** Validates the Marketing API getReportMetadata endpoint input. */
+export const getReportMetadataInputSchema = z.object({
+  fundingModel: z.string().describe('fundingModel optional endpoint parameter').optional(),
+  channel: z.string().describe('channel optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API getReportMetadataForReportType endpoint input. */
+export const getReportMetadataForReportTypeInputSchema = z.object({
+  reportType: z.string().describe('reportType required endpoint parameter'),
+  fundingModel: z.string().describe('fundingModel optional endpoint parameter').optional(),
+  channel: z.string().describe('channel optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API getReportTasks endpoint input. */
+export const getReportTasksInputSchema = z.object({
+  limit: z.number().describe('limit optional endpoint parameter').optional(),
+  offset: z.number().describe('offset optional endpoint parameter').optional(),
+  reportTaskStatuses: z
+    .string()
+    .describe('reportTaskStatuses optional endpoint parameter')
+    .optional(),
+});
+
+/** Validates the Marketing API createReportTask endpoint input. */
+export const createReportTaskInputSchema = z.object({
+  request: createReportTaskSchema.describe('Create report task request body'),
+});
+
+/** Validates the Marketing API getReportTask endpoint input. */
+export const getReportTaskInputSchema = z.object({
+  reportTaskId: z.string().describe('reportTaskId required endpoint parameter'),
+});
+
+/** Validates the Marketing API deleteReportTask endpoint input. */
+export const deleteReportTaskInputSchema = z.object({
+  reportTaskId: z.string().describe('reportTaskId required endpoint parameter'),
+});
+
+/** Validates the Marketing API createItemPriceMarkdownPromotion endpoint input. */
+export const createItemPriceMarkdownPromotionInputSchema = z.object({
+  request: itemPriceMarkdownSchema.describe('Create item price markdown promotion request body'),
+});
+
+/** Validates the Marketing API getItemPriceMarkdownPromotion endpoint input. */
+export const getItemPriceMarkdownPromotionInputSchema = z.object({
+  promotionId: z.string().describe('promotionId required endpoint parameter'),
+});
+
+/** Validates the Marketing API updateItemPriceMarkdownPromotion endpoint input. */
+export const updateItemPriceMarkdownPromotionInputSchema = z.object({
+  promotionId: z.string().describe('promotionId required endpoint parameter'),
+  request: itemPriceMarkdownSchema.describe('Update item price markdown promotion request body'),
+});
+
+/** Validates the Marketing API deleteItemPriceMarkdownPromotion endpoint input. */
+export const deleteItemPriceMarkdownPromotionInputSchema = z.object({
+  promotionId: z.string().describe('promotionId required endpoint parameter'),
+});
+
+/** Validates the Marketing API createItemPromotion endpoint input. */
+export const createItemPromotionInputSchema = z.object({
+  request: itemPromotionSchema.describe('Create item promotion request body'),
+});
+
+/** Validates the Marketing API getItemPromotion endpoint input. */
+export const getItemPromotionInputSchema = z.object({
+  promotionId: z.string().describe('promotionId required endpoint parameter'),
+});
+
+/** Validates the Marketing API updateItemPromotion endpoint input. */
+export const updateItemPromotionInputSchema = z.object({
+  promotionId: z.string().describe('promotionId required endpoint parameter'),
+  request: itemPromotionSchema.describe('Update item promotion request body'),
+});
+
+/** Validates the Marketing API deleteItemPromotion endpoint input. */
+export const deleteItemPromotionInputSchema = z.object({
+  promotionId: z.string().describe('promotionId required endpoint parameter'),
+});
+
+/** Validates the Marketing API getListingSet endpoint input. */
+export const getListingSetInputSchema = z.object({
+  promotionId: z.string().describe('promotionId required endpoint parameter'),
+  limit: z.number().describe('limit optional endpoint parameter').optional(),
+  offset: z.number().describe('offset optional endpoint parameter').optional(),
+  q: z.string().describe('q optional endpoint parameter').optional(),
+  sort: z.string().describe('sort optional endpoint parameter').optional(),
+  status: z.string().describe('status optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API getPromotions endpoint input. */
+export const getPromotionsInputSchema = z.object({
+  limit: z.number().describe('limit optional endpoint parameter').optional(),
+  marketplaceId: z.string().describe('marketplaceId required endpoint parameter'),
+  offset: z.number().describe('offset optional endpoint parameter').optional(),
+  promotionStatus: z.string().describe('promotionStatus optional endpoint parameter').optional(),
+  promotionType: z.string().describe('promotionType optional endpoint parameter').optional(),
+  q: z.string().describe('q optional endpoint parameter').optional(),
+  sort: z.string().describe('sort optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API pausePromotion endpoint input. */
+export const pausePromotionInputSchema = z.object({
+  promotionId: z.string().describe('promotionId required endpoint parameter'),
+});
+
+/** Validates the Marketing API resumePromotion endpoint input. */
+export const resumePromotionInputSchema = z.object({
+  promotionId: z.string().describe('promotionId required endpoint parameter'),
+});
+
+/** Validates the Marketing API getPromotionReports endpoint input. */
+export const getPromotionReportsInputSchema = z.object({
+  limit: z.number().describe('limit optional endpoint parameter').optional(),
+  marketplaceId: z.string().describe('marketplaceId required endpoint parameter'),
+  offset: z.number().describe('offset optional endpoint parameter').optional(),
+  promotionStatus: z.string().describe('promotionStatus optional endpoint parameter').optional(),
+  promotionType: z.string().describe('promotionType optional endpoint parameter').optional(),
+  q: z.string().describe('q optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API getPromotionSummaryReport endpoint input. */
+export const getPromotionSummaryReportInputSchema = z.object({
+  marketplaceId: z.string().describe('marketplaceId required endpoint parameter'),
+});
+
+/** Validates the Marketing API getEmailCampaigns endpoint input. */
+export const getEmailCampaignsInputSchema = z.object({
+  limit: z.number().describe('limit optional endpoint parameter').optional(),
+  offset: z.number().describe('offset optional endpoint parameter').optional(),
+  q: z.string().describe('q optional endpoint parameter').optional(),
+  sort: z.string().describe('sort optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API createEmailCampaign endpoint input. */
+export const createEmailCampaignInputSchema = z.object({
+  marketplaceId: z.string().describe('Marketplace ID sent as X-EBAY-C-MARKETPLACE-ID'),
+  request: createEmailCampaignRequestSchema.describe('Create email campaign request body'),
+});
+
+/** Validates the Marketing API getEmailCampaign endpoint input. */
+export const getEmailCampaignInputSchema = z.object({
+  emailCampaignId: z.string().describe('emailCampaignId required endpoint parameter'),
+});
+
+/** Validates the Marketing API updateEmailCampaign endpoint input. */
+export const updateEmailCampaignInputSchema = z.object({
+  emailCampaignId: z.string().describe('emailCampaignId required endpoint parameter'),
+  request: updateEmailCampaignRequestSchema.describe('Update email campaign request body'),
+});
+
+/** Validates the Marketing API deleteEmailCampaign endpoint input. */
+export const deleteEmailCampaignInputSchema = z.object({
+  emailCampaignId: z.string().describe('emailCampaignId required endpoint parameter'),
+});
+
+/** Validates the Marketing API getAudiences endpoint input. */
+export const getAudiencesInputSchema = z.object({
+  emailCampaignType: z.string().describe('emailCampaignType required endpoint parameter'),
+  limit: z.number().describe('limit optional endpoint parameter').optional(),
+  offset: z.number().describe('offset optional endpoint parameter').optional(),
+});
+
+/** Validates the Marketing API getEmailPreview endpoint input. */
+export const getEmailPreviewInputSchema = z.object({
+  emailCampaignId: z.string().describe('emailCampaignId required endpoint parameter'),
+});
+
+/** Validates the Marketing API getEmailReport endpoint input. */
+export const getEmailReportInputSchema = z.object({
+  endDate: z.string().describe('endDate required endpoint parameter'),
+  startDate: z.string().describe('startDate required endpoint parameter'),
+});
+
+/** Validates the Recommendation API findListingRecommendations endpoint input. */
+export const findListingRecommendationsInputSchema = z.object({
+  requestBody: findListingRecommendationRequestSchema.optional(),
+  filter: z.string().optional().describe('Recommendation filter expression'),
+  limit: z.number().optional().describe('Maximum recommendations to return'),
+  offset: z.number().optional().describe('Recommendations to skip before returning results'),
+  marketplaceId: z.string().describe('Marketplace ID sent as X-EBAY-C-MARKETPLACE-ID'),
+});
+// ============================================================================
 // JSON Schema Conversion Functions
 // ============================================================================
 
 /**
- * Convert Zod schemas to JSON Schema format for MCP tools
+ * Converts Marketing API Zod schemas to JSON Schema format for MCP tools.
+ *
+ * @returns Marketing API JSON schemas keyed by endpoint or shared model name.
+ * @example
+ * ```ts
+ * const schemas = getMarketingJsonSchemas();
+ * ```
  */
-export function getMarketingJsonSchemas() {
+export const getMarketingJsonSchemas = () => {
   return {
     // Campaign Management
     getCampaignsOutput: zodToJsonSchema(
@@ -1845,4 +2402,4 @@ export function getMarketingJsonSchemas() {
     error: zodToJsonSchema(errorSchema, 'error'),
     amount: zodToJsonSchema(amountSchema, 'amount'),
   };
-}
+};

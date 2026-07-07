@@ -10,9 +10,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
+    "baseUrl": "..",
+    "paths": { "@/*": ["src/*"] },
     "isolatedModules": true,
     "moduleDetection": "force",
     "allowImportingTsExtensions": true
   },
-  "include": ["**/*.ts", "**/*.tsx", "vite-env.d.ts"]
+  "include": ["**/*.ts", "**/*.tsx", "viteEnv.d.ts"]
 }

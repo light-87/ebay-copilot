@@ -3,10 +3,10 @@ import {
   getEbayConfig,
   getBaseUrl,
   getIdentityBaseUrl,
-  getAuthUrl,
   getProxyAuthConfig,
   validateEnvironmentConfig,
 } from '@/config/environment.js';
+import process from 'node:process';
 
 describe('Environment Configuration', () => {
   const originalEnv = process.env;
@@ -22,7 +22,7 @@ describe('Environment Configuration', () => {
   });
 
   describe('getEbayConfig', () => {
-    it('should return config with valid credentials', () => {
+    it('return config with valid credentials', () => {
       process.env.EBAY_CLIENT_ID = 'test_client_id';
       process.env.EBAY_CLIENT_SECRET = 'test_client_secret';
       process.env.EBAY_REDIRECT_URI = 'https://example.com/callback';
@@ -38,7 +38,7 @@ describe('Environment Configuration', () => {
       });
     });
 
-    it('should default to sandbox environment', () => {
+    it('default to sandbox environment', () => {
       process.env.EBAY_CLIENT_ID = 'test_client_id';
       process.env.EBAY_CLIENT_SECRET = 'test_client_secret';
       delete process.env.EBAY_ENVIRONMENT;
@@ -48,8 +48,8 @@ describe('Environment Configuration', () => {
       expect(config.environment).toBe('sandbox');
     });
 
-    it('should handle missing credentials gracefully', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    it('handle missing credentials gracefully', () => {
+      const stderrWriteSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
       delete process.env.EBAY_CLIENT_ID;
       delete process.env.EBAY_CLIENT_SECRET;
@@ -59,13 +59,13 @@ describe('Environment Configuration', () => {
       expect(config.clientId).toBe('');
       expect(config.clientSecret).toBe('');
       expect(config.environment).toBe('sandbox');
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(stderrWriteSpy).toHaveBeenCalled();
 
-      consoleErrorSpy.mockRestore();
+      stderrWriteSpy.mockRestore();
     });
 
-    it('should handle missing client ID only', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    it('handle missing client ID only', () => {
+      const stderrWriteSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
       delete process.env.EBAY_CLIENT_ID;
       process.env.EBAY_CLIENT_SECRET = 'test_secret';
@@ -73,13 +73,13 @@ describe('Environment Configuration', () => {
       const config = getEbayConfig();
 
       expect(config.clientId).toBe('');
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(stderrWriteSpy).toHaveBeenCalled();
 
-      consoleErrorSpy.mockRestore();
+      stderrWriteSpy.mockRestore();
     });
 
-    it('should handle missing client secret only', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    it('handle missing client secret only', () => {
+      const stderrWriteSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
       process.env.EBAY_CLIENT_ID = 'test_id';
       delete process.env.EBAY_CLIENT_SECRET;
@@ -87,12 +87,12 @@ describe('Environment Configuration', () => {
       const config = getEbayConfig();
 
       expect(config.clientSecret).toBe('');
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(stderrWriteSpy).toHaveBeenCalled();
 
-      consoleErrorSpy.mockRestore();
+      stderrWriteSpy.mockRestore();
     });
 
-    it('should handle undefined redirect URI', () => {
+    it('handle undefined redirect URI', () => {
       process.env.EBAY_CLIENT_ID = 'test_client_id';
       process.env.EBAY_CLIENT_SECRET = 'test_client_secret';
       delete process.env.EBAY_REDIRECT_URI;
@@ -102,7 +102,7 @@ describe('Environment Configuration', () => {
       expect(config.redirectUri).toBeUndefined();
     });
 
-    it('should default marketplace and content language to US', () => {
+    it('default marketplace and content language to US', () => {
       process.env.EBAY_CLIENT_ID = 'test_client_id';
       process.env.EBAY_CLIENT_SECRET = 'test_client_secret';
       delete process.env.EBAY_MARKETPLACE_ID;
@@ -114,7 +114,7 @@ describe('Environment Configuration', () => {
       expect(config.contentLanguage).toBe('en-US');
     });
 
-    it('should use marketplace and content language from env when set', () => {
+    it('use marketplace and content language from env when set', () => {
       process.env.EBAY_CLIENT_ID = 'test_client_id';
       process.env.EBAY_CLIENT_SECRET = 'test_client_secret';
       process.env.EBAY_MARKETPLACE_ID = 'EBAY_DE';
@@ -126,8 +126,8 @@ describe('Environment Configuration', () => {
       expect(config.contentLanguage).toBe('de-DE');
     });
 
-    it('should populate proxy fields and not nag about missing credentials in proxy auth mode', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    it('populate proxy fields and not nag about missing credentials in proxy auth mode', () => {
+      const stderrWriteSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
       delete process.env.EBAY_CLIENT_ID;
       delete process.env.EBAY_CLIENT_SECRET;
       process.env.EBAY_MCP_DISABLE_AUTH_HEADER = 'true';
@@ -137,46 +137,26 @@ describe('Environment Configuration', () => {
 
       expect(config.disableAuthHeader).toBe(true);
       expect(config.apiBaseUrl).toBe('http://localhost:8080');
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(stderrWriteSpy).not.toHaveBeenCalled();
 
-      consoleErrorSpy.mockRestore();
+      stderrWriteSpy.mockRestore();
     });
   });
 
   describe('getBaseUrl', () => {
-    it('should return production URL for production environment', () => {
+    it('return production URL for production environment', () => {
       const url = getBaseUrl('production');
       expect(url).toBe('https://api.ebay.com');
     });
 
-    it('should return sandbox URL for sandbox environment', () => {
+    it('return sandbox URL for sandbox environment', () => {
       const url = getBaseUrl('sandbox');
       expect(url).toBe('https://api.sandbox.ebay.com');
     });
   });
 
-  describe('getAuthUrl', () => {
-    it('should return production auth URL for production environment', () => {
-      const url = getAuthUrl('test_client_id', 'https://localhost/callback', 'production');
-      const parsed = new URL(url);
-      expect(parsed.origin).toBe('https://auth.ebay.com');
-      expect(parsed.pathname).toBe('/oauth2/authorize');
-      expect(parsed.searchParams.get('client_id')).toBe('test_client_id');
-      expect(parsed.searchParams.get('response_type')).toBe('code');
-    });
-
-    it('should return sandbox auth URL for sandbox environment', () => {
-      const url = getAuthUrl('test_client_id', 'https://localhost/callback', 'sandbox');
-      const parsed = new URL(url);
-      expect(parsed.origin).toBe('https://auth.sandbox.ebay.com');
-      expect(parsed.pathname).toBe('/oauth2/authorize');
-      expect(parsed.searchParams.get('client_id')).toBe('test_client_id');
-      expect(parsed.searchParams.get('response_type')).toBe('code');
-    });
-  });
-
   describe('validateEnvironmentConfig', () => {
-    it('should pass validation with valid config', () => {
+    it('pass validation with valid config', () => {
       process.env.EBAY_CLIENT_ID = 'test_client_id';
       process.env.EBAY_CLIENT_SECRET = 'test_client_secret';
       process.env.EBAY_ENVIRONMENT = 'production';
@@ -188,7 +168,7 @@ describe('Environment Configuration', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    it('should fail validation when CLIENT_ID is missing', () => {
+    it('fail validation when CLIENT_ID is missing', () => {
       delete process.env.EBAY_CLIENT_ID;
       process.env.EBAY_CLIENT_SECRET = 'test_secret';
 
@@ -198,7 +178,7 @@ describe('Environment Configuration', () => {
       expect(result.errors).toContain('EBAY_CLIENT_ID is not set. OAuth will not work.');
     });
 
-    it('should fail validation when CLIENT_SECRET is missing', () => {
+    it('fail validation when CLIENT_SECRET is missing', () => {
       process.env.EBAY_CLIENT_ID = 'test_id';
       delete process.env.EBAY_CLIENT_SECRET;
 
@@ -208,7 +188,7 @@ describe('Environment Configuration', () => {
       expect(result.errors).toContain('EBAY_CLIENT_SECRET is not set. OAuth will not work.');
     });
 
-    it('should fail validation for invalid environment value', () => {
+    it('fail validation for invalid environment value', () => {
       process.env.EBAY_CLIENT_ID = 'test_id';
       process.env.EBAY_CLIENT_SECRET = 'test_secret';
       process.env.EBAY_ENVIRONMENT = 'invalid';
@@ -219,7 +199,7 @@ describe('Environment Configuration', () => {
       expect(result.errors.some((e) => e.includes('EBAY_ENVIRONMENT'))).toBe(true);
     });
 
-    it('should warn when ENVIRONMENT is not set', () => {
+    it('warn when ENVIRONMENT is not set', () => {
       process.env.EBAY_CLIENT_ID = 'test_id';
       process.env.EBAY_CLIENT_SECRET = 'test_secret';
       delete process.env.EBAY_ENVIRONMENT;
@@ -230,7 +210,7 @@ describe('Environment Configuration', () => {
       expect(result.warnings.some((w) => w.includes('EBAY_ENVIRONMENT not set'))).toBe(true);
     });
 
-    it('should warn when REDIRECT_URI is not set', () => {
+    it('warn when REDIRECT_URI is not set', () => {
       process.env.EBAY_CLIENT_ID = 'test_id';
       process.env.EBAY_CLIENT_SECRET = 'test_secret';
       delete process.env.EBAY_REDIRECT_URI;
@@ -241,7 +221,7 @@ describe('Environment Configuration', () => {
       expect(result.warnings.some((w) => w.includes('EBAY_REDIRECT_URI'))).toBe(true);
     });
 
-    it('should not require client credentials in proxy auth mode', () => {
+    it('not require client credentials in proxy auth mode', () => {
       delete process.env.EBAY_CLIENT_ID;
       delete process.env.EBAY_CLIENT_SECRET;
       process.env.EBAY_ENVIRONMENT = 'production';
@@ -255,7 +235,7 @@ describe('Environment Configuration', () => {
       expect(result.infos.some((i) => i.includes('Proxy auth mode'))).toBe(true);
     });
 
-    it('should report an unparseable base URL as a fatal error', () => {
+    it('report an unparseable base URL as a fatal error', () => {
       process.env.EBAY_CLIENT_ID = 'test_id';
       process.env.EBAY_CLIENT_SECRET = 'test_secret';
       process.env.EBAY_MCP_API_BASE_URL = 'not a url';

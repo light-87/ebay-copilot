@@ -2,17 +2,18 @@ import { McpServer, type RegisteredTool } from '@modelcontextprotocol/sdk/server
 import type { Implementation } from '@modelcontextprotocol/sdk/types.js';
 import { EbaySellerApi } from '@/api/index.js';
 import { getEbayConfig, mcpConfig } from '@/config/environment.js';
-import { resolveToolGatingMode } from '@/config/tool-families.js';
+import { resolveToolGatingMode } from '@/config/toolFamilies.js';
 import {
   createToolGatingController,
   DYNAMIC_MODE_INSTRUCTIONS,
   registerMetaTools,
   toolNamesInFamilies,
-} from '@/mcp/tool-gating.js';
-import { buildUiToolResult, createUiBridge, type UiBridge } from '@/mcp/ui-bridge.js';
+} from '@/mcp/toolGating.js';
+import { buildUiToolResult, createUiBridge, type UiBridge } from '@/mcp/uiBridge.js';
 import { getToolEntries, type ToolEntry } from '@/tools/registry.js';
 import { getErrorMessage } from '@/utils/errors.js';
 import { serverLogger, toolLogger } from '@/utils/logger.js';
+import { Effect } from 'effect';
 
 type ToolArgs = Record<string, unknown>;
 
@@ -20,8 +21,11 @@ type ToolArgs = Record<string, unknown>;
  * Optional dependencies and metadata for constructing the eBay MCP runtime.
  */
 export interface EbayMcpRuntimeOptions {
+  /** Optional prebuilt API facade, mainly for tests. */
   api?: EbaySellerApi;
+  /** Optional MCP implementation metadata advertised during initialize. */
   serverConfig?: Implementation;
+  /** Enables debug/error logs for each tool call when true. */
   logToolExecution?: boolean;
 }
 
@@ -29,8 +33,11 @@ export interface EbayMcpRuntimeOptions {
  * Initialized MCP server runtime and eBay API facade.
  */
 export interface EbayMcpRuntime {
+  /** eBay API facade shared by every registered tool handler. */
   api: EbaySellerApi;
+  /** MCP server instance with eBay tools registered. */
   server: McpServer;
+  /** Initializes credentials/token state before the server accepts real calls. */
   initializeApi(): Promise<void>;
 }
 
@@ -81,25 +88,31 @@ function registerTool(
         toolLogger.debug(`Executing tool: ${definition.name}`, { args });
       }
 
-      try {
-        const result = await handler(api, args);
+      return await Effect.runPromise(
+        Effect.tryPromise({
+          try: () => Promise.resolve(handler(api, args)),
+          catch: (error) => error,
+        }).pipe(
+          Effect.map((result) => {
+            if (logToolExecution) {
+              toolLogger.debug(`Tool ${definition.name} completed successfully`);
+            }
 
-        if (logToolExecution) {
-          toolLogger.debug(`Tool ${definition.name} completed successfully`);
-        }
+            return ui.shouldRender(entry)
+              ? buildUiToolResult(entry.ui, result)
+              : formatToolSuccess(result);
+          }),
+          Effect.catchAll((error) => {
+            const errorMessage = getErrorMessage(error);
 
-        return ui.shouldRender(entry)
-          ? buildUiToolResult(entry.ui, result)
-          : formatToolSuccess(result);
-      } catch (error) {
-        const errorMessage = getErrorMessage(error);
+            if (logToolExecution) {
+              toolLogger.error(`Tool ${definition.name} failed`, { error: errorMessage });
+            }
 
-        if (logToolExecution) {
-          toolLogger.error(`Tool ${definition.name} failed`, { error: errorMessage });
-        }
-
-        return formatToolFailure(error);
-      }
+            return Effect.succeed(formatToolFailure(error));
+          }),
+        ),
+      );
     },
   );
 
@@ -109,8 +122,17 @@ function registerTool(
 
 /**
  * Create an MCP server runtime and register all eBay tool handlers.
+ *
+ * @param options - Optional runtime dependencies and metadata overrides.
+ * @returns Initialized runtime wrapper containing the MCP server and API facade.
+ *
+ * @example
+ * ```ts
+ * const runtime = createEbayMcpRuntime({ logToolExecution: true });
+ * await runtime.initializeApi();
+ * ```
  */
-export function createEbayMcpRuntime(options: EbayMcpRuntimeOptions = {}): EbayMcpRuntime {
+export const createEbayMcpRuntime = (options: EbayMcpRuntimeOptions = {}): EbayMcpRuntime => {
   const api = options.api ?? new EbaySellerApi(getEbayConfig());
   const serverInfo = options.serverConfig ?? mcpConfig;
   const mode = resolveToolGatingMode();
@@ -171,7 +193,7 @@ export function createEbayMcpRuntime(options: EbayMcpRuntimeOptions = {}): EbayM
     api,
     server,
     async initializeApi() {
-      await api.initialize();
+      await Effect.runPromise(api.initialize());
     },
   };
-}
+};

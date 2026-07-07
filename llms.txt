@@ -28,7 +28,7 @@ Tool definitions and handlers are co-located per family in `src/tools/categories
 - [Metadata](https://github.com/YosefHayim/ebay-mcp/blob/main/src/tools/categories/metadata.ts): Return policies, sales-tax jurisdictions, automotive compatibility
 - [Developer](https://github.com/YosefHayim/ebay-mcp/blob/main/src/tools/categories/developer.ts): Rate limits, signing keys, client registration
 - [Trading](https://github.com/YosefHayim/ebay-mcp/blob/main/src/tools/categories/trading.ts): Legacy XML API — fixed-price listing management (create, revise, relist, end)
-- [Token Management](https://github.com/YosefHayim/ebay-mcp/blob/main/src/tools/categories/token-management.ts): OAuth token retrieval, refresh, and diagnostics
+- [Token Management](https://github.com/YosefHayim/ebay-mcp/blob/main/src/tools/categories/tokenManagement.ts): OAuth token retrieval, refresh, and diagnostics
 
 ## Security & Compliance
 
@@ -74,7 +74,7 @@ Entirely locally over STDIO or local HTTP. There is no cloud relay; eBay credent
 
 ### What do I need to get started?
 
-Node.js >= 18, a free eBay Developer account (Client ID and Client Secret), then run `npm run setup`.
+Node.js >= 20, a free eBay Developer account (Client ID and Client Secret), then run `npm run setup`.
 
 ### What are the eBay API rate limits?
 

@@ -1,16 +1,93 @@
 import type { EbayApiClient } from '@/api/client.js';
-import { withApiError } from '@/api/shared/request.js';
+import {
+  buildEndpointParams,
+  type EbayApiError,
+  requestDeleteEffect,
+  requestGetEffect,
+  requestPostEffect,
+  requestPutEffect,
+} from '@/api/shared/request.js';
+import type {
+  bulkCreateOrReplaceSalesTaxInputSchema,
+  createCustomPolicyInputSchema,
+  createFulfillmentPolicyInputSchema,
+  createOrReplaceSalesTaxInputSchema,
+  createPaymentPolicyInputSchema,
+  createReturnPolicyInputSchema,
+  deleteFulfillmentPolicyInputSchema,
+  deletePaymentPolicyInputSchema,
+  deleteReturnPolicyInputSchema,
+  deleteSalesTaxInputSchema,
+  getAdvertisingEligibilityInputSchema,
+  getCustomPoliciesInputSchema,
+  getCustomPolicyInputSchema,
+  getFulfillmentPoliciesInputSchema,
+  getFulfillmentPolicyByNameInputSchema,
+  getFulfillmentPolicyInputSchema,
+  getPaymentPoliciesInputSchema,
+  getPaymentPolicyByNameInputSchema,
+  getPaymentPolicyInputSchema,
+  getPaymentsProgramInputSchema,
+  getPaymentsProgramOnboardingInputSchema,
+  getReturnPoliciesInputSchema,
+  getReturnPolicyByNameInputSchema,
+  getReturnPolicyInputSchema,
+  getSalesTaxesInputSchema,
+  getSalesTaxInputSchema,
+  getSubscriptionInputSchema,
+  optInToProgramInputSchema,
+  optOutOfProgramInputSchema,
+  updateCustomPolicyInputSchema,
+  updateFulfillmentPolicyInputSchema,
+  updatePaymentPolicyInputSchema,
+  updateReturnPolicyInputSchema,
+} from '@/schemas/account-management/account.js';
 import type { components } from '@/types/sell-apps/account-management/sellAccountV1Oas3.js';
+import type { Effect } from 'effect';
+import type { z } from 'zod';
 
-type CustomPolicyCreateRequest = components['schemas']['CustomPolicyCreateRequest'];
-type CustomPolicyResponse = components['schemas']['CustomPolicyResponse'];
+const ACCOUNT_BASE_PATH = '/sell/account/v1';
+
+type EmptyAccountInput = Record<string, never>;
+type GetCustomPoliciesInput = z.infer<typeof getCustomPoliciesInputSchema>;
+type GetCustomPolicyInput = z.infer<typeof getCustomPolicyInputSchema>;
+type CreateCustomPolicyInput = z.infer<typeof createCustomPolicyInputSchema>;
+type UpdateCustomPolicyInput = z.infer<typeof updateCustomPolicyInputSchema>;
+type GetFulfillmentPoliciesInput = z.infer<typeof getFulfillmentPoliciesInputSchema>;
+type GetFulfillmentPolicyInput = z.infer<typeof getFulfillmentPolicyInputSchema>;
+type GetFulfillmentPolicyByNameInput = z.infer<typeof getFulfillmentPolicyByNameInputSchema>;
+type CreateFulfillmentPolicyInput = z.infer<typeof createFulfillmentPolicyInputSchema>;
+type UpdateFulfillmentPolicyInput = z.infer<typeof updateFulfillmentPolicyInputSchema>;
+type DeleteFulfillmentPolicyInput = z.infer<typeof deleteFulfillmentPolicyInputSchema>;
+type GetPaymentPoliciesInput = z.infer<typeof getPaymentPoliciesInputSchema>;
+type GetPaymentPolicyInput = z.infer<typeof getPaymentPolicyInputSchema>;
+type GetPaymentPolicyByNameInput = z.infer<typeof getPaymentPolicyByNameInputSchema>;
+type CreatePaymentPolicyInput = z.infer<typeof createPaymentPolicyInputSchema>;
+type UpdatePaymentPolicyInput = z.infer<typeof updatePaymentPolicyInputSchema>;
+type DeletePaymentPolicyInput = z.infer<typeof deletePaymentPolicyInputSchema>;
+type GetReturnPoliciesInput = z.infer<typeof getReturnPoliciesInputSchema>;
+type GetReturnPolicyInput = z.infer<typeof getReturnPolicyInputSchema>;
+type GetReturnPolicyByNameInput = z.infer<typeof getReturnPolicyByNameInputSchema>;
+type CreateReturnPolicyInput = z.infer<typeof createReturnPolicyInputSchema>;
+type UpdateReturnPolicyInput = z.infer<typeof updateReturnPolicyInputSchema>;
+type DeleteReturnPolicyInput = z.infer<typeof deleteReturnPolicyInputSchema>;
+type GetPaymentsProgramInput = z.infer<typeof getPaymentsProgramInputSchema>;
+type GetPaymentsProgramOnboardingInput = z.infer<typeof getPaymentsProgramOnboardingInputSchema>;
+type CreateOrReplaceSalesTaxInput = z.infer<typeof createOrReplaceSalesTaxInputSchema>;
+type BulkCreateOrReplaceSalesTaxInput = z.infer<typeof bulkCreateOrReplaceSalesTaxInputSchema>;
+type GetSalesTaxInput = z.infer<typeof getSalesTaxInputSchema>;
+type DeleteSalesTaxInput = z.infer<typeof deleteSalesTaxInputSchema>;
+type GetSalesTaxesInput = z.infer<typeof getSalesTaxesInputSchema>;
+type GetSubscriptionInput = z.infer<typeof getSubscriptionInputSchema>;
+type OptInToProgramInput = z.infer<typeof optInToProgramInputSchema>;
+type OptOutOfProgramInput = z.infer<typeof optOutOfProgramInputSchema>;
+type GetAdvertisingEligibilityInput = z.infer<typeof getAdvertisingEligibilityInputSchema>;
+
 type CustomPolicy = components['schemas']['CustomPolicy'];
-type FulfillmentPolicyRequest = components['schemas']['FulfillmentPolicyRequest'];
 type SetFulfillmentPolicyResponse = components['schemas']['SetFulfillmentPolicyResponse'];
 type FulfillmentPolicyResponse = components['schemas']['FulfillmentPolicyResponse'];
 type FulfillmentPolicy = components['schemas']['FulfillmentPolicy'];
 type KycResponse = components['schemas']['KycResponse'];
-type PaymentPolicyRequest = components['schemas']['PaymentPolicyRequest'];
 type SetPaymentPolicyResponse = components['schemas']['SetPaymentPolicyResponse'];
 type GetPaymentPoliciesResponse = components['schemas']['PaymentPolicyResponse'];
 type PaymentPolicy = components['schemas']['PaymentPolicy'];
@@ -20,502 +97,887 @@ type SellerEligibilityMultiProgramResponse =
   components['schemas']['SellerEligibilityMultiProgramResponse'];
 type SellingPrivileges = components['schemas']['SellingPrivileges'];
 type Programs = components['schemas']['Programs'];
-type OptInToProgramRequest = components['schemas']['Program'];
 type RateTableResponse = components['schemas']['RateTableResponse'];
-type ReturnPolicyRequest = components['schemas']['ReturnPolicyRequest'];
 type SetReturnPolicyResponse = components['schemas']['SetReturnPolicyResponse'];
 type ReturnPolicyResponse = components['schemas']['ReturnPolicyResponse'];
 type ReturnPolicy = components['schemas']['ReturnPolicy'];
-type SalesTaxBase = components['schemas']['SalesTaxBase'];
 type SalesTax = components['schemas']['SalesTax'];
 type SalesTaxes = components['schemas']['SalesTaxes'];
 type SubscriptionResponse = components['schemas']['SubscriptionResponse'];
 
 /**
- * Account API - Seller account configuration, policies, programs
- * Based on: docs/sell-apps/account-management/sell_account_v1_oas3.json
+ * Response returned by eBay Account API getCustomPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/account/resources/custom_policy/methods/getCustomPolicies
  */
+export type GetCustomPoliciesResponse = components['schemas']['CustomPolicyResponse'];
+
+/** Account API client for seller account policies, programs, tax, and eligibility. */
 export class AccountApi {
-  private readonly basePath = '/sell/account/v1';
+  private readonly client: EbayApiClient;
 
-  constructor(private client: EbayApiClient) {}
-
-  /**
-   * Get custom policies for the seller
-   */
-  async getCustomPolicies(policyTypes?: string): Promise<CustomPolicyResponse> {
-    const params = policyTypes ? { policy_types: policyTypes } : undefined;
-    return await withApiError('Failed to get custom policies', () =>
-      this.client.get<CustomPolicyResponse>(`${this.basePath}/custom_policy`, params),
-    );
+  constructor(client: EbayApiClient) {
+    this.client = client;
   }
 
   /**
-   * Get a specific custom policy
+   * Retrieves custom policies defined for the seller account.
+   *
+   * @param input - Optional custom policy type filter.
+   * @returns An Effect that succeeds with eBay's generated CustomPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   accountApi.getCustomPolicies({ policyTypes: 'TAKE_BACK' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/custom_policy/methods/getCustomPolicies
    */
-  async getCustomPolicy(customPolicyId: string): Promise<CustomPolicy> {
-    return await withApiError('Failed to get custom policy', () =>
-      this.client.get<CustomPolicy>(`${this.basePath}/custom_policy/${customPolicyId}`),
+  getCustomPolicies = (
+    input: GetCustomPoliciesInput = {},
+  ): Effect.Effect<GetCustomPoliciesResponse, EbayApiError> => {
+    const params = buildEndpointParams({
+      policyTypes: { wireName: 'policy_types', value: input.policyTypes },
+    });
+
+    return requestGetEffect<GetCustomPoliciesResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/custom_policy/`,
+      params,
     );
-  }
+  };
 
   /**
-   * Get fulfillment policies
-   * @param marketplaceId - Required: The eBay marketplace ID
+   * Retrieves one custom policy by ID.
+   *
+   * @param input - Custom policy identifier.
+   * @returns An Effect that succeeds with eBay's generated CustomPolicy.
+   *
+   * @example
+   * ```ts
+   * const policy = await Effect.runPromise(
+   *   accountApi.getCustomPolicy({ customPolicyId: '1234567890' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/custom_policy/methods/getCustomPolicy
    */
-  async getFulfillmentPolicies(marketplaceId: string): Promise<FulfillmentPolicyResponse> {
-    return await withApiError('Failed to get fulfillment policies', () =>
-      this.client.get<FulfillmentPolicyResponse>(`${this.basePath}/fulfillment_policy`, {
-        marketplace_id: marketplaceId,
-      }),
+  getCustomPolicy = (input: GetCustomPolicyInput): Effect.Effect<CustomPolicy, EbayApiError> =>
+    requestGetEffect<CustomPolicy>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/custom_policy/${input.customPolicyId}`,
     );
-  }
 
   /**
-   * Get payment policies
-   * @param marketplaceId - Required: The eBay marketplace ID
+   * Creates a custom policy.
+   *
+   * @param input - Custom policy request body.
+   * @returns An Effect that succeeds with eBay's generated CustomPolicy.
+   *
+   * @example
+   * ```ts
+   * const policy = await Effect.runPromise(
+   *   accountApi.createCustomPolicy({ policy: { name: 'Compliance', policyType: 'PRODUCT_COMPLIANCE' } }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/custom_policy/methods/createCustomPolicy
    */
-  async getPaymentPolicies(marketplaceId: string): Promise<GetPaymentPoliciesResponse> {
-    return await withApiError('Failed to get payment policies', () =>
-      this.client.get<GetPaymentPoliciesResponse>(`${this.basePath}/payment_policy`, {
-        marketplace_id: marketplaceId,
-      }),
+  createCustomPolicy = (
+    input: CreateCustomPolicyInput,
+  ): Effect.Effect<CustomPolicy, EbayApiError> =>
+    requestPostEffect<CustomPolicy>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/custom_policy/`,
+      input.policy,
     );
-  }
 
   /**
-   * Get return policies
-   * @param marketplaceId - Required: The eBay marketplace ID
+   * Updates a custom policy by ID.
+   *
+   * @param input - Custom policy ID and full replacement policy payload.
+   * @returns An Effect that succeeds when eBay accepts the update.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(
+   *   accountApi.updateCustomPolicy({ customPolicyId: '1234567890', policy }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/custom_policy/methods/updateCustomPolicy
    */
-  async getReturnPolicies(marketplaceId: string): Promise<ReturnPolicyResponse> {
-    return await withApiError('Failed to get return policies', () =>
-      this.client.get<ReturnPolicyResponse>(`${this.basePath}/return_policy`, {
-        marketplace_id: marketplaceId,
-      }),
+  updateCustomPolicy = (input: UpdateCustomPolicyInput): Effect.Effect<void, EbayApiError> =>
+    requestPutEffect<void>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/custom_policy/${input.customPolicyId}`,
+      input.policy,
     );
-  }
 
   /**
-   * Get seller account privileges
+   * Retrieves fulfillment policies for one marketplace.
+   *
+   * @param input - Marketplace ID used as the `marketplace_id` query parameter.
+   * @returns An Effect that succeeds with eBay's generated FulfillmentPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   accountApi.getFulfillmentPolicies({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/fulfillment_policy/methods/getFulfillmentPolicies
    */
-  async getPrivileges(): Promise<SellingPrivileges> {
-    return await withApiError('Failed to get privileges', () =>
-      this.client.get<SellingPrivileges>(`${this.basePath}/privilege`),
-    );
-  }
+  getFulfillmentPolicies = (
+    input: GetFulfillmentPoliciesInput,
+  ): Effect.Effect<FulfillmentPolicyResponse, EbayApiError> => {
+    const params = buildEndpointParams({
+      marketplaceId: { wireName: 'marketplace_id', value: input.marketplaceId },
+    });
 
-  // ============================================================
-  // Fulfillment Policy Methods
-  // ============================================================
+    return requestGetEffect<FulfillmentPolicyResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/fulfillment_policy`,
+      params,
+    );
+  };
 
   /**
-   * Create a new fulfillment policy
+   * Creates a fulfillment policy.
+   *
+   * @param input - Fulfillment policy request body.
+   * @returns An Effect that succeeds with eBay's generated SetFulfillmentPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const created = await Effect.runPromise(
+   *   accountApi.createFulfillmentPolicy({ policy }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/fulfillment_policy/methods/createFulfillmentPolicy
    */
-  async createFulfillmentPolicy(
-    policy: FulfillmentPolicyRequest,
-  ): Promise<SetFulfillmentPolicyResponse> {
-    return await withApiError('Failed to create fulfillment policy', () =>
-      this.client.post<SetFulfillmentPolicyResponse>(`${this.basePath}/fulfillment_policy`, policy),
+  createFulfillmentPolicy = (
+    input: CreateFulfillmentPolicyInput,
+  ): Effect.Effect<SetFulfillmentPolicyResponse, EbayApiError> =>
+    requestPostEffect<SetFulfillmentPolicyResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/fulfillment_policy/`,
+      input.policy,
     );
-  }
 
   /**
-   * Get a specific fulfillment policy by ID
+   * Retrieves one fulfillment policy by ID.
+   *
+   * @param input - Fulfillment policy identifier.
+   * @returns An Effect that succeeds with eBay's generated FulfillmentPolicy.
+   *
+   * @example
+   * ```ts
+   * const policy = await Effect.runPromise(
+   *   accountApi.getFulfillmentPolicy({ fulfillmentPolicyId: 'FP123' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/fulfillment_policy/methods/getFulfillmentPolicy
    */
-  async getFulfillmentPolicy(fulfillmentPolicyId: string): Promise<FulfillmentPolicy> {
-    return await withApiError('Failed to get fulfillment policy', () =>
-      this.client.get<FulfillmentPolicy>(
-        `${this.basePath}/fulfillment_policy/${fulfillmentPolicyId}`,
-      ),
+  getFulfillmentPolicy = (
+    input: GetFulfillmentPolicyInput,
+  ): Effect.Effect<FulfillmentPolicy, EbayApiError> =>
+    requestGetEffect<FulfillmentPolicy>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/fulfillment_policy/${input.fulfillmentPolicyId}`,
     );
-  }
 
   /**
-   * Get a fulfillment policy by name
+   * Retrieves one fulfillment policy by marketplace and policy name.
+   *
+   * @param input - Marketplace ID and seller-defined policy name.
+   * @returns An Effect that succeeds with eBay's generated FulfillmentPolicy.
+   *
+   * @example
+   * ```ts
+   * const policy = await Effect.runPromise(
+   *   accountApi.getFulfillmentPolicyByName({ marketplaceId: 'EBAY_US', name: 'Standard Shipping' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/fulfillment_policy/methods/getFulfillmentPolicyByName
    */
-  async getFulfillmentPolicyByName(
-    marketplaceId: string,
-    name: string,
-  ): Promise<FulfillmentPolicy> {
-    return await withApiError('Failed to get fulfillment policy by name', () =>
-      this.client.get<FulfillmentPolicy>(`${this.basePath}/fulfillment_policy_by_name`, {
-        marketplace_id: marketplaceId,
-        name,
-      }),
+  getFulfillmentPolicyByName = (
+    input: GetFulfillmentPolicyByNameInput,
+  ): Effect.Effect<FulfillmentPolicy, EbayApiError> => {
+    const params = buildEndpointParams({
+      marketplaceId: { wireName: 'marketplace_id', value: input.marketplaceId },
+      name: { wireName: 'name', value: input.name },
+    });
+
+    return requestGetEffect<FulfillmentPolicy>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/fulfillment_policy/get_by_policy_name`,
+      params,
     );
-  }
+  };
 
   /**
-   * Update a fulfillment policy
+   * Updates a fulfillment policy by ID.
+   *
+   * @param input - Fulfillment policy ID and full replacement policy payload.
+   * @returns An Effect that succeeds with eBay's generated SetFulfillmentPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const updated = await Effect.runPromise(
+   *   accountApi.updateFulfillmentPolicy({ fulfillmentPolicyId: 'FP123', policy }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/fulfillment_policy/methods/updateFulfillmentPolicy
    */
-  async updateFulfillmentPolicy(
-    fulfillmentPolicyId: string,
-    policy: FulfillmentPolicyRequest,
-  ): Promise<SetFulfillmentPolicyResponse> {
-    return await withApiError('Failed to update fulfillment policy', () =>
-      this.client.put<SetFulfillmentPolicyResponse>(
-        `${this.basePath}/fulfillment_policy/${fulfillmentPolicyId}`,
-        policy,
-      ),
+  updateFulfillmentPolicy = (
+    input: UpdateFulfillmentPolicyInput,
+  ): Effect.Effect<SetFulfillmentPolicyResponse, EbayApiError> =>
+    requestPutEffect<SetFulfillmentPolicyResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/fulfillment_policy/${input.fulfillmentPolicyId}`,
+      input.policy,
     );
-  }
 
   /**
-   * Delete a fulfillment policy
+   * Deletes a fulfillment policy by ID.
+   *
+   * @param input - Fulfillment policy identifier.
+   * @returns An Effect that succeeds when eBay deletes the policy.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(
+   *   accountApi.deleteFulfillmentPolicy({ fulfillmentPolicyId: 'FP123' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/fulfillment_policy/methods/deleteFulfillmentPolicy
    */
-  async deleteFulfillmentPolicy(fulfillmentPolicyId: string): Promise<void> {
-    return await withApiError('Failed to delete fulfillment policy', () =>
-      this.client.delete(`${this.basePath}/fulfillment_policy/${fulfillmentPolicyId}`),
+  deleteFulfillmentPolicy = (
+    input: DeleteFulfillmentPolicyInput,
+  ): Effect.Effect<void, EbayApiError> =>
+    requestDeleteEffect<void>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/fulfillment_policy/${input.fulfillmentPolicyId}`,
     );
-  }
-
-  // ============================================================
-  // Payment Policy Methods
-  // ============================================================
 
   /**
-   * Create a new payment policy
+   * Retrieves payment policies for one marketplace.
+   *
+   * @param input - Marketplace ID used as the `marketplace_id` query parameter.
+   * @returns An Effect that succeeds with eBay's generated PaymentPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   accountApi.getPaymentPolicies({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/payment_policy/methods/getPaymentPolicies
    */
-  async createPaymentPolicy(policy: PaymentPolicyRequest): Promise<SetPaymentPolicyResponse> {
-    return await withApiError('Failed to create payment policy', () =>
-      this.client.post<SetPaymentPolicyResponse>(`${this.basePath}/payment_policy`, policy),
+  getPaymentPolicies = (
+    input: GetPaymentPoliciesInput,
+  ): Effect.Effect<GetPaymentPoliciesResponse, EbayApiError> => {
+    const params = buildEndpointParams({
+      marketplaceId: { wireName: 'marketplace_id', value: input.marketplaceId },
+    });
+
+    return requestGetEffect<GetPaymentPoliciesResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/payment_policy`,
+      params,
     );
-  }
+  };
 
   /**
-   * Get a specific payment policy by ID
+   * Creates a payment policy.
+   *
+   * @param input - Payment policy request body.
+   * @returns An Effect that succeeds with eBay's generated SetPaymentPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const created = await Effect.runPromise(accountApi.createPaymentPolicy({ policy }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/payment_policy/methods/createPaymentPolicy
    */
-  async getPaymentPolicy(paymentPolicyId: string): Promise<PaymentPolicy> {
-    return await withApiError('Failed to get payment policy', () =>
-      this.client.get<PaymentPolicy>(`${this.basePath}/payment_policy/${paymentPolicyId}`),
+  createPaymentPolicy = (
+    input: CreatePaymentPolicyInput,
+  ): Effect.Effect<SetPaymentPolicyResponse, EbayApiError> =>
+    requestPostEffect<SetPaymentPolicyResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/payment_policy`,
+      input.policy,
     );
-  }
 
   /**
-   * Get a payment policy by name
+   * Retrieves one payment policy by ID.
+   *
+   * @param input - Payment policy identifier.
+   * @returns An Effect that succeeds with eBay's generated PaymentPolicy.
+   *
+   * @example
+   * ```ts
+   * const policy = await Effect.runPromise(
+   *   accountApi.getPaymentPolicy({ paymentPolicyId: 'PP123' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/payment_policy/methods/getPaymentPolicy
    */
-  async getPaymentPolicyByName(marketplaceId: string, name: string): Promise<PaymentPolicy> {
-    return await withApiError('Failed to get payment policy by name', () =>
-      this.client.get<PaymentPolicy>(`${this.basePath}/payment_policy_by_name`, {
-        marketplace_id: marketplaceId,
-        name,
-      }),
+  getPaymentPolicy = (input: GetPaymentPolicyInput): Effect.Effect<PaymentPolicy, EbayApiError> =>
+    requestGetEffect<PaymentPolicy>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/payment_policy/${input.paymentPolicyId}`,
     );
-  }
 
   /**
-   * Update a payment policy
+   * Retrieves one payment policy by marketplace and policy name.
+   *
+   * @param input - Marketplace ID and seller-defined policy name.
+   * @returns An Effect that succeeds with eBay's generated PaymentPolicy.
+   *
+   * @example
+   * ```ts
+   * const policy = await Effect.runPromise(
+   *   accountApi.getPaymentPolicyByName({ marketplaceId: 'EBAY_US', name: 'Immediate Payment' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/payment_policy/methods/getPaymentPolicyByName
    */
-  async updatePaymentPolicy(
-    paymentPolicyId: string,
-    policy: PaymentPolicyRequest,
-  ): Promise<SetPaymentPolicyResponse> {
-    return await withApiError('Failed to update payment policy', () =>
-      this.client.put<SetPaymentPolicyResponse>(
-        `${this.basePath}/payment_policy/${paymentPolicyId}`,
-        policy,
-      ),
+  getPaymentPolicyByName = (
+    input: GetPaymentPolicyByNameInput,
+  ): Effect.Effect<PaymentPolicy, EbayApiError> => {
+    const params = buildEndpointParams({
+      marketplaceId: { wireName: 'marketplace_id', value: input.marketplaceId },
+      name: { wireName: 'name', value: input.name },
+    });
+
+    return requestGetEffect<PaymentPolicy>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/payment_policy/get_by_policy_name`,
+      params,
     );
-  }
+  };
 
   /**
-   * Delete a payment policy
+   * Updates a payment policy by ID.
+   *
+   * @param input - Payment policy ID and full replacement policy payload.
+   * @returns An Effect that succeeds with eBay's generated SetPaymentPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const updated = await Effect.runPromise(
+   *   accountApi.updatePaymentPolicy({ paymentPolicyId: 'PP123', policy }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/payment_policy/methods/updatePaymentPolicy
    */
-  async deletePaymentPolicy(paymentPolicyId: string): Promise<void> {
-    return await withApiError('Failed to delete payment policy', () =>
-      this.client.delete(`${this.basePath}/payment_policy/${paymentPolicyId}`),
+  updatePaymentPolicy = (
+    input: UpdatePaymentPolicyInput,
+  ): Effect.Effect<SetPaymentPolicyResponse, EbayApiError> =>
+    requestPutEffect<SetPaymentPolicyResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/payment_policy/${input.paymentPolicyId}`,
+      input.policy,
     );
-  }
-
-  // ============================================================
-  // Return Policy Methods
-  // ============================================================
 
   /**
-   * Create a new return policy
+   * Deletes a payment policy by ID.
+   *
+   * @param input - Payment policy identifier.
+   * @returns An Effect that succeeds when eBay deletes the policy.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(accountApi.deletePaymentPolicy({ paymentPolicyId: 'PP123' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/payment_policy/methods/deletePaymentPolicy
    */
-  async createReturnPolicy(policy: ReturnPolicyRequest): Promise<SetReturnPolicyResponse> {
-    return await withApiError('Failed to create return policy', () =>
-      this.client.post<SetReturnPolicyResponse>(`${this.basePath}/return_policy`, policy),
+  deletePaymentPolicy = (input: DeletePaymentPolicyInput): Effect.Effect<void, EbayApiError> =>
+    requestDeleteEffect<void>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/payment_policy/${input.paymentPolicyId}`,
     );
-  }
 
   /**
-   * Get a specific return policy by ID
+   * Retrieves return policies for one marketplace.
+   *
+   * @param input - Marketplace ID used as the `marketplace_id` query parameter.
+   * @returns An Effect that succeeds with eBay's generated ReturnPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   accountApi.getReturnPolicies({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/return_policy/methods/getReturnPolicies
    */
-  async getReturnPolicy(returnPolicyId: string): Promise<ReturnPolicy> {
-    return await withApiError('Failed to get return policy', () =>
-      this.client.get<ReturnPolicy>(`${this.basePath}/return_policy/${returnPolicyId}`),
+  getReturnPolicies = (
+    input: GetReturnPoliciesInput,
+  ): Effect.Effect<ReturnPolicyResponse, EbayApiError> => {
+    const params = buildEndpointParams({
+      marketplaceId: { wireName: 'marketplace_id', value: input.marketplaceId },
+    });
+
+    return requestGetEffect<ReturnPolicyResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/return_policy`,
+      params,
     );
-  }
+  };
 
   /**
-   * Get a return policy by name
+   * Creates a return policy.
+   *
+   * @param input - Return policy request body.
+   * @returns An Effect that succeeds with eBay's generated SetReturnPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const created = await Effect.runPromise(accountApi.createReturnPolicy({ policy }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/return_policy/methods/createReturnPolicy
    */
-  async getReturnPolicyByName(marketplaceId: string, name: string): Promise<ReturnPolicy> {
-    return await withApiError('Failed to get return policy by name', () =>
-      this.client.get<ReturnPolicy>(`${this.basePath}/return_policy_by_name`, {
-        marketplace_id: marketplaceId,
-        name,
-      }),
+  createReturnPolicy = (
+    input: CreateReturnPolicyInput,
+  ): Effect.Effect<SetReturnPolicyResponse, EbayApiError> =>
+    requestPostEffect<SetReturnPolicyResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/return_policy`,
+      input.policy,
     );
-  }
 
   /**
-   * Update a return policy
+   * Retrieves one return policy by ID.
+   *
+   * @param input - Return policy identifier.
+   * @returns An Effect that succeeds with eBay's generated ReturnPolicy.
+   *
+   * @example
+   * ```ts
+   * const policy = await Effect.runPromise(accountApi.getReturnPolicy({ returnPolicyId: 'RP123' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/return_policy/methods/getReturnPolicy
    */
-  async updateReturnPolicy(
-    returnPolicyId: string,
-    policy: ReturnPolicyRequest,
-  ): Promise<SetReturnPolicyResponse> {
-    return await withApiError('Failed to update return policy', () =>
-      this.client.put<SetReturnPolicyResponse>(
-        `${this.basePath}/return_policy/${returnPolicyId}`,
-        policy,
-      ),
+  getReturnPolicy = (input: GetReturnPolicyInput): Effect.Effect<ReturnPolicy, EbayApiError> =>
+    requestGetEffect<ReturnPolicy>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/return_policy/${input.returnPolicyId}`,
     );
-  }
 
   /**
-   * Delete a return policy
+   * Retrieves one return policy by marketplace and policy name.
+   *
+   * @param input - Marketplace ID and seller-defined policy name.
+   * @returns An Effect that succeeds with eBay's generated ReturnPolicy.
+   *
+   * @example
+   * ```ts
+   * const policy = await Effect.runPromise(
+   *   accountApi.getReturnPolicyByName({ marketplaceId: 'EBAY_US', name: '30 Day Returns' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/return_policy/methods/getReturnPolicyByName
    */
-  async deleteReturnPolicy(returnPolicyId: string): Promise<void> {
-    return await withApiError('Failed to delete return policy', () =>
-      this.client.delete(`${this.basePath}/return_policy/${returnPolicyId}`),
-    );
-  }
+  getReturnPolicyByName = (
+    input: GetReturnPolicyByNameInput,
+  ): Effect.Effect<ReturnPolicy, EbayApiError> => {
+    const params = buildEndpointParams({
+      marketplaceId: { wireName: 'marketplace_id', value: input.marketplaceId },
+      name: { wireName: 'name', value: input.name },
+    });
 
-  // ============================================================
-  // Custom Policy Methods
-  // ============================================================
+    return requestGetEffect<ReturnPolicy>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/return_policy/get_by_policy_name`,
+      params,
+    );
+  };
 
   /**
-   * Create a new custom policy
+   * Updates a return policy by ID.
+   *
+   * @param input - Return policy ID and full replacement policy payload.
+   * @returns An Effect that succeeds with eBay's generated SetReturnPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const updated = await Effect.runPromise(
+   *   accountApi.updateReturnPolicy({ returnPolicyId: 'RP123', policy }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/return_policy/methods/updateReturnPolicy
    */
-  async createCustomPolicy(policy: CustomPolicyCreateRequest): Promise<CustomPolicy> {
-    return await withApiError('Failed to create custom policy', () =>
-      this.client.post<CustomPolicy>(`${this.basePath}/custom_policy`, policy),
+  updateReturnPolicy = (
+    input: UpdateReturnPolicyInput,
+  ): Effect.Effect<SetReturnPolicyResponse, EbayApiError> =>
+    requestPutEffect<SetReturnPolicyResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/return_policy/${input.returnPolicyId}`,
+      input.policy,
     );
-  }
 
   /**
-   * Update a custom policy
+   * Deletes a return policy by ID.
+   *
+   * @param input - Return policy identifier.
+   * @returns An Effect that succeeds when eBay deletes the policy.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(accountApi.deleteReturnPolicy({ returnPolicyId: 'RP123' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/return_policy/methods/deleteReturnPolicy
    */
-  async updateCustomPolicy(
-    customPolicyId: string,
-    policy: CustomPolicyCreateRequest,
-  ): Promise<void> {
-    return await withApiError('Failed to update custom policy', () =>
-      this.client.put(`${this.basePath}/custom_policy/${customPolicyId}`, policy),
+  deleteReturnPolicy = (input: DeleteReturnPolicyInput): Effect.Effect<void, EbayApiError> =>
+    requestDeleteEffect<void>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/return_policy/${input.returnPolicyId}`,
     );
-  }
 
   /**
-   * Delete a custom policy
+   * Retrieves seller payments program status.
+   *
+   * @param input - Marketplace ID and payments program type.
+   * @returns An Effect that succeeds with eBay's generated PaymentsProgramResponse.
+   *
+   * @example
+   * ```ts
+   * const status = await Effect.runPromise(
+   *   accountApi.getPaymentsProgram({ marketplaceId: 'EBAY_US', paymentsProgramType: 'EBAY_PAYMENTS' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/payments_program/methods/getPaymentsProgram
    */
-  async deleteCustomPolicy(customPolicyId: string): Promise<void> {
-    return await withApiError('Failed to delete custom policy', () =>
-      this.client.delete(`${this.basePath}/custom_policy/${customPolicyId}`),
+  getPaymentsProgram = (
+    input: GetPaymentsProgramInput,
+  ): Effect.Effect<PaymentsProgramResponse, EbayApiError> =>
+    requestGetEffect<PaymentsProgramResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/payments_program/${input.marketplaceId}/${input.paymentsProgramType}`,
     );
-  }
-
-  // ============================================================
-  // KYC, Payments Program, Rate Tables, Sales Tax, Subscription, Programs
-  // ============================================================
 
   /**
-   * Get KYC status
+   * Retrieves seller payments program onboarding status.
+   *
+   * @param input - Marketplace ID and payments program type.
+   * @returns An Effect that succeeds with eBay's generated PaymentsProgramOnboardingResponse.
+   *
+   * @example
+   * ```ts
+   * const onboarding = await Effect.runPromise(
+   *   accountApi.getPaymentsProgramOnboarding({
+   *     marketplaceId: 'EBAY_US',
+   *     paymentsProgramType: 'EBAY_PAYMENTS',
+   *   }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/program/methods/payments_program/onboarding/methods/getPaymentsProgramOnboarding
    */
-  async getKyc(): Promise<KycResponse> {
-    return await withApiError('Failed to get kyc', () =>
-      this.client.get<KycResponse>(`${this.basePath}/kyc`),
+  getPaymentsProgramOnboarding = (
+    input: GetPaymentsProgramOnboardingInput,
+  ): Effect.Effect<PaymentsProgramOnboardingResponse, EbayApiError> =>
+    requestGetEffect<PaymentsProgramOnboardingResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/payments_program/${input.marketplaceId}/${input.paymentsProgramType}/onboarding`,
     );
-  }
 
   /**
-   * Opt-in to a payments program
+   * Retrieves the seller account privileges.
+   *
+   * @param _input - Empty object accepted for tool/API shape consistency.
+   * @returns An Effect that succeeds with eBay's generated SellingPrivileges.
+   *
+   * @example
+   * ```ts
+   * const privileges = await Effect.runPromise(accountApi.getPrivileges({}));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/privilege/methods/getPrivileges
    */
-  async optInToPaymentsProgram(
-    marketplaceId: string,
-    paymentsProgramType: string,
-  ): Promise<PaymentsProgramResponse> {
-    return await withApiError('Failed to opt in to payments program', () =>
-      this.client.post<PaymentsProgramResponse>(
-        `${this.basePath}/payments_program/${marketplaceId}/${paymentsProgramType}`,
-        {},
-      ),
-    );
-  }
+  getPrivileges = (
+    _input: EmptyAccountInput = {},
+  ): Effect.Effect<SellingPrivileges, EbayApiError> =>
+    requestGetEffect<SellingPrivileges>(this.client, `${ACCOUNT_BASE_PATH}/privilege`);
 
   /**
-   * Get payments program status
+   * Retrieves seller programs the account has opted into.
+   *
+   * @param _input - Empty object accepted for tool/API shape consistency.
+   * @returns An Effect that succeeds with eBay's generated Programs response.
+   *
+   * @example
+   * ```ts
+   * const programs = await Effect.runPromise(accountApi.getOptedInPrograms({}));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/program/methods/getOptedInPrograms
    */
-  async getPaymentsProgramStatus(
-    marketplaceId: string,
-    paymentsProgramType: string,
-  ): Promise<PaymentsProgramResponse> {
-    return await withApiError('Failed to get payments program status', () =>
-      this.client.get<PaymentsProgramResponse>(
-        `${this.basePath}/payments_program/${marketplaceId}/${paymentsProgramType}`,
-      ),
-    );
-  }
+  getOptedInPrograms = (_input: EmptyAccountInput = {}): Effect.Effect<Programs, EbayApiError> =>
+    requestGetEffect<Programs>(this.client, `${ACCOUNT_BASE_PATH}/program/get_opted_in_programs`);
 
   /**
-   * Get rate tables
+   * Opts the seller into an Account API program.
+   *
+   * @param input - Program opt-in request body.
+   * @returns An Effect that succeeds when eBay accepts the opt-in request.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(
+   *   accountApi.optInToProgram({ request: { programType: 'OUT_OF_STOCK_CONTROL' } }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/program/methods/optInToProgram
    */
-  async getRateTables(): Promise<RateTableResponse> {
-    return await withApiError('Failed to get rate tables', () =>
-      this.client.get<RateTableResponse>(`${this.basePath}/rate_table`),
-    );
-  }
+  optInToProgram = (input: OptInToProgramInput): Effect.Effect<void, EbayApiError> =>
+    requestPostEffect<void>(this.client, `${ACCOUNT_BASE_PATH}/program/opt_in`, input.request);
 
   /**
-   * Create or replace sales tax table
+   * Opts the seller out of an Account API program.
+   *
+   * @param input - Program opt-out request body.
+   * @returns An Effect that succeeds when eBay accepts the opt-out request.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(
+   *   accountApi.optOutOfProgram({ request: { programType: 'OUT_OF_STOCK_CONTROL' } }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/program/methods/optOutOfProgram
    */
-  async createOrReplaceSalesTax(
-    countryCode: string,
-    jurisdictionId: string,
-    salesTaxBase: SalesTaxBase,
-  ): Promise<void> {
-    return await withApiError('Failed to create or replace sales tax', () =>
-      this.client.put(`${this.basePath}/sales_tax/${countryCode}/${jurisdictionId}`, salesTaxBase),
-    );
-  }
+  optOutOfProgram = (input: OptOutOfProgramInput): Effect.Effect<void, EbayApiError> =>
+    requestPostEffect<void>(this.client, `${ACCOUNT_BASE_PATH}/program/opt_out`, input.request);
 
   /**
-   * Bulk create or replace sales tax tables
+   * Retrieves seller rate tables.
+   *
+   * @param _input - Empty object accepted for tool/API shape consistency.
+   * @returns An Effect that succeeds with eBay's generated RateTableResponse.
+   *
+   * @example
+   * ```ts
+   * const rateTables = await Effect.runPromise(accountApi.getRateTables({}));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/rate_table/methods/getRateTables
    */
-  async bulkCreateOrReplaceSalesTax(requests: Record<string, unknown>[]): Promise<void> {
-    return await withApiError('Failed to bulk create or replace sales tax', () =>
-      this.client.post(`${this.basePath}/sales_tax/bulk_create_or_replace`, {
-        requests,
-      }),
-    );
-  }
+  getRateTables = (
+    _input: EmptyAccountInput = {},
+  ): Effect.Effect<RateTableResponse, EbayApiError> =>
+    requestGetEffect<RateTableResponse>(this.client, `${ACCOUNT_BASE_PATH}/rate_table`);
 
   /**
-   * Delete sales tax table
+   * Creates or replaces one sales tax table entry.
+   *
+   * @param input - Country, jurisdiction, and sales tax payload.
+   * @returns An Effect that succeeds when eBay accepts the sales tax table entry.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(
+   *   accountApi.createOrReplaceSalesTax({ countryCode: 'US', jurisdictionId: 'CA', salesTaxBase }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/sales_tax/methods/createOrReplaceSalesTax
    */
-  async deleteSalesTax(countryCode: string, jurisdictionId: string): Promise<void> {
-    return await withApiError('Failed to delete sales tax', () =>
-      this.client.delete(`${this.basePath}/sales_tax/${countryCode}/${jurisdictionId}`),
+  createOrReplaceSalesTax = (
+    input: CreateOrReplaceSalesTaxInput,
+  ): Effect.Effect<void, EbayApiError> =>
+    requestPutEffect<void>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/sales_tax/${input.countryCode}/${input.jurisdictionId}`,
+      input.salesTaxBase,
     );
-  }
 
   /**
-   * Get sales tax table
+   * Creates or replaces multiple sales tax table entries.
+   *
+   * @param input - Bulk sales tax request rows.
+   * @returns An Effect that succeeds when eBay accepts the bulk sales tax request.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(
+   *   accountApi.bulkCreateOrReplaceSalesTax({ requests }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/sales_tax/methods/bulkCreateOrReplaceSalesTax
    */
-  async getSalesTax(countryCode: string, jurisdictionId: string): Promise<SalesTax> {
-    return await withApiError('Failed to get sales tax', () =>
-      this.client.get<SalesTax>(`${this.basePath}/sales_tax/${countryCode}/${jurisdictionId}`),
-    );
-  }
+  bulkCreateOrReplaceSalesTax = (
+    input: BulkCreateOrReplaceSalesTaxInput,
+  ): Effect.Effect<void, EbayApiError> =>
+    requestPostEffect<void>(this.client, `${ACCOUNT_BASE_PATH}/bulk_create_or_replace_sales_tax`, {
+      requests: input.requests,
+    });
 
   /**
-   * Get all sales tax tables
-   * @param countryCode - Required: Two-letter ISO 3166-1 country code
+   * Deletes one sales tax table entry.
+   *
+   * @param input - Country and jurisdiction identifiers.
+   * @returns An Effect that succeeds when eBay deletes the sales tax table entry.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(
+   *   accountApi.deleteSalesTax({ countryCode: 'US', jurisdictionId: 'CA' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/sales_tax/methods/deleteSalesTax
    */
-  async getSalesTaxes(countryCode: string): Promise<SalesTaxes> {
-    return await withApiError('Failed to get sales taxes', () =>
-      this.client.get<SalesTaxes>(`${this.basePath}/sales_tax`, {
-        country_code: countryCode,
-      }),
+  deleteSalesTax = (input: DeleteSalesTaxInput): Effect.Effect<void, EbayApiError> =>
+    requestDeleteEffect<void>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/sales_tax/${input.countryCode}/${input.jurisdictionId}`,
     );
-  }
 
   /**
-   * Get subscription information
+   * Retrieves one sales tax table entry.
+   *
+   * @param input - Country and jurisdiction identifiers.
+   * @returns An Effect that succeeds with eBay's generated SalesTax.
+   *
+   * @example
+   * ```ts
+   * const tax = await Effect.runPromise(
+   *   accountApi.getSalesTax({ countryCode: 'US', jurisdictionId: 'CA' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/sales_tax/methods/getSalesTax
    */
-  async getSubscription(limitType?: string): Promise<SubscriptionResponse> {
-    const params = limitType ? { limit: limitType } : undefined;
-    return await withApiError('Failed to get subscription', () =>
-      this.client.get<SubscriptionResponse>(`${this.basePath}/subscription`, params),
+  getSalesTax = (input: GetSalesTaxInput): Effect.Effect<SalesTax, EbayApiError> =>
+    requestGetEffect<SalesTax>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/sales_tax/${input.countryCode}/${input.jurisdictionId}`,
     );
-  }
 
   /**
-   * Opt-in to a program
+   * Retrieves all sales tax table entries for one country.
+   *
+   * @param input - Country code used as the `country_code` query parameter.
+   * @returns An Effect that succeeds with eBay's generated SalesTaxes response.
+   *
+   * @example
+   * ```ts
+   * const taxes = await Effect.runPromise(accountApi.getSalesTaxes({ countryCode: 'US' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/sales_tax/methods/getSalesTaxes
    */
-  async optInToProgram(request: OptInToProgramRequest): Promise<void> {
-    return await withApiError('Failed to opt in to program', () =>
-      this.client.post(`${this.basePath}/program/opt_in`, request),
-    );
-  }
+  getSalesTaxes = (input: GetSalesTaxesInput): Effect.Effect<SalesTaxes, EbayApiError> => {
+    const params = buildEndpointParams({
+      countryCode: { wireName: 'country_code', value: input.countryCode },
+    });
+
+    return requestGetEffect<SalesTaxes>(this.client, `${ACCOUNT_BASE_PATH}/sales_tax`, params);
+  };
 
   /**
-   * Opt-out of a program
+   * Retrieves seller subscription information.
+   *
+   * @param input - Optional subscription limit and continuation token.
+   * @returns An Effect that succeeds with eBay's generated SubscriptionResponse.
+   *
+   * @example
+   * ```ts
+   * const subscription = await Effect.runPromise(accountApi.getSubscription({ limit: '10' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/subscription/methods/getSubscription
    */
-  async optOutOfProgram(request: OptInToProgramRequest): Promise<void> {
-    return await withApiError('Failed to opt out of program', () =>
-      this.client.post(`${this.basePath}/program/opt_out`, request),
+  getSubscription = (
+    input: GetSubscriptionInput = {},
+  ): Effect.Effect<SubscriptionResponse, EbayApiError> => {
+    const params = buildEndpointParams({
+      limit: { wireName: 'limit', value: input.limit },
+      continuationToken: { wireName: 'continuation_token', value: input.continuationToken },
+    });
+
+    return requestGetEffect<SubscriptionResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/subscription`,
+      params,
     );
-  }
+  };
 
   /**
-   * Get opted-in programs
+   * Retrieves seller KYC status.
+   *
+   * @param _input - Empty object accepted for tool/API shape consistency.
+   * @returns An Effect that succeeds with eBay's generated KycResponse.
+   *
+   * @example
+   * ```ts
+   * const kyc = await Effect.runPromise(accountApi.getKyc({}));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/kyc/methods/getKYC
    */
-  async getOptedInPrograms(): Promise<Programs> {
-    return await withApiError('Failed to get opted in programs', () =>
-      this.client.get<Programs>(`${this.basePath}/program`),
-    );
-  }
+  getKyc = (_input: EmptyAccountInput = {}): Effect.Effect<KycResponse, EbayApiError> =>
+    requestGetEffect<KycResponse>(this.client, `${ACCOUNT_BASE_PATH}/kyc`);
 
   /**
-   * Get seller eligibility for advertising programs
-   * This method allows developers to check the seller eligibility status for eBay advertising programs.
-   * @param programTypes - Optional comma-separated list of program types to check
-   * @param marketplaceId - Required eBay marketplace ID (passed in X-EBAY-C-MARKETPLACE-ID header)
+   * Retrieves seller advertising-program eligibility for one marketplace.
+   *
+   * @param input - Marketplace header and optional comma-separated program type filter.
+   * @returns An Effect that succeeds with eBay's generated SellerEligibilityMultiProgramResponse.
+   *
+   * @example
+   * ```ts
+   * const eligibility = await Effect.runPromise(
+   *   accountApi.getAdvertisingEligibility({ marketplaceId: 'EBAY_US', programTypes: 'PLA' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/account/resources/advertising_eligibility/methods/getAdvertisingEligibility
    */
-  async getAdvertisingEligibility(
-    marketplaceId: string,
-    programTypes?: string,
-  ): Promise<SellerEligibilityMultiProgramResponse> {
-    const params = programTypes ? { program_types: programTypes } : undefined;
-    return await withApiError('Failed to get advertising eligibility', () =>
-      this.client.get<SellerEligibilityMultiProgramResponse>(
-        `${this.basePath}/advertising_eligibility`,
-        params,
-        {
-          headers: {
-            'X-EBAY-C-MARKETPLACE-ID': marketplaceId,
-          },
+  getAdvertisingEligibility = (
+    input: GetAdvertisingEligibilityInput,
+  ): Effect.Effect<SellerEligibilityMultiProgramResponse, EbayApiError> => {
+    const params = buildEndpointParams({
+      programTypes: { wireName: 'program_types', value: input.programTypes },
+    });
+
+    return requestGetEffect<SellerEligibilityMultiProgramResponse>(
+      this.client,
+      `${ACCOUNT_BASE_PATH}/advertising_eligibility`,
+      params,
+      {
+        headers: {
+          'X-EBAY-C-MARKETPLACE-ID': input.marketplaceId,
         },
-      ),
+      },
     );
-  }
-
-  /**
-   * Get payments program status for a marketplace
-   * Note: This method is deprecated as all seller accounts globally have been enabled for the new eBay payment and checkout flow.
-   * @param marketplaceId - The eBay marketplace ID
-   * @param paymentsProgramType - The type of payments program
-   */
-  async getPaymentsProgram(
-    marketplaceId: string,
-    paymentsProgramType: string,
-  ): Promise<PaymentsProgramResponse> {
-    return await withApiError('Failed to get payments program', () =>
-      this.client.get<PaymentsProgramResponse>(
-        `${this.basePath}/payments_program/${marketplaceId}/${paymentsProgramType}`,
-      ),
-    );
-  }
-
-  /**
-   * Get payments program onboarding information
-   * Note: This method is deprecated as all seller accounts globally have been enabled for the new eBay payment and checkout flow.
-   * @param marketplaceId - The eBay marketplace ID
-   * @param paymentsProgramType - The type of payments program
-   */
-  async getPaymentsProgramOnboarding(
-    marketplaceId: string,
-    paymentsProgramType: string,
-  ): Promise<PaymentsProgramOnboardingResponse> {
-    return await withApiError('Failed to get payments program onboarding', () =>
-      this.client.get<PaymentsProgramOnboardingResponse>(
-        `${this.basePath}/payments_program/${marketplaceId}/${paymentsProgramType}/onboarding`,
-      ),
-    );
-  }
+  };
 }

@@ -1,15 +1,15 @@
 import type { ToolEntry } from '@/tools/registry.js';
 import { connectorEntries } from './connector.js';
-import { tokenManagementEntries } from './token-management.js';
+import { tokenManagementEntries } from './tokenManagement.js';
 import { accountEntries } from './account.js';
 import { inventoryEntries } from './inventory.js';
 import { fulfillmentEntries } from './fulfillment.js';
-import { marketingEntries, marketingHandlerOnlyEntries } from './marketing.js';
+import { marketingEntries } from './marketing.js';
 import { analyticsEntries } from './analytics.js';
 import { metadataEntries } from './metadata.js';
 import { taxonomyEntries } from './taxonomy.js';
-import { communicationEntries, communicationHandlerOnlyEntries } from './communication.js';
-import { otherEntries, claudeEntries } from './other.js';
+import { communicationEntries } from './communication.js';
+import { otherEntries } from './other.js';
 import { developerEntries } from './developer.js';
 import { tradingEntries } from './trading.js';
 
@@ -55,14 +55,3 @@ export const toolCategories: ToolCategory[] = [
 export const registeredEntries: ToolEntry[] = toolCategories.flatMap(
   (category) => category.entries,
 );
-
-/**
- * Handler-only entries: callable via `executeTool`/`getToolHandler` but intentionally
- * not advertised to MCP clients (no registered definition). Preserves prior behavior
- * for handlers that existed without a corresponding definition.
- */
-export const handlerOnlyEntries: ToolEntry[] = [
-  ...claudeEntries,
-  ...communicationHandlerOnlyEntries,
-  ...marketingHandlerOnlyEntries,
-];

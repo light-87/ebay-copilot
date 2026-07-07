@@ -42,16 +42,22 @@
         "useSortedClasses": "warn"
       },
       "style": {
-        "noDefaultExport": "off",
+        "noDefaultExport": "warn",
         "noJsxLiterals": "off",
         "useComponentExportOnlyModules": "off",
         "noTernary": "off",
+        "noNestedTernary": "warn",
         "useNamingConvention": "off",
+        "useFilenamingConvention": {
+          "level": "warn",
+          "options": { "filenameCases": ["camelCase"] }
+        },
+        "useImportType": "warn",
         "noMagicNumbers": "off",
         "noCommonJs": "off",
         "useExportsLast": "warn",
         "noIncrementDecrement": "off",
-        "noProcessEnv": "off",
+        "noProcessEnv": "warn",
         "noExcessiveLinesPerFile": {
           "level": "warn",
           "options": { "maxLines": 300 }
@@ -73,6 +79,7 @@
         "useTopLevelRegex": "warn"
       },
       "suspicious": {
+        "noConsole": "warn",
         "noUnknownAttribute": "off",
         "noUnnecessaryConditions": "warn",
         "noControlCharactersInRegex": "off",
@@ -116,6 +123,36 @@
           },
           "complexity": {
             "noExcessiveLinesPerFunction": "off"
+          },
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/config/**",
+        "src/index.ts",
+        "src/serverHttp.ts",
+        "src/scripts/**",
+        "src/utils/logger.ts",
+        "tests/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noProcessEnv": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/types/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off"
           }
         }
       }

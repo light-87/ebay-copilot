@@ -3,11 +3,6 @@
 Purpose & direction for **ebay-mcp**. Orientation is in [CONTEXT.md](CONTEXT.md);
 how to work here is [AGENTS.md](AGENTS.md).
 
-> **⚠️ Confirm the inferred lines.** Purpose, users, scope, and non-goals are
-> drawn from the README and package manifest and are solid. The **Direction**
-> section is _inferred_ — review it and correct anything that doesn't match your
-> intent.
-
 ## Problem
 
 AI assistants can reason about selling on eBay but can't _act_ on it: eBay's Sell
@@ -44,11 +39,11 @@ and analyse on eBay without bespoke integration code.
   layer aside).
 - Not a general eBay Buy/Browse client — the focus is the **Sell** side.
 
-## Direction _(inferred — confirm)_
+## Direction
 
 - **Stay at 100% Sell coverage** as eBay ships/changes endpoints — the `sync`
   workflow exists to catch drift and file it.
-- **Keep agent context lean** — dynamic tool-gating is the lever; grow it rather
+- **Keep agent context lean** — dynamic toolGating is the lever; grow it rather
   than exposing all 322 tools by default.
 - **Harden the contributor gate** — this change set adds a real CI gate (Biome +
   typecheck + test + build across an OS×Node matrix) and codified docs so

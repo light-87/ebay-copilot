@@ -1,1378 +1,2225 @@
-import { withApiError } from '@/api/shared/request.js';
-import type { EbayApiClient } from '@/api/client.js';
-import type { components } from '@/types/sell-apps/markeitng-and-promotions/sellMarketingV1Oas3.js';
+import type { EbayApiClient, EbayRequestConfig } from '@/api/client.js';
+import {
+  buildEndpointParams,
+  type EbayApiError,
+  requestDeleteEffect,
+  requestGetEffect,
+  requestPostEffect,
+  requestPutEffect,
+} from '@/api/shared/request.js';
+import {
+  bulkCreateAdsByInventoryReferenceInputSchema,
+  bulkCreateAdsByListingIdInputSchema,
+  bulkDeleteAdsByInventoryReferenceInputSchema,
+  bulkDeleteAdsByListingIdInputSchema,
+  bulkUpdateAdsBidByInventoryReferenceInputSchema,
+  bulkUpdateAdsBidByListingIdInputSchema,
+  bulkUpdateAdsStatusInputSchema,
+  bulkUpdateAdsStatusByListingIdInputSchema,
+  getAdsInputSchema,
+  createAdByListingIdInputSchema,
+  createAdsByInventoryReferenceInputSchema,
+  getAdInputSchema,
+  deleteAdInputSchema,
+  deleteAdsByInventoryReferenceInputSchema,
+  getAdsByInventoryReferenceInputSchema,
+  updateBidInputSchema,
+  getAdGroupsInputSchema,
+  createAdGroupInputSchema,
+  getAdGroupInputSchema,
+  updateAdGroupInputSchema,
+  suggestBidsInputSchema,
+  suggestKeywordsInputSchema,
+  cloneCampaignInputSchema,
+  getCampaignsInputSchema,
+  createCampaignInputSchema,
+  getCampaignInputSchema,
+  deleteCampaignInputSchema,
+  endCampaignInputSchema,
+  findCampaignByAdReferenceInputSchema,
+  getCampaignByNameInputSchema,
+  launchCampaignInputSchema,
+  pauseCampaignInputSchema,
+  resumeCampaignInputSchema,
+  setupQuickCampaignInputSchema,
+  suggestBudgetInputSchema,
+  suggestItemsInputSchema,
+  suggestMaxCpcInputSchema,
+  updateAdRateStrategyInputSchema,
+  updateBiddingStrategyInputSchema,
+  updateCampaignBudgetInputSchema,
+  updateCampaignIdentificationInputSchema,
+  bulkCreateKeywordInputSchema,
+  bulkUpdateKeywordInputSchema,
+  getKeywordsInputSchema,
+  createKeywordInputSchema,
+  getKeywordInputSchema,
+  updateKeywordInputSchema,
+  bulkCreateNegativeKeywordInputSchema,
+  bulkUpdateNegativeKeywordInputSchema,
+  getNegativeKeywordsInputSchema,
+  createNegativeKeywordInputSchema,
+  getNegativeKeywordInputSchema,
+  updateNegativeKeywordInputSchema,
+  getReportInputSchema,
+  getReportMetadataInputSchema,
+  getReportMetadataForReportTypeInputSchema,
+  getReportTasksInputSchema,
+  createReportTaskInputSchema,
+  getReportTaskInputSchema,
+  deleteReportTaskInputSchema,
+  createItemPriceMarkdownPromotionInputSchema,
+  getItemPriceMarkdownPromotionInputSchema,
+  updateItemPriceMarkdownPromotionInputSchema,
+  deleteItemPriceMarkdownPromotionInputSchema,
+  createItemPromotionInputSchema,
+  getItemPromotionInputSchema,
+  updateItemPromotionInputSchema,
+  deleteItemPromotionInputSchema,
+  getListingSetInputSchema,
+  getPromotionsInputSchema,
+  pausePromotionInputSchema,
+  resumePromotionInputSchema,
+  getPromotionReportsInputSchema,
+  getPromotionSummaryReportInputSchema,
+  getEmailCampaignsInputSchema,
+  createEmailCampaignInputSchema,
+  getEmailCampaignInputSchema,
+  updateEmailCampaignInputSchema,
+  deleteEmailCampaignInputSchema,
+  getAudiencesInputSchema,
+  getEmailPreviewInputSchema,
+  getEmailReportInputSchema,
+} from '@/schemas/marketing/marketing.js';
+import type { operations } from '@/types/sell-apps/markeitng-and-promotions/sellMarketingV1Oas3.js';
+import { Effect } from 'effect';
+import type { z } from 'zod';
 
-type AdGroupRequest = components['schemas']['CreateAdGroupRequest'];
-type BulkCreateAdRequest = components['schemas']['BulkCreateAdRequest'];
-type BulkCreateAdsByInventoryReferenceRequest =
-  components['schemas']['BulkCreateAdsByInventoryReferenceRequest'];
-type BulkCreateKeywordsRequest = components['schemas']['BulkCreateKeywordRequest'];
-type BulkDeleteAdRequest = components['schemas']['BulkDeleteAdRequest'];
-type BulkDeleteKeywordsRequest = components['schemas']['BulkDeleteAdRequest']; // Note: No BulkDeleteKeywordRequest in schema
-type BulkUpdateAdStatusByListingIdRequest =
-  components['schemas']['BulkUpdateAdStatusByListingIdRequest'];
-type BulkUpdateAdStatusRequest = components['schemas']['BulkUpdateAdStatusRequest'];
-type BulkUpdateKeywordBidsRequest = components['schemas']['BulkUpdateKeywordRequest'];
-type CloneCampaignRequest = components['schemas']['CloneCampaignRequest'];
-type CreateAdRequest = components['schemas']['CreateAdRequest'];
-type CreateAdsByInventoryReferenceRequest =
-  components['schemas']['CreateAdsByInventoryReferenceRequest'];
-type CreateCampaignRequest = components['schemas']['CreateCampaignRequest'];
-type CreateKeywordRequest = components['schemas']['CreateKeywordRequest'];
-type CreateNegativeKeywordRequest = components['schemas']['CreateNegativeKeywordRequest'];
-type CreateReportTask = components['schemas']['CreateReportTask'];
-type ItemPromotion = components['schemas']['ItemPromotion'];
-type UpdateBidPercentageRequest = components['schemas']['UpdateBidPercentageRequest'];
-type UpdateCampaignIdentificationRequest =
-  components['schemas']['UpdateCampaignIdentificationRequest'];
-type Ad = components['schemas']['Ad'];
-type AdGroup = components['schemas']['AdGroup'];
-type AdGroupPagedCollection = components['schemas']['AdGroupPagedCollectionResponse'];
-type AdPagedCollectionResponse = components['schemas']['AdPagedCollectionResponse'];
-type AdReferences = components['schemas']['AdReferences'];
-type Ads = components['schemas']['Ads'];
-type BaseResponse = components['schemas']['BaseResponse'];
-type BulkAdResponse = components['schemas']['BulkAdResponse'];
-type BulkAdUpdateResponse = components['schemas']['BulkAdUpdateResponse'];
-type BulkAdUpdateStatusByListingIdResponse =
-  components['schemas']['BulkAdUpdateStatusByListingIdResponse'];
-type BulkAdUpdateStatusResponse = components['schemas']['BulkAdUpdateStatusResponse'];
-type BulkCreateAdsByInventoryReferenceResponse =
-  components['schemas']['BulkCreateAdsByInventoryReferenceResponse'];
-type BulkCreateKeywordsResponse = components['schemas']['BulkCreateKeywordResponse'];
-type BulkDeleteAdResponse = components['schemas']['BulkDeleteAdResponse'];
-type BulkDeleteAdsByInventoryReferenceResponse =
-  components['schemas']['BulkDeleteAdsByInventoryReferenceResponse'];
-type BulkUpdateAdsByInventoryReferenceResponse =
-  components['schemas']['BulkUpdateAdsByInventoryReferenceResponse'];
-type BulkUpdateKeywordBidsResponse = components['schemas']['BulkUpdateKeywordResponse'];
-type Campaign = components['schemas']['Campaign'];
-type CampaignPagedCollectionResponse = components['schemas']['CampaignPagedCollectionResponse'];
-type Keyword = components['schemas']['Keyword'];
-type KeywordPagedCollection = components['schemas']['KeywordPagedCollectionResponse'];
-type NegativeKeyword = components['schemas']['NegativeKeyword'];
-type NegativeKeywordPagedCollection =
-  components['schemas']['NegativeKeywordPagedCollectionResponse'];
-type PromotionsReportPagedCollection = components['schemas']['PromotionsReportPagedCollection'];
-type ReportMetadata = components['schemas']['ReportMetadata'];
-type ReportMetadatas = components['schemas']['ReportMetadatas'];
-type ReportTask = components['schemas']['ReportTask'];
-type ReportTaskPagedCollection = components['schemas']['ReportTaskPagedCollection'];
-type SuggestedBids = components['schemas']['SuggestedBids'];
-type SuggestedKeywords = components['schemas']['SuggestedKeywords'];
-type SummaryReportResponse = components['schemas']['SummaryReportResponse'];
-type BulkCreateNegativeKeywordRequest = components['schemas']['BulkCreateNegativeKeywordRequest'];
-type BulkCreateNegativeKeywordResponse = components['schemas']['BulkCreateNegativeKeywordResponse'];
-type BulkUpdateNegativeKeywordRequest = components['schemas']['BulkUpdateNegativeKeywordRequest'];
-type BulkUpdateNegativeKeywordResponse = components['schemas']['BulkUpdateNegativeKeywordResponse'];
-type NegativeKeywordRequest = components['schemas']['UpdateNegativeKeywordRequest'];
+const MARKETING_BASE_PATH = '/sell/marketing/v1';
 
-// Types that don't exist in OpenAPI schema - using fallback types
-type BulkDeleteAdsByInventoryReferenceRequest = Record<string, unknown>;
-type CreateAdGroupRequest = AdGroupRequest;
-type UpdateKeywordByKeywordIdRequest = Record<string, unknown>;
-type SuggestKeywordsRequest = Record<string, unknown>;
-type UpdateBidRequest = Record<string, unknown>;
-type ItemPromotionRequest = Record<string, unknown>;
-type ItemPromotionResponse = Record<string, unknown>;
-type ItemPromotionsPagedCollection = Record<string, unknown>;
-type TargetingRequest = Record<string, unknown>;
-type TargetingResponse = Record<string, unknown>;
-type BulkDeleteKeywordsResponse = Record<string, unknown>;
-type CreateKeywordResponse = Record<string, unknown>;
-type Report = Record<string, unknown>;
-type BulkUpdateKeywordRequest = BulkUpdateKeywordBidsRequest;
+type JsonContent<Response> = Response extends { content: { 'application/json': infer Body } }
+  ? Body
+  : void;
 
-/**
- * Marketing API - Marketing campaigns and promotions
- * Based on: docs/sell-apps/marketing-and-promotions/sell_marketing_v1_oas3.json
- */
+type MarketingOperationResponse<Operation extends keyof operations> =
+  200 extends keyof operations[Operation]['responses']
+    ? JsonContent<operations[Operation]['responses'][200]>
+    : 201 extends keyof operations[Operation]['responses']
+      ? JsonContent<operations[Operation]['responses'][201]>
+      : 202 extends keyof operations[Operation]['responses']
+        ? JsonContent<operations[Operation]['responses'][202]>
+        : 204 extends keyof operations[Operation]['responses']
+          ? JsonContent<operations[Operation]['responses'][204]>
+          : void;
+
+type BulkCreateAdsByInventoryReferenceInput = z.infer<
+  typeof bulkCreateAdsByInventoryReferenceInputSchema
+>;
+type BulkCreateAdsByListingIdInput = z.infer<typeof bulkCreateAdsByListingIdInputSchema>;
+type BulkDeleteAdsByInventoryReferenceInput = z.infer<
+  typeof bulkDeleteAdsByInventoryReferenceInputSchema
+>;
+type BulkDeleteAdsByListingIdInput = z.infer<typeof bulkDeleteAdsByListingIdInputSchema>;
+type BulkUpdateAdsBidByInventoryReferenceInput = z.infer<
+  typeof bulkUpdateAdsBidByInventoryReferenceInputSchema
+>;
+type BulkUpdateAdsBidByListingIdInput = z.infer<typeof bulkUpdateAdsBidByListingIdInputSchema>;
+type BulkUpdateAdsStatusInput = z.infer<typeof bulkUpdateAdsStatusInputSchema>;
+type BulkUpdateAdsStatusByListingIdInput = z.infer<
+  typeof bulkUpdateAdsStatusByListingIdInputSchema
+>;
+type GetAdsInput = z.infer<typeof getAdsInputSchema>;
+type CreateAdByListingIdInput = z.infer<typeof createAdByListingIdInputSchema>;
+type CreateAdsByInventoryReferenceInput = z.infer<typeof createAdsByInventoryReferenceInputSchema>;
+type GetAdInput = z.infer<typeof getAdInputSchema>;
+type DeleteAdInput = z.infer<typeof deleteAdInputSchema>;
+type DeleteAdsByInventoryReferenceInput = z.infer<typeof deleteAdsByInventoryReferenceInputSchema>;
+type GetAdsByInventoryReferenceInput = z.infer<typeof getAdsByInventoryReferenceInputSchema>;
+type UpdateBidInput = z.infer<typeof updateBidInputSchema>;
+type GetAdGroupsInput = z.infer<typeof getAdGroupsInputSchema>;
+type CreateAdGroupInput = z.infer<typeof createAdGroupInputSchema>;
+type GetAdGroupInput = z.infer<typeof getAdGroupInputSchema>;
+type UpdateAdGroupInput = z.infer<typeof updateAdGroupInputSchema>;
+type SuggestBidsInput = z.infer<typeof suggestBidsInputSchema>;
+type SuggestKeywordsInput = z.infer<typeof suggestKeywordsInputSchema>;
+type CloneCampaignInput = z.infer<typeof cloneCampaignInputSchema>;
+type GetCampaignsInput = z.infer<typeof getCampaignsInputSchema>;
+type CreateCampaignInput = z.infer<typeof createCampaignInputSchema>;
+type GetCampaignInput = z.infer<typeof getCampaignInputSchema>;
+type DeleteCampaignInput = z.infer<typeof deleteCampaignInputSchema>;
+type EndCampaignInput = z.infer<typeof endCampaignInputSchema>;
+type FindCampaignByAdReferenceInput = z.infer<typeof findCampaignByAdReferenceInputSchema>;
+type GetCampaignByNameInput = z.infer<typeof getCampaignByNameInputSchema>;
+type LaunchCampaignInput = z.infer<typeof launchCampaignInputSchema>;
+type PauseCampaignInput = z.infer<typeof pauseCampaignInputSchema>;
+type ResumeCampaignInput = z.infer<typeof resumeCampaignInputSchema>;
+type SetupQuickCampaignInput = z.infer<typeof setupQuickCampaignInputSchema>;
+type SuggestBudgetInput = z.infer<typeof suggestBudgetInputSchema>;
+type SuggestItemsInput = z.infer<typeof suggestItemsInputSchema>;
+type SuggestMaxCpcInput = z.infer<typeof suggestMaxCpcInputSchema>;
+type UpdateAdRateStrategyInput = z.infer<typeof updateAdRateStrategyInputSchema>;
+type UpdateBiddingStrategyInput = z.infer<typeof updateBiddingStrategyInputSchema>;
+type UpdateCampaignBudgetInput = z.infer<typeof updateCampaignBudgetInputSchema>;
+type UpdateCampaignIdentificationInput = z.infer<typeof updateCampaignIdentificationInputSchema>;
+type BulkCreateKeywordInput = z.infer<typeof bulkCreateKeywordInputSchema>;
+type BulkUpdateKeywordInput = z.infer<typeof bulkUpdateKeywordInputSchema>;
+type GetKeywordsInput = z.infer<typeof getKeywordsInputSchema>;
+type CreateKeywordInput = z.infer<typeof createKeywordInputSchema>;
+type GetKeywordInput = z.infer<typeof getKeywordInputSchema>;
+type UpdateKeywordInput = z.infer<typeof updateKeywordInputSchema>;
+type BulkCreateNegativeKeywordInput = z.infer<typeof bulkCreateNegativeKeywordInputSchema>;
+type BulkUpdateNegativeKeywordInput = z.infer<typeof bulkUpdateNegativeKeywordInputSchema>;
+type GetNegativeKeywordsInput = z.infer<typeof getNegativeKeywordsInputSchema>;
+type CreateNegativeKeywordInput = z.infer<typeof createNegativeKeywordInputSchema>;
+type GetNegativeKeywordInput = z.infer<typeof getNegativeKeywordInputSchema>;
+type UpdateNegativeKeywordInput = z.infer<typeof updateNegativeKeywordInputSchema>;
+type GetReportInput = z.infer<typeof getReportInputSchema>;
+type GetReportMetadataInput = z.infer<typeof getReportMetadataInputSchema>;
+type GetReportMetadataForReportTypeInput = z.infer<
+  typeof getReportMetadataForReportTypeInputSchema
+>;
+type GetReportTasksInput = z.infer<typeof getReportTasksInputSchema>;
+type CreateReportTaskInput = z.infer<typeof createReportTaskInputSchema>;
+type GetReportTaskInput = z.infer<typeof getReportTaskInputSchema>;
+type DeleteReportTaskInput = z.infer<typeof deleteReportTaskInputSchema>;
+type CreateItemPriceMarkdownPromotionInput = z.infer<
+  typeof createItemPriceMarkdownPromotionInputSchema
+>;
+type GetItemPriceMarkdownPromotionInput = z.infer<typeof getItemPriceMarkdownPromotionInputSchema>;
+type UpdateItemPriceMarkdownPromotionInput = z.infer<
+  typeof updateItemPriceMarkdownPromotionInputSchema
+>;
+type DeleteItemPriceMarkdownPromotionInput = z.infer<
+  typeof deleteItemPriceMarkdownPromotionInputSchema
+>;
+type CreateItemPromotionInput = z.infer<typeof createItemPromotionInputSchema>;
+type GetItemPromotionInput = z.infer<typeof getItemPromotionInputSchema>;
+type UpdateItemPromotionInput = z.infer<typeof updateItemPromotionInputSchema>;
+type DeleteItemPromotionInput = z.infer<typeof deleteItemPromotionInputSchema>;
+type GetListingSetInput = z.infer<typeof getListingSetInputSchema>;
+type GetPromotionsInput = z.infer<typeof getPromotionsInputSchema>;
+type PausePromotionInput = z.infer<typeof pausePromotionInputSchema>;
+type ResumePromotionInput = z.infer<typeof resumePromotionInputSchema>;
+type GetPromotionReportsInput = z.infer<typeof getPromotionReportsInputSchema>;
+type GetPromotionSummaryReportInput = z.infer<typeof getPromotionSummaryReportInputSchema>;
+type GetEmailCampaignsInput = z.infer<typeof getEmailCampaignsInputSchema>;
+type CreateEmailCampaignInput = z.infer<typeof createEmailCampaignInputSchema>;
+type GetEmailCampaignInput = z.infer<typeof getEmailCampaignInputSchema>;
+type UpdateEmailCampaignInput = z.infer<typeof updateEmailCampaignInputSchema>;
+type DeleteEmailCampaignInput = z.infer<typeof deleteEmailCampaignInputSchema>;
+type GetAudiencesInput = z.infer<typeof getAudiencesInputSchema>;
+type GetEmailPreviewInput = z.infer<typeof getEmailPreviewInputSchema>;
+type GetEmailReportInput = z.infer<typeof getEmailReportInputSchema>;
+
+const marketplaceHeader = (marketplaceId: string): EbayRequestConfig => ({
+  headers: { 'X-EBAY-C-MARKETPLACE-ID': marketplaceId },
+});
+
+/** Marketing API - campaigns, ads, promotions, reports, and email campaigns. */
 export class MarketingApi {
-  private readonly basePath = '/sell/marketing/v1';
-
-  constructor(private client: EbayApiClient) {}
+  public constructor(private readonly client: EbayApiClient) {}
 
   /**
-   * Get campaigns
-   */
-  async getCampaigns(
-    campaignStatus?: string,
-    marketplaceId?: string,
-    limit?: number,
-  ): Promise<CampaignPagedCollectionResponse> {
-    const params: Record<string, string | number> = {};
-    if (campaignStatus) params.campaign_status = campaignStatus;
-    if (marketplaceId) params.marketplace_id = marketplaceId;
-    if (limit) params.limit = limit;
-    return await withApiError('Failed to get campaigns', () =>
-      this.client.get<CampaignPagedCollectionResponse>(`${this.basePath}/ad_campaign`, params),
-    );
-  }
-
-  /**
-   * Get a specific campaign
-   */
-  async getCampaign(campaignId: string): Promise<Campaign> {
-    return await withApiError('Failed to get campaign', () =>
-      this.client.get<Campaign>(`${this.basePath}/ad_campaign/${campaignId}`),
-    );
-  }
-
-  /**
-   * Create a campaign
-   */
-  async createCampaign(campaign: CreateCampaignRequest): Promise<BaseResponse> {
-    return await withApiError('Failed to create campaign', () =>
-      this.client.post<BaseResponse>(`${this.basePath}/ad_campaign`, campaign),
-    );
-  }
-
-  /**
-   * Get promotions (discounts), optionally filtered by status and type.
+   * Bulk create ads by inventory reference through the eBay Marketing API.
    *
-   * Mirrors eBay's `getPromotions` query parameters: `marketplace_id` selects the
-   * site, `promotion_status` (DRAFT, SCHEDULED, RUNNING, PAUSED, ENDED) and
-   * `promotion_type` (e.g. ORDER_DISCOUNT, MARKDOWN_SALE) narrow the result set,
-   * and `limit`/`offset` page through it.
-   */
-  async getPromotions(
-    marketplaceId?: string,
-    limit?: number,
-    offset?: number,
-    promotionStatus?: string,
-    promotionType?: string,
-  ): Promise<ItemPromotionsPagedCollection> {
-    const params: Record<string, string | number> = {};
-    if (marketplaceId) params.marketplace_id = marketplaceId;
-    if (limit) params.limit = limit;
-    if (offset) params.offset = offset;
-    if (promotionStatus) params.promotion_status = promotionStatus;
-    if (promotionType) params.promotion_type = promotionType;
-    return await withApiError('Failed to get promotions', () =>
-      this.client.get<ItemPromotionsPagedCollection>(`${this.basePath}/promotion`, params),
-    );
-  }
-
-  /**
-   * Create a promotion (item promotion)
-   */
-  async createPromotion(promotion: ItemPromotion): Promise<BaseResponse> {
-    return await withApiError('Failed to create promotion', () =>
-      this.client.post<BaseResponse>(`${this.basePath}/item_promotion`, promotion),
-    );
-  }
-
-  /**
-   * Get ads for a campaign
-   */
-  async getAds(
-    campaignId: string,
-    adGroupIds?: string,
-    adStatus?: string,
-    limit?: number,
-    listingIds?: string,
-    offset?: number,
-  ): Promise<AdPagedCollectionResponse> {
-    const params: Record<string, string | number> = {};
-    if (adGroupIds) params.ad_group_ids = adGroupIds;
-    if (adStatus) params.ad_status = adStatus;
-    if (limit) params.limit = limit;
-    if (listingIds) params.listing_ids = listingIds;
-    if (offset) params.offset = offset;
-    return await withApiError('Failed to get ads', () =>
-      this.client.get<AdPagedCollectionResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad`,
-        params,
-      ),
-    );
-  }
-
-  /**
-   * Create an ad for a campaign
-   */
-  async createAd(campaignId: string, ad: CreateAdRequest): Promise<BaseResponse> {
-    return await withApiError('Failed to create ad', () =>
-      this.client.post<BaseResponse>(`${this.basePath}/ad_campaign/${campaignId}/ad`, ad),
-    );
-  }
-
-  /**
-   * Create ads by inventory reference for a campaign
-   */
-  async createAdsByInventoryReference(
-    campaignId: string,
-    ads: CreateAdsByInventoryReferenceRequest,
-  ): Promise<AdReferences> {
-    return await withApiError('Failed to create ads by inventory reference', () =>
-      this.client.post<AdReferences>(
-        `${this.basePath}/ad_campaign/${campaignId}/create_ads_by_inventory_reference`,
-        ads,
-      ),
-    );
-  }
-
-  /**
-   * Get a specific ad for a campaign
-   */
-  async getAd(campaignId: string, adId: string): Promise<Ad> {
-    return await withApiError('Failed to get ad', () =>
-      this.client.get<Ad>(`${this.basePath}/ad_campaign/${campaignId}/ad/${adId}`),
-    );
-  }
-
-  /**
-   * Delete a specific ad from a campaign
-   */
-  async deleteAd(campaignId: string, adId: string): Promise<void> {
-    return await withApiError('Failed to delete ad', () =>
-      this.client.delete<void>(`${this.basePath}/ad_campaign/${campaignId}/ad/${adId}`),
-    );
-  }
-
-  /**
-   * Clone an ad for a campaign
-   */
-  async cloneAd(campaignId: string, adId: string, ad: CreateAdRequest): Promise<BaseResponse> {
-    return await withApiError('Failed to clone ad', () =>
-      this.client.post<BaseResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad/${adId}/clone`,
-        ad,
-      ),
-    );
-  }
-
-  /**
-   * Get ads by inventory reference for a campaign
-   */
-  async getAdsByInventoryReference(
-    campaignId: string,
-    inventoryReferenceId: string,
-    inventoryReferenceType: string,
-  ): Promise<Ads> {
-    const params: Record<string, string> = {
-      inventory_reference_id: inventoryReferenceId,
-      inventory_reference_type: inventoryReferenceType,
-    };
-    return await withApiError('Failed to get ads by inventory reference', () =>
-      this.client.get<Ads>(
-        `${this.basePath}/ad_campaign/${campaignId}/get_ads_by_inventory_reference`,
-        params,
-      ),
-    );
-  }
-
-  /**
-   * Get ads by listing ID for a campaign
-   */
-  async getAdsByListingId(campaignId: string, listingId: string): Promise<Ads> {
-    const params: Record<string, string> = {
-      listing_id: listingId,
-    };
-    return await withApiError('Failed to get ads by listing id', () =>
-      this.client.get<Ads>(
-        `${this.basePath}/ad_campaign/${campaignId}/get_ads_by_listing_id`,
-        params,
-      ),
-    );
-  }
-
-  /**
-   * Update the bid for an ad in a campaign
-   */
-  async updateBid(
-    campaignId: string,
-    adId: string,
-    bid: UpdateBidPercentageRequest,
-  ): Promise<void> {
-    return await withApiError('Failed to update bid', () =>
-      this.client.post<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad/${adId}/update_bid`,
-        bid,
-      ),
-    );
-  }
-
-  /**
-   * Clone a campaign
-   */
-  async cloneCampaign(campaignId: string, campaign: CloneCampaignRequest): Promise<BaseResponse> {
-    return await withApiError('Failed to clone campaign', () =>
-      this.client.post<BaseResponse>(`${this.basePath}/ad_campaign/${campaignId}/clone`, campaign),
-    );
-  }
-
-  /**
-   * End a campaign
-   */
-  async endCampaign(campaignId: string): Promise<void> {
-    return await withApiError('Failed to end campaign', () =>
-      this.client.post<void>(`${this.basePath}/ad_campaign/${campaignId}/end`, {}),
-    );
-  }
-
-  /**
-   * Get campaign by name
-   */
-  async getCampaignByName(campaignName: string): Promise<Campaign> {
-    const params: Record<string, string> = {
-      campaign_name: campaignName,
-    };
-    return await withApiError('Failed to get campaign by name', () =>
-      this.client.get<Campaign>(`${this.basePath}/ad_campaign/get_campaign_by_name`, params),
-    );
-  }
-
-  /**
-   * Bulk create ads by inventory reference
-   */
-  async bulkCreateAdsByInventoryReference(
-    campaignId: string,
-    body: BulkCreateAdsByInventoryReferenceRequest,
-  ): Promise<BulkCreateAdsByInventoryReferenceResponse> {
-    return await withApiError('Failed to bulk create ads by inventory reference', () =>
-      this.client.post<BulkCreateAdsByInventoryReferenceResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_create_ads_by_inventory_reference`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Bulk create ads by listing id
-   */
-  async bulkCreateAdsByListingId(
-    campaignId: string,
-    body: BulkCreateAdRequest,
-  ): Promise<BulkAdResponse> {
-    return await withApiError('Failed to bulk create ads by listing id', () =>
-      this.client.post<BulkAdResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_create_ads_by_listing_id`,
-        body,
-      ),
-    );
-  }
-
-  async bulkDeleteAdsByInventoryReference(
-    campaignId: string,
-    body: BulkDeleteAdsByInventoryReferenceRequest,
-  ): Promise<BulkDeleteAdsByInventoryReferenceResponse> {
-    return await withApiError('Failed to bulk delete ads by inventory reference', () =>
-      this.client.post<BulkDeleteAdsByInventoryReferenceResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_delete_ads_by_inventory_reference`,
-        body,
-      ),
-    );
-  }
-
-  async deleteAdsByInventoryReference(
-    campaignId: string,
-    body: Record<string, unknown>,
-  ): Promise<void> {
-    return await withApiError('Failed to delete ads by inventory reference', () =>
-      this.client.post<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/delete_ads_by_inventory_reference`,
-        body,
-      ),
-    );
-  }
-  async bulkDeleteAdsByListingId(
-    campaignId: string,
-    body: BulkDeleteAdRequest,
-  ): Promise<BulkDeleteAdResponse> {
-    return await withApiError('Failed to bulk delete ads by listing id', () =>
-      this.client.post<BulkDeleteAdResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_delete_ads_by_listing_id`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Bulk update ads bid by inventory reference
-   */
-  async bulkUpdateAdsBidByInventoryReference(
-    campaignId: string,
-    body: BulkCreateAdsByInventoryReferenceRequest,
-  ): Promise<BulkUpdateAdsByInventoryReferenceResponse> {
-    return await withApiError('Failed to bulk update ads bid by inventory reference', () =>
-      this.client.post<BulkUpdateAdsByInventoryReferenceResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_update_ads_bid_by_inventory_reference`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Bulk update ads bid by listing id
-   */
-  async bulkUpdateAdsBidByListingId(
-    campaignId: string,
-    body: BulkCreateAdRequest,
-  ): Promise<BulkAdUpdateResponse> {
-    return await withApiError('Failed to bulk update ads bid by listing id', () =>
-      this.client.post<BulkAdUpdateResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_update_ads_bid_by_listing_id`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Bulk update ads status
-   */
-  async bulkUpdateAdsStatus(
-    campaignId: string,
-    body: BulkUpdateAdStatusRequest,
-  ): Promise<BulkAdUpdateStatusResponse> {
-    return await withApiError('Failed to bulk update ads status', () =>
-      this.client.post<BulkAdUpdateStatusResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_update_ads_status`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Bulk update ads status by listing id
-   */
-  async bulkUpdateAdsStatusByListingId(
-    campaignId: string,
-    body: BulkUpdateAdStatusByListingIdRequest,
-  ): Promise<BulkAdUpdateStatusByListingIdResponse> {
-    return await withApiError('Failed to bulk update ads status by listing id', () =>
-      this.client.post<BulkAdUpdateStatusByListingIdResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_update_ads_status_by_listing_id`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Pause a campaign
-   */
-  async pauseCampaign(campaignId: string): Promise<void> {
-    return await withApiError('Failed to pause campaign', () =>
-      this.client.post<void>(`${this.basePath}/ad_campaign/${campaignId}/pause`, {}),
-    );
-  }
-
-  /**
-   * Resume a campaign
-   */
-  async resumeCampaign(campaignId: string): Promise<void> {
-    return await withApiError('Failed to resume campaign', () =>
-      this.client.post<void>(`${this.basePath}/ad_campaign/${campaignId}/resume`, {}),
-    );
-  }
-
-  /**
-   * Update campaign identification
-   */
-  async updateCampaignIdentification(
-    campaignId: string,
-    body: UpdateCampaignIdentificationRequest,
-  ): Promise<void> {
-    return await withApiError('Failed to update campaign identification', () =>
-      this.client.put<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/update_campaign_identification`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Create an ad group
-   */
-  async createAdGroup(campaignId: string, body: AdGroupRequest): Promise<BaseResponse> {
-    return await withApiError('Failed to create ad group', () =>
-      this.client.post<BaseResponse>(`${this.basePath}/ad_campaign/${campaignId}/ad_group`, body),
-    );
-  }
-
-  /**
-   * Clone an ad group
-   */
-  async cloneAdGroup(
-    campaignId: string,
-    adGroupId: string,
-    body: CreateAdGroupRequest,
-  ): Promise<BaseResponse> {
-    return await withApiError('Failed to clone ad group', () =>
-      this.client.post<BaseResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/clone`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Get ad groups
-   */
-  async getAdGroups(
-    campaignId: string,
-    adGroupStatus?: string,
-    limit?: number,
-    offset?: number,
-  ): Promise<AdGroupPagedCollection> {
-    const params: Record<string, string | number> = {};
-    if (adGroupStatus) params.ad_group_status = adGroupStatus;
-    if (limit) params.limit = limit;
-    if (offset) params.offset = offset;
-    return await withApiError('Failed to get ad groups', () =>
-      this.client.get<AdGroupPagedCollection>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group`,
-        params,
-      ),
-    );
-  }
-
-  /**
-   * Get an ad group
-   */
-  async getAdGroup(campaignId: string, adGroupId: string): Promise<AdGroup> {
-    return await withApiError('Failed to get ad group', () =>
-      this.client.get<AdGroup>(`${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}`),
-    );
-  }
-
-  /**
-   * Suggest bids for an ad group
-   */
-  async suggestBids(campaignId: string, adGroupId: string): Promise<SuggestedBids> {
-    return await withApiError('Failed to suggest bids', () =>
-      this.client.post<SuggestedBids>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/suggest_bids`,
-        {},
-      ),
-    );
-  }
-
-  /**
-   * Update ad group bids
-   */
-  async updateAdGroupBids(
-    campaignId: string,
-    adGroupId: string,
-    body: UpdateKeywordByKeywordIdRequest,
-  ): Promise<void> {
-    return await withApiError('Failed to update ad group bids', () =>
-      this.client.post<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/update_ad_group_bids`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Update ad group keywords
-   */
-  async updateAdGroupKeywords(
-    campaignId: string,
-    adGroupId: string,
-    body: BulkUpdateKeywordRequest,
-  ): Promise<void> {
-    return await withApiError('Failed to update ad group keywords', () =>
-      this.client.post<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/update_ad_group_keywords`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Suggest keywords
-   */
-  async suggestKeywords(
-    campaignId: string,
-    adGroupId: string,
-    body: SuggestKeywordsRequest,
-  ): Promise<SuggestedKeywords> {
-    return await withApiError('Failed to suggest keywords', () =>
-      this.client.post<SuggestedKeywords>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/suggest_keywords`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Get keywords
-   */
-  async getKeywords(
-    campaignId: string,
-    adGroupId: string,
-    keywordStatus?: string,
-    limit?: number,
-    offset?: number,
-  ): Promise<KeywordPagedCollection> {
-    const params: Record<string, string | number> = {};
-    if (keywordStatus) params.keyword_status = keywordStatus;
-    if (limit) params.limit = limit;
-    if (offset) params.offset = offset;
-    return await withApiError('Failed to get keywords', () =>
-      this.client.get<KeywordPagedCollection>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/keyword`,
-        params,
-      ),
-    );
-  }
-
-  /**
-   * Bulk create keywords
-   */
-  async bulkCreateKeywords(
-    campaignId: string,
-    adGroupId: string,
-    body: BulkCreateKeywordsRequest,
-  ): Promise<BulkCreateKeywordsResponse> {
-    return await withApiError('Failed to bulk create keywords', () =>
-      this.client.post<BulkCreateKeywordsResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/bulk_create_keywords`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Bulk delete keywords
-   */
-  async bulkDeleteKeywords(
-    campaignId: string,
-    adGroupId: string,
-    body: BulkDeleteKeywordsRequest,
-  ): Promise<BulkDeleteKeywordsResponse> {
-    return await withApiError('Failed to bulk delete keywords', () =>
-      this.client.post<BulkDeleteKeywordsResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/bulk_delete_keywords`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Bulk update keyword bids
-   */
-  async bulkUpdateKeywordBids(
-    campaignId: string,
-    adGroupId: string,
-    body: BulkUpdateKeywordBidsRequest,
-  ): Promise<BulkUpdateKeywordBidsResponse> {
-    return await withApiError('Failed to bulk update keyword bids', () =>
-      this.client.post<BulkUpdateKeywordBidsResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/bulk_update_keyword_bids`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Create a keyword
-   */
-  async createKeyword(
-    campaignId: string,
-    adGroupId: string,
-    body: CreateKeywordRequest,
-  ): Promise<CreateKeywordResponse> {
-    return await withApiError('Failed to create keyword', () =>
-      this.client.post<CreateKeywordResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/create_keyword`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Get a keyword
-   */
-  async getKeyword(campaignId: string, adGroupId: string, keywordId: string): Promise<Keyword> {
-    return await withApiError('Failed to get keyword', () =>
-      this.client.get<Keyword>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/keyword/${keywordId}`,
-      ),
-    );
-  }
-
-  /**
-   * Delete a keyword
-   */
-  async deleteKeyword(campaignId: string, adGroupId: string, keywordId: string): Promise<void> {
-    return await withApiError('Failed to delete keyword', () =>
-      this.client.delete<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/keyword/${keywordId}`,
-      ),
-    );
-  }
-
-  /**
-   * Update a keyword's bid
-   */
-  async updateKeywordBid(
-    campaignId: string,
-    adGroupId: string,
-    keywordId: string,
-    body: UpdateBidRequest,
-  ): Promise<void> {
-    return await withApiError('Failed to update keyword bid', () =>
-      this.client.post<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}/keyword/${keywordId}/update_bid`,
-        body,
-      ),
-    );
-  }
-
-  /**
-   * Get ad report
-   */
-  async getAdReport(
-    dimension: string,
-    metric: string,
-    startDate: string,
-    endDate: string,
-    sort?: string,
-    listingIds?: string,
-    marketplaceId?: string,
-  ): Promise<Report> {
-    const params: Record<string, string> = {
-      dimension,
-      metric,
-      start_date: startDate,
-      end_date: endDate,
-    };
-    if (sort) params.sort = sort;
-    if (listingIds) params.listing_ids = listingIds;
-    if (marketplaceId) params.marketplace_id = marketplaceId;
-    return await withApiError('Failed to get ad report', () =>
-      this.client.get<Report>(`${this.basePath}/ad_report`, params),
-    );
-  }
-
-  /**
-   * Get ad report metadata
-   */
-  async getAdReportMetadata(): Promise<ReportMetadatas> {
-    return await withApiError('Failed to get ad report metadata', () =>
-      this.client.get<ReportMetadatas>(`${this.basePath}/ad_report_metadata`),
-    );
-  }
-
-  /**
-   * Get ad report metadata for a report type
-   */
-  async getAdReportMetadataForReportType(reportType: string): Promise<ReportMetadata> {
-    return await withApiError('Failed to get ad report metadata for report type', () =>
-      this.client.get<ReportMetadata>(`${this.basePath}/ad_report_metadata/${reportType}`),
-    );
-  }
-
-  /**
-   * Create a report task
-   */
-  async createReportTask(body: CreateReportTask): Promise<void> {
-    return await withApiError('Failed to create report task', () =>
-      this.client.post<void>(`${this.basePath}/ad_report_task`, body),
-    );
-  }
-
-  /**
-   * Get report tasks
-   */
-  async getReportTasks(
-    reportTaskStatuses?: string,
-    limit?: number,
-    offset?: number,
-  ): Promise<ReportTaskPagedCollection> {
-    const params: Record<string, string | number> = {};
-    if (reportTaskStatuses) params.report_task_statuses = reportTaskStatuses;
-    if (limit) params.limit = limit;
-    if (offset) params.offset = offset;
-    return await withApiError('Failed to get report tasks', () =>
-      this.client.get<ReportTaskPagedCollection>(`${this.basePath}/ad_report_task`, params),
-    );
-  }
-
-  /**
-   * Get a report task
-   */
-  async getReportTask(reportTaskId: string): Promise<ReportTask> {
-    return await withApiError('Failed to get report task', () =>
-      this.client.get<ReportTask>(`${this.basePath}/ad_report_task/${reportTaskId}`),
-    );
-  }
-
-  /**
-   * Get an item promotion
-   */
-  async getItemPromotion(promotionId: string): Promise<ItemPromotionResponse> {
-    return await withApiError('Failed to get item promotion', () =>
-      this.client.get<ItemPromotionResponse>(`${this.basePath}/item_promotion/${promotionId}`),
-    );
-  }
-
-  /**
-   * Delete an item promotion
-   */
-  async deleteItemPromotion(promotionId: string): Promise<void> {
-    return await withApiError('Failed to delete item promotion', () =>
-      this.client.delete<void>(`${this.basePath}/item_promotion/${promotionId}`),
-    );
-  }
-
-  /**
-   * Pause an item promotion
-   */
-  async pauseItemPromotion(promotionId: string): Promise<void> {
-    return await withApiError('Failed to pause item promotion', () =>
-      this.client.post<void>(`${this.basePath}/item_promotion/${promotionId}/pause`, {}),
-    );
-  }
-
-  /**
-   * Resume an item promotion
-   */
-  async resumeItemPromotion(promotionId: string): Promise<void> {
-    return await withApiError('Failed to resume item promotion', () =>
-      this.client.post<void>(`${this.basePath}/item_promotion/${promotionId}/resume`, {}),
-    );
-  }
-
-  /**
-   * Update an item promotion
-   */
-  async updateItemPromotion(
-    promotionId: string,
-    body: ItemPromotionRequest,
-  ): Promise<BaseResponse> {
-    return await withApiError('Failed to update item promotion', () =>
-      this.client.put<BaseResponse>(`${this.basePath}/item_promotion/${promotionId}`, body),
-    );
-  }
-
-  /**
-   * Get a promotion report
-   */
-  async getPromotionReport(
-    marketplaceId: string,
-    promotionStatus?: string,
-    limit?: number,
-    offset?: number,
-  ): Promise<PromotionsReportPagedCollection> {
-    const params: Record<string, string | number> = {
-      marketplace_id: marketplaceId,
-    };
-    if (promotionStatus) params.promotion_status = promotionStatus;
-    if (limit) params.limit = limit;
-    if (offset) params.offset = offset;
-    return await withApiError('Failed to get promotion report', () =>
-      this.client.get<PromotionsReportPagedCollection>(`${this.basePath}/promotion_report`, params),
-    );
-  }
-
-  /**
-   * Get a promotion summary report
-   */
-  async getPromotionSummaryReport(marketplaceId: string): Promise<SummaryReportResponse> {
-    const params = { marketplace_id: marketplaceId };
-    return await withApiError('Failed to get promotion summary report', () =>
-      this.client.get<SummaryReportResponse>(`${this.basePath}/promotion_summary_report`, params),
-    );
-  }
-
-  /**
-   * Get promotion summary (alias for getPromotionSummaryReport)
-   */
-  async getPromotionSummary(marketplaceId: string): Promise<SummaryReportResponse> {
-    return await this.getPromotionSummaryReport(marketplaceId);
-  }
-
-  /**
-   * Get promotion reports (alias for getPromotionReport)
-   */
-  async getPromotionReports(
-    marketplaceId: string,
-    promotionStatus?: string,
-    limit?: number,
-    offset?: number,
-  ): Promise<PromotionsReportPagedCollection> {
-    return await this.getPromotionReport(marketplaceId, promotionStatus, limit, offset);
-  }
-
-  /**
-   * Get targeting for a campaign
-   */
-  async getTargeting(campaignId: string): Promise<TargetingResponse> {
-    return await withApiError('Failed to get targeting', () =>
-      this.client.get<TargetingResponse>(`${this.basePath}/ad_campaign/${campaignId}/targeting`),
-    );
-  }
-
-  /**
-   * Create targeting for a campaign
-   */
-  async createTargeting(campaignId: string, body: TargetingRequest): Promise<void> {
-    return await withApiError('Failed to create targeting', () =>
-      this.client.post<void>(`${this.basePath}/ad_campaign/${campaignId}/targeting`, body),
-    );
-  }
-
-  /**
-   * Update targeting for a campaign
-   */
-  async updateTargeting(campaignId: string, body: TargetingRequest): Promise<void> {
-    return await withApiError('Failed to update targeting', () =>
-      this.client.put<void>(`${this.basePath}/ad_campaign/${campaignId}/targeting`, body),
-    );
-  }
-
-  /**
-   * Get negative keywords for priority-strategy CPC campaigns.
+   * @param input - Path, query, header, and request body values for bulkCreateAdsByInventoryReference.
+   * @returns An Effect that succeeds with eBay's generated bulkCreateAdsByInventoryReference response DTO.
    *
-   * Maps to `GET /negative_keyword`. Negative keywords are not nested under a
-   * campaign or ad group path — association is expressed through the optional
-   * `campaign_ids` / `ad_group_ids` filters (only one campaign ID is supported
-   * per request). Requires eBay priority strategy program access.
-   */
-  async getNegativeKeywords(
-    campaignIds?: string,
-    adGroupIds?: string,
-    negativeKeywordStatus?: string,
-    limit?: number,
-    offset?: number,
-  ): Promise<NegativeKeywordPagedCollection> {
-    const params: Record<string, string | number> = {};
-    if (campaignIds) params.campaign_ids = campaignIds;
-    if (adGroupIds) params.ad_group_ids = adGroupIds;
-    if (negativeKeywordStatus) params.negative_keyword_status = negativeKeywordStatus;
-    if (limit) params.limit = limit;
-    if (offset) params.offset = offset;
-    return await withApiError('Failed to get negative keywords', () =>
-      this.client.get<NegativeKeywordPagedCollection>(`${this.basePath}/negative_keyword`, params),
-    );
-  }
-
-  /**
-   * Create a negative keyword in a priority-strategy CPC campaign.
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.bulkCreateAdsByInventoryReference({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
    *
-   * Maps to `POST /negative_keyword`. The target campaign and ad group are
-   * carried in the request body (`campaignId` / `adGroupId`), not the path.
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkCreateAdsByInventoryReference
    */
-  async createNegativeKeyword(body: CreateNegativeKeywordRequest): Promise<BaseResponse> {
-    return await withApiError('Failed to create negative keyword', () =>
-      this.client.post<BaseResponse>(`${this.basePath}/negative_keyword`, body),
+  public bulkCreateAdsByInventoryReference = (
+    input: BulkCreateAdsByInventoryReferenceInput,
+  ): Effect.Effect<
+    MarketingOperationResponse<'bulkCreateAdsByInventoryReference'>,
+    EbayApiError
+  > => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_create_ads_by_inventory_reference`;
+    return requestPostEffect<MarketingOperationResponse<'bulkCreateAdsByInventoryReference'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Get a single negative keyword by its ID.
+   * Bulk create ads by listing id through the eBay Marketing API.
    *
-   * Maps to `GET /negative_keyword/{negative_keyword_id}`.
-   */
-  async getNegativeKeyword(negativeKeywordId: string): Promise<NegativeKeyword> {
-    return await withApiError('Failed to get negative keyword', () =>
-      this.client.get<NegativeKeyword>(`${this.basePath}/negative_keyword/${negativeKeywordId}`),
-    );
-  }
-
-  /**
-   * Update a negative keyword's status (for example, to archive it).
+   * @param input - Path, query, header, and request body values for bulkCreateAdsByListingId.
+   * @returns An Effect that succeeds with eBay's generated bulkCreateAdsByListingId response DTO.
    *
-   * Maps to `PUT /negative_keyword/{negative_keyword_id}`. eBay exposes no
-   * delete endpoint for negative keywords — a status change (such as `ARCHIVED`)
-   * is the removal mechanism.
-   */
-  async updateNegativeKeyword(
-    negativeKeywordId: string,
-    body: NegativeKeywordRequest,
-  ): Promise<BaseResponse> {
-    return await withApiError('Failed to update negative keyword', () =>
-      this.client.put<BaseResponse>(`${this.basePath}/negative_keyword/${negativeKeywordId}`, body),
-    );
-  }
-
-  /**
-   * Create multiple negative keywords in one request.
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.bulkCreateAdsByListingId({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
    *
-   * Maps to `POST /bulk_create_negative_keyword`. Each entry in `requests`
-   * carries its own `campaignId` / `adGroupId`.
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkCreateAdsByListingId
    */
-  async bulkCreateNegativeKeywords(
-    body: BulkCreateNegativeKeywordRequest,
-  ): Promise<BulkCreateNegativeKeywordResponse> {
-    return await withApiError('Failed to bulk create negative keywords', () =>
-      this.client.post<BulkCreateNegativeKeywordResponse>(
-        `${this.basePath}/bulk_create_negative_keyword`,
-        body,
-      ),
+  public bulkCreateAdsByListingId = (
+    input: BulkCreateAdsByListingIdInput,
+  ): Effect.Effect<MarketingOperationResponse<'bulkCreateAdsByListingId'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_create_ads_by_listing_id`;
+    return requestPostEffect<MarketingOperationResponse<'bulkCreateAdsByListingId'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Update the status of multiple negative keywords in one request.
+   * Bulk delete ads by inventory reference through the eBay Marketing API.
    *
-   * Maps to `POST /bulk_update_negative_keyword`.
+   * @param input - Path, query, header, and request body values for bulkDeleteAdsByInventoryReference.
+   * @returns An Effect that succeeds with eBay's generated bulkDeleteAdsByInventoryReference response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.bulkDeleteAdsByInventoryReference({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkDeleteAdsByInventoryReference
    */
-  async bulkUpdateNegativeKeywords(
-    body: BulkUpdateNegativeKeywordRequest,
-  ): Promise<BulkUpdateNegativeKeywordResponse> {
-    return await withApiError('Failed to bulk update negative keywords', () =>
-      this.client.post<BulkUpdateNegativeKeywordResponse>(
-        `${this.basePath}/bulk_update_negative_keyword`,
-        body,
-      ),
+  public bulkDeleteAdsByInventoryReference = (
+    input: BulkDeleteAdsByInventoryReferenceInput,
+  ): Effect.Effect<
+    MarketingOperationResponse<'bulkDeleteAdsByInventoryReference'>,
+    EbayApiError
+  > => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_delete_ads_by_inventory_reference`;
+    return requestPostEffect<MarketingOperationResponse<'bulkDeleteAdsByInventoryReference'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Delete a campaign
+   * Bulk delete ads by listing id through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for bulkDeleteAdsByListingId.
+   * @returns An Effect that succeeds with eBay's generated bulkDeleteAdsByListingId response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.bulkDeleteAdsByListingId({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkDeleteAdsByListingId
    */
-  async deleteCampaign(campaignId: string): Promise<void> {
-    return await withApiError('Failed to delete campaign', () =>
-      this.client.delete<void>(`${this.basePath}/ad_campaign/${campaignId}`),
+  public bulkDeleteAdsByListingId = (
+    input: BulkDeleteAdsByListingIdInput,
+  ): Effect.Effect<MarketingOperationResponse<'bulkDeleteAdsByListingId'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_delete_ads_by_listing_id`;
+    return requestPostEffect<MarketingOperationResponse<'bulkDeleteAdsByListingId'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Launch a campaign
+   * Bulk update ads bid by inventory reference through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for bulkUpdateAdsBidByInventoryReference.
+   * @returns An Effect that succeeds with eBay's generated bulkUpdateAdsBidByInventoryReference response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.bulkUpdateAdsBidByInventoryReference({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkUpdateAdsBidByInventoryReference
    */
-  async launchCampaign(campaignId: string): Promise<void> {
-    return await withApiError('Failed to launch campaign', () =>
-      this.client.post<void>(`${this.basePath}/ad_campaign/${campaignId}/launch`, {}),
+  public bulkUpdateAdsBidByInventoryReference = (
+    input: BulkUpdateAdsBidByInventoryReferenceInput,
+  ): Effect.Effect<
+    MarketingOperationResponse<'bulkUpdateAdsBidByInventoryReference'>,
+    EbayApiError
+  > => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_update_ads_bid_by_inventory_reference`;
+    return requestPostEffect<MarketingOperationResponse<'bulkUpdateAdsBidByInventoryReference'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Find campaign by ad reference
+   * Bulk update ads bid by listing id through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for bulkUpdateAdsBidByListingId.
+   * @returns An Effect that succeeds with eBay's generated bulkUpdateAdsBidByListingId response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.bulkUpdateAdsBidByListingId({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkUpdateAdsBidByListingId
    */
-  async findCampaignByAdReference(
-    inventoryReferenceId?: string,
-    inventoryReferenceType?: string,
-    listingId?: string,
-  ): Promise<Campaign> {
-    const params: Record<string, string> = {};
-    if (inventoryReferenceId) params.inventory_reference_id = inventoryReferenceId;
-    if (inventoryReferenceType) params.inventory_reference_type = inventoryReferenceType;
-    if (listingId) params.listing_id = listingId;
-    return await withApiError('Failed to find campaign by ad reference', () =>
-      this.client.get<Campaign>(
-        `${this.basePath}/ad_campaign/find_campaign_by_ad_reference`,
-        params,
-      ),
+  public bulkUpdateAdsBidByListingId = (
+    input: BulkUpdateAdsBidByListingIdInput,
+  ): Effect.Effect<MarketingOperationResponse<'bulkUpdateAdsBidByListingId'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_update_ads_bid_by_listing_id`;
+    return requestPostEffect<MarketingOperationResponse<'bulkUpdateAdsBidByListingId'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Setup quick campaign
+   * Bulk update ads status through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for bulkUpdateAdsStatus.
+   * @returns An Effect that succeeds with eBay's generated bulkUpdateAdsStatus response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.bulkUpdateAdsStatus({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkUpdateAdsStatus
    */
-  async setupQuickCampaign(body: Record<string, unknown>): Promise<BaseResponse> {
-    return await withApiError('Failed to setup quick campaign', () =>
-      this.client.post<BaseResponse>(`${this.basePath}/ad_campaign/setup_quick_campaign`, body),
+  public bulkUpdateAdsStatus = (
+    input: BulkUpdateAdsStatusInput,
+  ): Effect.Effect<MarketingOperationResponse<'bulkUpdateAdsStatus'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_update_ads_status`;
+    return requestPostEffect<MarketingOperationResponse<'bulkUpdateAdsStatus'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Suggest budget for a campaign
+   * Bulk update ads status by listing id through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for bulkUpdateAdsStatusByListingId.
+   * @returns An Effect that succeeds with eBay's generated bulkUpdateAdsStatusByListingId response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.bulkUpdateAdsStatusByListingId({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkUpdateAdsStatusByListingId
    */
-  async suggestBudget(campaignId?: string): Promise<Record<string, unknown>> {
-    const params: Record<string, string> = {};
-    if (campaignId) params.campaign_id = campaignId;
-    return await withApiError('Failed to suggest budget', () =>
-      this.client.get<Record<string, unknown>>(
-        `${this.basePath}/ad_campaign/suggest_budget`,
-        params,
-      ),
+  public bulkUpdateAdsStatusByListingId = (
+    input: BulkUpdateAdsStatusByListingIdInput,
+  ): Effect.Effect<MarketingOperationResponse<'bulkUpdateAdsStatusByListingId'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_update_ads_status_by_listing_id`;
+    return requestPostEffect<MarketingOperationResponse<'bulkUpdateAdsStatusByListingId'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Suggest items for a campaign
+   * Get ads through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getAds.
+   * @returns An Effect that succeeds with eBay's generated getAds response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getAds({ campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/getAds
    */
-  async suggestItems(campaignId: string): Promise<Record<string, unknown>> {
-    return await withApiError('Failed to suggest items', () =>
-      this.client.get<Record<string, unknown>>(
-        `${this.basePath}/ad_campaign/${campaignId}/suggest_items`,
-      ),
-    );
-  }
+  public getAds = (
+    input: GetAdsInput,
+  ): Effect.Effect<MarketingOperationResponse<'getAds'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad`;
+    const params = buildEndpointParams({
+      adGroupIds: { wireName: 'ad_group_ids', value: input.adGroupIds },
+      adStatus: { wireName: 'ad_status', value: input.adStatus },
+      limit: { wireName: 'limit', value: input.limit },
+      listingIds: { wireName: 'listing_ids', value: input.listingIds },
+      offset: { wireName: 'offset', value: input.offset },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getAds'>>(this.client, path, params);
+  };
 
   /**
-   * Suggest max CPC for ads
+   * Create ad by listing id through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for createAdByListingId.
+   * @returns An Effect that succeeds with eBay's generated createAdByListingId response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.createAdByListingId({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/createAdByListingId
    */
-  async suggestMaxCpc(body: Record<string, unknown>): Promise<Record<string, unknown>> {
-    return await withApiError('Failed to suggest max cpc', () =>
-      this.client.post<Record<string, unknown>>(
-        `${this.basePath}/ad_campaign/suggest_max_cpc`,
-        body,
-      ),
+  public createAdByListingId = (
+    input: CreateAdByListingIdInput,
+  ): Effect.Effect<MarketingOperationResponse<'createAdByListingId'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad`;
+    return requestPostEffect<MarketingOperationResponse<'createAdByListingId'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Update ad rate strategy for a campaign
+   * Create ads by inventory reference through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for createAdsByInventoryReference.
+   * @returns An Effect that succeeds with eBay's generated createAdsByInventoryReference response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.createAdsByInventoryReference({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/createAdsByInventoryReference
    */
-  async updateAdRateStrategy(campaignId: string, body: Record<string, unknown>): Promise<void> {
-    return await withApiError('Failed to update ad rate strategy', () =>
-      this.client.post<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/update_ad_rate_strategy`,
-        body,
-      ),
+  public createAdsByInventoryReference = (
+    input: CreateAdsByInventoryReferenceInput,
+  ): Effect.Effect<MarketingOperationResponse<'createAdsByInventoryReference'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/create_ads_by_inventory_reference`;
+    return requestPostEffect<MarketingOperationResponse<'createAdsByInventoryReference'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Update bidding strategy for a campaign
+   * Get ad through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getAd.
+   * @returns An Effect that succeeds with eBay's generated getAd response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getAd({ adId: 'ad-1', campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/getAd
    */
-  async updateBiddingStrategy(campaignId: string, body: Record<string, unknown>): Promise<void> {
-    return await withApiError('Failed to update bidding strategy', () =>
-      this.client.post<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/update_bidding_strategy`,
-        body,
-      ),
-    );
-  }
+  public getAd = (
+    input: GetAdInput,
+  ): Effect.Effect<MarketingOperationResponse<'getAd'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad/${input.adId}`;
+    return requestGetEffect<MarketingOperationResponse<'getAd'>>(this.client, path);
+  };
 
   /**
-   * Update campaign budget
+   * Delete ad through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for deleteAd.
+   * @returns An Effect that succeeds with eBay's generated deleteAd response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.deleteAd({ adId: 'ad-1', campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/deleteAd
    */
-  async updateCampaignBudget(campaignId: string, body: Record<string, unknown>): Promise<void> {
-    return await withApiError('Failed to update campaign budget', () =>
-      this.client.post<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/update_campaign_budget`,
-        body,
-      ),
-    );
-  }
+  public deleteAd = (
+    input: DeleteAdInput,
+  ): Effect.Effect<MarketingOperationResponse<'deleteAd'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad/${input.adId}`;
+    return requestDeleteEffect<MarketingOperationResponse<'deleteAd'>>(this.client, path);
+  };
 
   /**
-   * Update an ad group
+   * Delete ads by inventory reference through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for deleteAdsByInventoryReference.
+   * @returns An Effect that succeeds with eBay's generated deleteAdsByInventoryReference response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.deleteAdsByInventoryReference({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/deleteAdsByInventoryReference
    */
-  async updateAdGroup(
-    campaignId: string,
-    adGroupId: string,
-    body: Record<string, unknown>,
-  ): Promise<void> {
-    return await withApiError('Failed to update ad group', () =>
-      this.client.put<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/ad_group/${adGroupId}`,
-        body,
-      ),
+  public deleteAdsByInventoryReference = (
+    input: DeleteAdsByInventoryReferenceInput,
+  ): Effect.Effect<MarketingOperationResponse<'deleteAdsByInventoryReference'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/delete_ads_by_inventory_reference`;
+    return requestPostEffect<MarketingOperationResponse<'deleteAdsByInventoryReference'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Update a keyword
+   * Get ads by inventory reference through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getAdsByInventoryReference.
+   * @returns An Effect that succeeds with eBay's generated getAdsByInventoryReference response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getAdsByInventoryReference({ campaignId: 'campaign-1', inventoryReferenceId: 'inventoryReference-1', inventoryReferenceType: 'inventoryReferenceType-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/getAdsByInventoryReference
    */
-  async updateKeyword(
-    campaignId: string,
-    keywordId: string,
-    body: Record<string, unknown>,
-  ): Promise<void> {
-    return await withApiError('Failed to update keyword', () =>
-      this.client.put<void>(
-        `${this.basePath}/ad_campaign/${campaignId}/keyword/${keywordId}`,
-        body,
-      ),
+  public getAdsByInventoryReference = (
+    input: GetAdsByInventoryReferenceInput,
+  ): Effect.Effect<MarketingOperationResponse<'getAdsByInventoryReference'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/get_ads_by_inventory_reference`;
+    const params = buildEndpointParams({
+      inventoryReferenceId: {
+        wireName: 'inventory_reference_id',
+        value: input.inventoryReferenceId,
+      },
+      inventoryReferenceType: {
+        wireName: 'inventory_reference_type',
+        value: input.inventoryReferenceType,
+      },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getAdsByInventoryReference'>>(
+      this.client,
+      path,
+      params,
     );
-  }
+  };
 
   /**
-   * Bulk create keywords (campaign level)
+   * Update bid through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for updateBid.
+   * @returns An Effect that succeeds with eBay's generated updateBid response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.updateBid({ adId: 'ad-1', campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/updateBid
    */
-  async bulkCreateKeyword(
-    campaignId: string,
-    body: Record<string, unknown>,
-  ): Promise<BulkCreateKeywordsResponse> {
-    return await withApiError('Failed to bulk create keyword', () =>
-      this.client.post<BulkCreateKeywordsResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_create_keyword`,
-        body,
-      ),
+  public updateBid = (
+    input: UpdateBidInput,
+  ): Effect.Effect<MarketingOperationResponse<'updateBid'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad/${input.adId}/update_bid`;
+    return requestPostEffect<MarketingOperationResponse<'updateBid'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Bulk update keywords (campaign level)
+   * Get ad groups through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getAdGroups.
+   * @returns An Effect that succeeds with eBay's generated getAdGroups response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getAdGroups({ campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/getAdGroups
    */
-  async bulkUpdateKeyword(
-    campaignId: string,
-    body: Record<string, unknown>,
-  ): Promise<BulkUpdateKeywordBidsResponse> {
-    return await withApiError('Failed to bulk update keyword', () =>
-      this.client.post<BulkUpdateKeywordBidsResponse>(
-        `${this.basePath}/ad_campaign/${campaignId}/bulk_update_keyword`,
-        body,
-      ),
-    );
-  }
+  public getAdGroups = (
+    input: GetAdGroupsInput,
+  ): Effect.Effect<MarketingOperationResponse<'getAdGroups'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad_group`;
+    const params = buildEndpointParams({
+      adGroupStatus: { wireName: 'ad_group_status', value: input.adGroupStatus },
+      limit: { wireName: 'limit', value: input.limit },
+      offset: { wireName: 'offset', value: input.offset },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getAdGroups'>>(this.client, path, params);
+  };
 
   /**
-   * Get a report by ID
+   * Create ad group through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for createAdGroup.
+   * @returns An Effect that succeeds with eBay's generated createAdGroup response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.createAdGroup({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/createAdGroup
    */
-  async getReport(reportId: string): Promise<Record<string, unknown>> {
-    return await withApiError('Failed to get report', () =>
-      this.client.get<Record<string, unknown>>(`${this.basePath}/ad_report/${reportId}`),
+  public createAdGroup = (
+    input: CreateAdGroupInput,
+  ): Effect.Effect<MarketingOperationResponse<'createAdGroup'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad_group`;
+    return requestPostEffect<MarketingOperationResponse<'createAdGroup'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Delete a report task
+   * Get ad group through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getAdGroup.
+   * @returns An Effect that succeeds with eBay's generated getAdGroup response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getAdGroup({ adGroupId: 'adGroup-1', campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/getAdGroup
    */
-  async deleteReportTask(reportTaskId: string): Promise<void> {
-    return await withApiError('Failed to delete report task', () =>
-      this.client.delete<void>(`${this.basePath}/ad_report_task/${reportTaskId}`),
-    );
-  }
+  public getAdGroup = (
+    input: GetAdGroupInput,
+  ): Effect.Effect<MarketingOperationResponse<'getAdGroup'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad_group/${input.adGroupId}`;
+    return requestGetEffect<MarketingOperationResponse<'getAdGroup'>>(this.client, path);
+  };
 
   /**
-   * Create an item price markdown promotion
+   * Update ad group through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for updateAdGroup.
+   * @returns An Effect that succeeds with eBay's generated updateAdGroup response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.updateAdGroup({ adGroupId: 'adGroup-1', campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/updateAdGroup
    */
-  async createItemPriceMarkdownPromotion(body: Record<string, unknown>): Promise<BaseResponse> {
-    return await withApiError('Failed to create item price markdown promotion', () =>
-      this.client.post<BaseResponse>(`${this.basePath}/item_price_markdown`, body),
+  public updateAdGroup = (
+    input: UpdateAdGroupInput,
+  ): Effect.Effect<MarketingOperationResponse<'updateAdGroup'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad_group/${input.adGroupId}`;
+    return requestPutEffect<MarketingOperationResponse<'updateAdGroup'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Get an item price markdown promotion
+   * Suggest bids through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for suggestBids.
+   * @returns An Effect that succeeds with eBay's generated suggestBids response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.suggestBids({ adGroupId: 'adGroup-1', campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/suggestBids
    */
-  async getItemPriceMarkdownPromotion(promotionId: string): Promise<Record<string, unknown>> {
-    return await withApiError('Failed to get item price markdown promotion', () =>
-      this.client.get<Record<string, unknown>>(
-        `${this.basePath}/item_price_markdown/${promotionId}`,
-      ),
+  public suggestBids = (
+    input: SuggestBidsInput,
+  ): Effect.Effect<MarketingOperationResponse<'suggestBids'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad_group/${input.adGroupId}/suggest_bids`;
+    return requestPostEffect<MarketingOperationResponse<'suggestBids'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Update an item price markdown promotion
+   * Suggest keywords through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for suggestKeywords.
+   * @returns An Effect that succeeds with eBay's generated suggestKeywords response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.suggestKeywords({ adGroupId: 'adGroup-1', campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/suggestKeywords
    */
-  async updateItemPriceMarkdownPromotion(
-    promotionId: string,
-    body: Record<string, unknown>,
-  ): Promise<BaseResponse> {
-    return await withApiError('Failed to update item price markdown promotion', () =>
-      this.client.put<BaseResponse>(`${this.basePath}/item_price_markdown/${promotionId}`, body),
+  public suggestKeywords = (
+    input: SuggestKeywordsInput,
+  ): Effect.Effect<MarketingOperationResponse<'suggestKeywords'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad_group/${input.adGroupId}/suggest_keywords`;
+    return requestPostEffect<MarketingOperationResponse<'suggestKeywords'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Delete an item price markdown promotion
+   * Clone campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for cloneCampaign.
+   * @returns An Effect that succeeds with eBay's generated cloneCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.cloneCampaign({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/cloneCampaign
    */
-  async deleteItemPriceMarkdownPromotion(promotionId: string): Promise<void> {
-    return await withApiError('Failed to delete item price markdown promotion', () =>
-      this.client.delete<void>(`${this.basePath}/item_price_markdown/${promotionId}`),
+  public cloneCampaign = (
+    input: CloneCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'cloneCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/clone`;
+    return requestPostEffect<MarketingOperationResponse<'cloneCampaign'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Get listing set for a promotion
+   * Get campaigns through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getCampaigns.
+   * @returns An Effect that succeeds with eBay's generated getCampaigns response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getCampaigns());
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/getCampaigns
    */
-  async getListingSet(promotionId: string): Promise<Record<string, unknown>> {
-    return await withApiError('Failed to get listing set', () =>
-      this.client.get<Record<string, unknown>>(
-        `${this.basePath}/promotion/${promotionId}/get_listing_set`,
-      ),
-    );
-  }
+  public getCampaigns = (
+    input: GetCampaignsInput = {},
+  ): Effect.Effect<MarketingOperationResponse<'getCampaigns'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign`;
+    const params = buildEndpointParams({
+      campaignName: { wireName: 'campaign_name', value: input.campaignName },
+      campaignStatus: { wireName: 'campaign_status', value: input.campaignStatus },
+      campaignTargetingTypes: {
+        wireName: 'campaign_targeting_types',
+        value: input.campaignTargetingTypes,
+      },
+      channels: { wireName: 'channels', value: input.channels },
+      endDateRange: { wireName: 'end_date_range', value: input.endDateRange },
+      fundingStrategy: { wireName: 'funding_strategy', value: input.fundingStrategy },
+      limit: { wireName: 'limit', value: input.limit },
+      offset: { wireName: 'offset', value: input.offset },
+      startDateRange: { wireName: 'start_date_range', value: input.startDateRange },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getCampaigns'>>(this.client, path, params);
+  };
 
   /**
-   * Pause a promotion
+   * Create campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for createCampaign.
+   * @returns An Effect that succeeds with eBay's generated createCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.createCampaign({ request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/createCampaign
    */
-  async pausePromotion(promotionId: string): Promise<void> {
-    return await withApiError('Failed to pause promotion', () =>
-      this.client.post<void>(`${this.basePath}/promotion/${promotionId}/pause`, {}),
+  public createCampaign = (
+    input: CreateCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'createCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign`;
+    return requestPostEffect<MarketingOperationResponse<'createCampaign'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
 
   /**
-   * Resume a promotion
+   * Get campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getCampaign.
+   * @returns An Effect that succeeds with eBay's generated getCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getCampaign({ campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/getCampaign
    */
-  async resumePromotion(promotionId: string): Promise<void> {
-    return await withApiError('Failed to resume promotion', () =>
-      this.client.post<void>(`${this.basePath}/promotion/${promotionId}/resume`, {}),
-    );
-  }
+  public getCampaign = (
+    input: GetCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'getCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}`;
+    return requestGetEffect<MarketingOperationResponse<'getCampaign'>>(this.client, path);
+  };
 
   /**
-   * Get email campaigns
+   * Delete campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for deleteCampaign.
+   * @returns An Effect that succeeds with eBay's generated deleteCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.deleteCampaign({ campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/deleteCampaign
    */
-  async getEmailCampaigns(limit?: number, offset?: number): Promise<Record<string, unknown>> {
-    const params: Record<string, string | number> = {};
-    if (limit) params.limit = limit;
-    if (offset) params.offset = offset;
-    return await withApiError('Failed to get email campaigns', () =>
-      this.client.get<Record<string, unknown>>(`${this.basePath}/email_campaign`, params),
-    );
-  }
+  public deleteCampaign = (
+    input: DeleteCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'deleteCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}`;
+    return requestDeleteEffect<MarketingOperationResponse<'deleteCampaign'>>(this.client, path);
+  };
 
   /**
-   * Create an email campaign
+   * End campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for endCampaign.
+   * @returns An Effect that succeeds with eBay's generated endCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.endCampaign({ campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/endCampaign
    */
-  async createEmailCampaign(body: Record<string, unknown>): Promise<BaseResponse> {
-    return await withApiError('Failed to create email campaign', () =>
-      this.client.post<BaseResponse>(`${this.basePath}/email_campaign`, body),
-    );
-  }
+  public endCampaign = (
+    input: EndCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'endCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/end`;
+    return requestPostEffect<MarketingOperationResponse<'endCampaign'>>(this.client, path);
+  };
 
   /**
-   * Get an email campaign
+   * Find campaign by ad reference through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for findCampaignByAdReference.
+   * @returns An Effect that succeeds with eBay's generated findCampaignByAdReference response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.findCampaignByAdReference());
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/findCampaignByAdReference
    */
-  async getEmailCampaign(emailCampaignId: string): Promise<Record<string, unknown>> {
-    return await withApiError('Failed to get email campaign', () =>
-      this.client.get<Record<string, unknown>>(
-        `${this.basePath}/email_campaign/${emailCampaignId}`,
-      ),
+  public findCampaignByAdReference = (
+    input: FindCampaignByAdReferenceInput = {},
+  ): Effect.Effect<MarketingOperationResponse<'findCampaignByAdReference'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/find_campaign_by_ad_reference`;
+    const params = buildEndpointParams({
+      inventoryReferenceId: {
+        wireName: 'inventory_reference_id',
+        value: input.inventoryReferenceId,
+      },
+      inventoryReferenceType: {
+        wireName: 'inventory_reference_type',
+        value: input.inventoryReferenceType,
+      },
+      listingId: { wireName: 'listing_id', value: input.listingId },
+    });
+    return requestGetEffect<MarketingOperationResponse<'findCampaignByAdReference'>>(
+      this.client,
+      path,
+      params,
     );
-  }
+  };
 
   /**
-   * Update an email campaign
+   * Get campaign by name through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getCampaignByName.
+   * @returns An Effect that succeeds with eBay's generated getCampaignByName response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getCampaignByName({ campaignName: 'campaignName-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/getCampaignByName
    */
-  async updateEmailCampaign(
-    emailCampaignId: string,
-    body: Record<string, unknown>,
-  ): Promise<BaseResponse> {
-    return await withApiError('Failed to update email campaign', () =>
-      this.client.put<BaseResponse>(`${this.basePath}/email_campaign/${emailCampaignId}`, body),
+  public getCampaignByName = (
+    input: GetCampaignByNameInput,
+  ): Effect.Effect<MarketingOperationResponse<'getCampaignByName'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/get_campaign_by_name`;
+    const params = buildEndpointParams({
+      campaignName: { wireName: 'campaign_name', value: input.campaignName },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getCampaignByName'>>(
+      this.client,
+      path,
+      params,
     );
-  }
+  };
 
   /**
-   * Delete an email campaign
+   * Launch campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for launchCampaign.
+   * @returns An Effect that succeeds with eBay's generated launchCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.launchCampaign({ campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/launchCampaign
    */
-  async deleteEmailCampaign(emailCampaignId: string): Promise<void> {
-    return await withApiError('Failed to delete email campaign', () =>
-      this.client.delete<void>(`${this.basePath}/email_campaign/${emailCampaignId}`),
-    );
-  }
+  public launchCampaign = (
+    input: LaunchCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'launchCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/launch`;
+    return requestPostEffect<MarketingOperationResponse<'launchCampaign'>>(this.client, path);
+  };
 
   /**
-   * Get email campaign audiences
+   * Pause campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for pauseCampaign.
+   * @returns An Effect that succeeds with eBay's generated pauseCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.pauseCampaign({ campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/pauseCampaign
    */
-  async getAudiences(): Promise<Record<string, unknown>> {
-    return await withApiError('Failed to get audiences', () =>
-      this.client.get<Record<string, unknown>>(`${this.basePath}/email_campaign/audience`),
-    );
-  }
+  public pauseCampaign = (
+    input: PauseCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'pauseCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/pause`;
+    return requestPostEffect<MarketingOperationResponse<'pauseCampaign'>>(this.client, path);
+  };
 
   /**
-   * Get email preview for a campaign
+   * Resume campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for resumeCampaign.
+   * @returns An Effect that succeeds with eBay's generated resumeCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.resumeCampaign({ campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/resumeCampaign
    */
-  async getEmailPreview(emailCampaignId: string): Promise<Record<string, unknown>> {
-    return await withApiError('Failed to get email preview', () =>
-      this.client.get<Record<string, unknown>>(
-        `${this.basePath}/email_campaign/${emailCampaignId}/email_preview`,
-      ),
-    );
-  }
+  public resumeCampaign = (
+    input: ResumeCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'resumeCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/resume`;
+    return requestPostEffect<MarketingOperationResponse<'resumeCampaign'>>(this.client, path);
+  };
 
   /**
-   * Get email campaign report
+   * Setup quick campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for setupQuickCampaign.
+   * @returns An Effect that succeeds with eBay's generated setupQuickCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.setupQuickCampaign({ request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/setupQuickCampaign
    */
-  async getEmailReport(limit?: number, offset?: number): Promise<Record<string, unknown>> {
-    const params: Record<string, string | number> = {};
-    if (limit) params.limit = limit;
-    if (offset) params.offset = offset;
-    return await withApiError('Failed to get email report', () =>
-      this.client.get<Record<string, unknown>>(`${this.basePath}/email_campaign/report`, params),
+  public setupQuickCampaign = (
+    input: SetupQuickCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'setupQuickCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/setup_quick_campaign`;
+    return requestPostEffect<MarketingOperationResponse<'setupQuickCampaign'>>(
+      this.client,
+      path,
+      input.request,
     );
-  }
+  };
+
+  /**
+   * Suggest budget through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for suggestBudget.
+   * @returns An Effect that succeeds with eBay's generated suggestBudget response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.suggestBudget({ marketplaceId: 'EBAY_US' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/suggestBudget
+   */
+  public suggestBudget = (
+    input: SuggestBudgetInput,
+  ): Effect.Effect<MarketingOperationResponse<'suggestBudget'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/suggest_budget`;
+    const config = marketplaceHeader(input.marketplaceId);
+    return requestGetEffect<MarketingOperationResponse<'suggestBudget'>>(
+      this.client,
+      path,
+      undefined,
+      config,
+    );
+  };
+
+  /**
+   * Suggest items through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for suggestItems.
+   * @returns An Effect that succeeds with eBay's generated suggestItems response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.suggestItems({ campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/suggestItems
+   */
+  public suggestItems = (
+    input: SuggestItemsInput,
+  ): Effect.Effect<MarketingOperationResponse<'suggestItems'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/suggest_items`;
+    const params = buildEndpointParams({
+      categoryIds: { wireName: 'category_ids', value: input.categoryIds },
+      limit: { wireName: 'limit', value: input.limit },
+      offset: { wireName: 'offset', value: input.offset },
+    });
+    return requestGetEffect<MarketingOperationResponse<'suggestItems'>>(this.client, path, params);
+  };
+
+  /**
+   * Suggest max cpc through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for suggestMaxCpc.
+   * @returns An Effect that succeeds with eBay's generated suggestMaxCpc response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.suggestMaxCpc({ request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/suggestMaxCpc
+   */
+  public suggestMaxCpc = (
+    input: SuggestMaxCpcInput,
+  ): Effect.Effect<MarketingOperationResponse<'suggestMaxCpc'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/suggest_max_cpc`;
+    return requestPostEffect<MarketingOperationResponse<'suggestMaxCpc'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Update ad rate strategy through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for updateAdRateStrategy.
+   * @returns An Effect that succeeds with eBay's generated updateAdRateStrategy response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.updateAdRateStrategy({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/updateAdRateStrategy
+   */
+  public updateAdRateStrategy = (
+    input: UpdateAdRateStrategyInput,
+  ): Effect.Effect<MarketingOperationResponse<'updateAdRateStrategy'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/update_ad_rate_strategy`;
+    return requestPostEffect<MarketingOperationResponse<'updateAdRateStrategy'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Update bidding strategy through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for updateBiddingStrategy.
+   * @returns An Effect that succeeds with eBay's generated updateBiddingStrategy response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.updateBiddingStrategy({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/updateBiddingStrategy
+   */
+  public updateBiddingStrategy = (
+    input: UpdateBiddingStrategyInput,
+  ): Effect.Effect<MarketingOperationResponse<'updateBiddingStrategy'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/update_bidding_strategy`;
+    return requestPostEffect<MarketingOperationResponse<'updateBiddingStrategy'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Update campaign budget through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for updateCampaignBudget.
+   * @returns An Effect that succeeds with eBay's generated updateCampaignBudget response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.updateCampaignBudget({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/updateCampaignBudget
+   */
+  public updateCampaignBudget = (
+    input: UpdateCampaignBudgetInput,
+  ): Effect.Effect<MarketingOperationResponse<'updateCampaignBudget'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/update_campaign_budget`;
+    return requestPostEffect<MarketingOperationResponse<'updateCampaignBudget'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Update campaign identification through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for updateCampaignIdentification.
+   * @returns An Effect that succeeds with eBay's generated updateCampaignIdentification response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.updateCampaignIdentification({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/updateCampaignIdentification
+   */
+  public updateCampaignIdentification = (
+    input: UpdateCampaignIdentificationInput,
+  ): Effect.Effect<MarketingOperationResponse<'updateCampaignIdentification'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/update_campaign_identification`;
+    return requestPostEffect<MarketingOperationResponse<'updateCampaignIdentification'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Bulk create keyword through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for bulkCreateKeyword.
+   * @returns An Effect that succeeds with eBay's generated bulkCreateKeyword response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.bulkCreateKeyword({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/bulkCreateKeyword
+   */
+  public bulkCreateKeyword = (
+    input: BulkCreateKeywordInput,
+  ): Effect.Effect<MarketingOperationResponse<'bulkCreateKeyword'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_create_keyword`;
+    return requestPostEffect<MarketingOperationResponse<'bulkCreateKeyword'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Bulk update keyword through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for bulkUpdateKeyword.
+   * @returns An Effect that succeeds with eBay's generated bulkUpdateKeyword response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.bulkUpdateKeyword({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/bulkUpdateKeyword
+   */
+  public bulkUpdateKeyword = (
+    input: BulkUpdateKeywordInput,
+  ): Effect.Effect<MarketingOperationResponse<'bulkUpdateKeyword'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_update_keyword`;
+    return requestPostEffect<MarketingOperationResponse<'bulkUpdateKeyword'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Get keywords through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getKeywords.
+   * @returns An Effect that succeeds with eBay's generated getKeywords response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getKeywords({ campaignId: 'campaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/getKeywords
+   */
+  public getKeywords = (
+    input: GetKeywordsInput,
+  ): Effect.Effect<MarketingOperationResponse<'getKeywords'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/keyword`;
+    const params = buildEndpointParams({
+      adGroupIds: { wireName: 'ad_group_ids', value: input.adGroupIds },
+      keywordStatus: { wireName: 'keyword_status', value: input.keywordStatus },
+      limit: { wireName: 'limit', value: input.limit },
+      offset: { wireName: 'offset', value: input.offset },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getKeywords'>>(this.client, path, params);
+  };
+
+  /**
+   * Create keyword through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for createKeyword.
+   * @returns An Effect that succeeds with eBay's generated createKeyword response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.createKeyword({ campaignId: 'campaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/createKeyword
+   */
+  public createKeyword = (
+    input: CreateKeywordInput,
+  ): Effect.Effect<MarketingOperationResponse<'createKeyword'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/keyword`;
+    return requestPostEffect<MarketingOperationResponse<'createKeyword'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Get keyword through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getKeyword.
+   * @returns An Effect that succeeds with eBay's generated getKeyword response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getKeyword({ campaignId: 'campaign-1', keywordId: 'keyword-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/getKeyword
+   */
+  public getKeyword = (
+    input: GetKeywordInput,
+  ): Effect.Effect<MarketingOperationResponse<'getKeyword'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/keyword/${input.keywordId}`;
+    return requestGetEffect<MarketingOperationResponse<'getKeyword'>>(this.client, path);
+  };
+
+  /**
+   * Update keyword through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for updateKeyword.
+   * @returns An Effect that succeeds with eBay's generated updateKeyword response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.updateKeyword({ campaignId: 'campaign-1', keywordId: 'keyword-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/updateKeyword
+   */
+  public updateKeyword = (
+    input: UpdateKeywordInput,
+  ): Effect.Effect<MarketingOperationResponse<'updateKeyword'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/keyword/${input.keywordId}`;
+    return requestPutEffect<MarketingOperationResponse<'updateKeyword'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Bulk create negative keyword through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for bulkCreateNegativeKeyword.
+   * @returns An Effect that succeeds with eBay's generated bulkCreateNegativeKeyword response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.bulkCreateNegativeKeyword({ request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/negative_keyword/methods/bulkCreateNegativeKeyword
+   */
+  public bulkCreateNegativeKeyword = (
+    input: BulkCreateNegativeKeywordInput,
+  ): Effect.Effect<MarketingOperationResponse<'bulkCreateNegativeKeyword'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/bulk_create_negative_keyword`;
+    return requestPostEffect<MarketingOperationResponse<'bulkCreateNegativeKeyword'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Bulk update negative keyword through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for bulkUpdateNegativeKeyword.
+   * @returns An Effect that succeeds with eBay's generated bulkUpdateNegativeKeyword response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.bulkUpdateNegativeKeyword({ request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/negative_keyword/methods/bulkUpdateNegativeKeyword
+   */
+  public bulkUpdateNegativeKeyword = (
+    input: BulkUpdateNegativeKeywordInput,
+  ): Effect.Effect<MarketingOperationResponse<'bulkUpdateNegativeKeyword'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/bulk_update_negative_keyword`;
+    return requestPostEffect<MarketingOperationResponse<'bulkUpdateNegativeKeyword'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Get negative keywords through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getNegativeKeywords.
+   * @returns An Effect that succeeds with eBay's generated getNegativeKeywords response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getNegativeKeywords());
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/negative_keyword/methods/getNegativeKeywords
+   */
+  public getNegativeKeywords = (
+    input: GetNegativeKeywordsInput = {},
+  ): Effect.Effect<MarketingOperationResponse<'getNegativeKeywords'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/negative_keyword`;
+    const params = buildEndpointParams({
+      adGroupIds: { wireName: 'ad_group_ids', value: input.adGroupIds },
+      campaignIds: { wireName: 'campaign_ids', value: input.campaignIds },
+      limit: { wireName: 'limit', value: input.limit },
+      negativeKeywordStatus: {
+        wireName: 'negative_keyword_status',
+        value: input.negativeKeywordStatus,
+      },
+      offset: { wireName: 'offset', value: input.offset },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getNegativeKeywords'>>(
+      this.client,
+      path,
+      params,
+    );
+  };
+
+  /**
+   * Create negative keyword through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for createNegativeKeyword.
+   * @returns An Effect that succeeds with eBay's generated createNegativeKeyword response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.createNegativeKeyword({ request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/negative_keyword/methods/createNegativeKeyword
+   */
+  public createNegativeKeyword = (
+    input: CreateNegativeKeywordInput,
+  ): Effect.Effect<MarketingOperationResponse<'createNegativeKeyword'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/negative_keyword`;
+    return requestPostEffect<MarketingOperationResponse<'createNegativeKeyword'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Get negative keyword through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getNegativeKeyword.
+   * @returns An Effect that succeeds with eBay's generated getNegativeKeyword response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getNegativeKeyword({ negativeKeywordId: 'negativeKeyword-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/negative_keyword/methods/getNegativeKeyword
+   */
+  public getNegativeKeyword = (
+    input: GetNegativeKeywordInput,
+  ): Effect.Effect<MarketingOperationResponse<'getNegativeKeyword'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/negative_keyword/${input.negativeKeywordId}`;
+    return requestGetEffect<MarketingOperationResponse<'getNegativeKeyword'>>(this.client, path);
+  };
+
+  /**
+   * Update negative keyword through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for updateNegativeKeyword.
+   * @returns An Effect that succeeds with eBay's generated updateNegativeKeyword response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.updateNegativeKeyword({ negativeKeywordId: 'negativeKeyword-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/negative_keyword/methods/updateNegativeKeyword
+   */
+  public updateNegativeKeyword = (
+    input: UpdateNegativeKeywordInput,
+  ): Effect.Effect<MarketingOperationResponse<'updateNegativeKeyword'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/negative_keyword/${input.negativeKeywordId}`;
+    return requestPutEffect<MarketingOperationResponse<'updateNegativeKeyword'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Get report through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getReport.
+   * @returns An Effect that succeeds with eBay's generated getReport response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getReport({ reportId: 'report-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report/methods/getReport
+   */
+  public getReport = (
+    input: GetReportInput,
+  ): Effect.Effect<MarketingOperationResponse<'getReport'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_report/${input.reportId}`;
+    return requestGetEffect<MarketingOperationResponse<'getReport'>>(this.client, path);
+  };
+
+  /**
+   * Get report metadata through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getReportMetadata.
+   * @returns An Effect that succeeds with eBay's generated getReportMetadata response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getReportMetadata());
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report_metadata/methods/getReportMetadata
+   */
+  public getReportMetadata = (
+    input: GetReportMetadataInput = {},
+  ): Effect.Effect<MarketingOperationResponse<'getReportMetadata'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_report_metadata`;
+    const params = buildEndpointParams({
+      fundingModel: { wireName: 'funding_model', value: input.fundingModel },
+      channel: { wireName: 'channel', value: input.channel },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getReportMetadata'>>(
+      this.client,
+      path,
+      params,
+    );
+  };
+
+  /**
+   * Get report metadata for report type through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getReportMetadataForReportType.
+   * @returns An Effect that succeeds with eBay's generated getReportMetadataForReportType response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getReportMetadataForReportType({ reportType: 'reportType-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report_metadata/methods/getReportMetadataForReportType
+   */
+  public getReportMetadataForReportType = (
+    input: GetReportMetadataForReportTypeInput,
+  ): Effect.Effect<MarketingOperationResponse<'getReportMetadataForReportType'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_report_metadata/${input.reportType}`;
+    const params = buildEndpointParams({
+      fundingModel: { wireName: 'funding_model', value: input.fundingModel },
+      channel: { wireName: 'channel', value: input.channel },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getReportMetadataForReportType'>>(
+      this.client,
+      path,
+      params,
+    );
+  };
+
+  /**
+   * Get report tasks through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getReportTasks.
+   * @returns An Effect that succeeds with eBay's generated getReportTasks response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getReportTasks());
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report_task/methods/getReportTasks
+   */
+  public getReportTasks = (
+    input: GetReportTasksInput = {},
+  ): Effect.Effect<MarketingOperationResponse<'getReportTasks'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_report_task`;
+    const params = buildEndpointParams({
+      limit: { wireName: 'limit', value: input.limit },
+      offset: { wireName: 'offset', value: input.offset },
+      reportTaskStatuses: { wireName: 'report_task_statuses', value: input.reportTaskStatuses },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getReportTasks'>>(
+      this.client,
+      path,
+      params,
+    );
+  };
+
+  /**
+   * Create report task through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for createReportTask.
+   * @returns An Effect that succeeds with eBay's generated createReportTask response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.createReportTask({ request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report_task/methods/createReportTask
+   */
+  public createReportTask = (
+    input: CreateReportTaskInput,
+  ): Effect.Effect<MarketingOperationResponse<'createReportTask'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_report_task`;
+    return requestPostEffect<MarketingOperationResponse<'createReportTask'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Get report task through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getReportTask.
+   * @returns An Effect that succeeds with eBay's generated getReportTask response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getReportTask({ reportTaskId: 'reportTask-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report_task/methods/getReportTask
+   */
+  public getReportTask = (
+    input: GetReportTaskInput,
+  ): Effect.Effect<MarketingOperationResponse<'getReportTask'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_report_task/${input.reportTaskId}`;
+    return requestGetEffect<MarketingOperationResponse<'getReportTask'>>(this.client, path);
+  };
+
+  /**
+   * Delete report task through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for deleteReportTask.
+   * @returns An Effect that succeeds with eBay's generated deleteReportTask response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.deleteReportTask({ reportTaskId: 'reportTask-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report_task/methods/deleteReportTask
+   */
+  public deleteReportTask = (
+    input: DeleteReportTaskInput,
+  ): Effect.Effect<MarketingOperationResponse<'deleteReportTask'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/ad_report_task/${input.reportTaskId}`;
+    return requestDeleteEffect<MarketingOperationResponse<'deleteReportTask'>>(this.client, path);
+  };
+
+  /**
+   * Create item price markdown promotion through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for createItemPriceMarkdownPromotion.
+   * @returns An Effect that succeeds with eBay's generated createItemPriceMarkdownPromotion response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.createItemPriceMarkdownPromotion({ request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_price_markdown/methods/createItemPriceMarkdownPromotion
+   */
+  public createItemPriceMarkdownPromotion = (
+    input: CreateItemPriceMarkdownPromotionInput,
+  ): Effect.Effect<
+    MarketingOperationResponse<'createItemPriceMarkdownPromotion'>,
+    EbayApiError
+  > => {
+    const path = `${MARKETING_BASE_PATH}/item_price_markdown`;
+    return requestPostEffect<MarketingOperationResponse<'createItemPriceMarkdownPromotion'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Get item price markdown promotion through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getItemPriceMarkdownPromotion.
+   * @returns An Effect that succeeds with eBay's generated getItemPriceMarkdownPromotion response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getItemPriceMarkdownPromotion({ promotionId: 'promotion-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_price_markdown/methods/getItemPriceMarkdownPromotion
+   */
+  public getItemPriceMarkdownPromotion = (
+    input: GetItemPriceMarkdownPromotionInput,
+  ): Effect.Effect<MarketingOperationResponse<'getItemPriceMarkdownPromotion'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/item_price_markdown/${input.promotionId}`;
+    return requestGetEffect<MarketingOperationResponse<'getItemPriceMarkdownPromotion'>>(
+      this.client,
+      path,
+    );
+  };
+
+  /**
+   * Update item price markdown promotion through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for updateItemPriceMarkdownPromotion.
+   * @returns An Effect that succeeds with eBay's generated updateItemPriceMarkdownPromotion response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.updateItemPriceMarkdownPromotion({ promotionId: 'promotion-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_price_markdown/methods/updateItemPriceMarkdownPromotion
+   */
+  public updateItemPriceMarkdownPromotion = (
+    input: UpdateItemPriceMarkdownPromotionInput,
+  ): Effect.Effect<
+    MarketingOperationResponse<'updateItemPriceMarkdownPromotion'>,
+    EbayApiError
+  > => {
+    const path = `${MARKETING_BASE_PATH}/item_price_markdown/${input.promotionId}`;
+    return requestPutEffect<MarketingOperationResponse<'updateItemPriceMarkdownPromotion'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Delete item price markdown promotion through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for deleteItemPriceMarkdownPromotion.
+   * @returns An Effect that succeeds with eBay's generated deleteItemPriceMarkdownPromotion response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.deleteItemPriceMarkdownPromotion({ promotionId: 'promotion-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_price_markdown/methods/deleteItemPriceMarkdownPromotion
+   */
+  public deleteItemPriceMarkdownPromotion = (
+    input: DeleteItemPriceMarkdownPromotionInput,
+  ): Effect.Effect<
+    MarketingOperationResponse<'deleteItemPriceMarkdownPromotion'>,
+    EbayApiError
+  > => {
+    const path = `${MARKETING_BASE_PATH}/item_price_markdown/${input.promotionId}`;
+    return requestDeleteEffect<MarketingOperationResponse<'deleteItemPriceMarkdownPromotion'>>(
+      this.client,
+      path,
+    );
+  };
+
+  /**
+   * Create item promotion through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for createItemPromotion.
+   * @returns An Effect that succeeds with eBay's generated createItemPromotion response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.createItemPromotion({ request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_promotion/methods/createItemPromotion
+   */
+  public createItemPromotion = (
+    input: CreateItemPromotionInput,
+  ): Effect.Effect<MarketingOperationResponse<'createItemPromotion'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/item_promotion`;
+    return requestPostEffect<MarketingOperationResponse<'createItemPromotion'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Get item promotion through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getItemPromotion.
+   * @returns An Effect that succeeds with eBay's generated getItemPromotion response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getItemPromotion({ promotionId: 'promotion-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_promotion/methods/getItemPromotion
+   */
+  public getItemPromotion = (
+    input: GetItemPromotionInput,
+  ): Effect.Effect<MarketingOperationResponse<'getItemPromotion'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/item_promotion/${input.promotionId}`;
+    return requestGetEffect<MarketingOperationResponse<'getItemPromotion'>>(this.client, path);
+  };
+
+  /**
+   * Update item promotion through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for updateItemPromotion.
+   * @returns An Effect that succeeds with eBay's generated updateItemPromotion response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.updateItemPromotion({ promotionId: 'promotion-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_promotion/methods/updateItemPromotion
+   */
+  public updateItemPromotion = (
+    input: UpdateItemPromotionInput,
+  ): Effect.Effect<MarketingOperationResponse<'updateItemPromotion'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/item_promotion/${input.promotionId}`;
+    return requestPutEffect<MarketingOperationResponse<'updateItemPromotion'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Delete item promotion through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for deleteItemPromotion.
+   * @returns An Effect that succeeds with eBay's generated deleteItemPromotion response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.deleteItemPromotion({ promotionId: 'promotion-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_promotion/methods/deleteItemPromotion
+   */
+  public deleteItemPromotion = (
+    input: DeleteItemPromotionInput,
+  ): Effect.Effect<MarketingOperationResponse<'deleteItemPromotion'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/item_promotion/${input.promotionId}`;
+    return requestDeleteEffect<MarketingOperationResponse<'deleteItemPromotion'>>(
+      this.client,
+      path,
+    );
+  };
+
+  /**
+   * Get listing set through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getListingSet.
+   * @returns An Effect that succeeds with eBay's generated getListingSet response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getListingSet({ promotionId: 'promotion-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/promotion/methods/getListingSet
+   */
+  public getListingSet = (
+    input: GetListingSetInput,
+  ): Effect.Effect<MarketingOperationResponse<'getListingSet'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/promotion/${input.promotionId}/get_listing_set`;
+    const params = buildEndpointParams({
+      limit: { wireName: 'limit', value: input.limit },
+      offset: { wireName: 'offset', value: input.offset },
+      q: { wireName: 'q', value: input.q },
+      sort: { wireName: 'sort', value: input.sort },
+      status: { wireName: 'status', value: input.status },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getListingSet'>>(this.client, path, params);
+  };
+
+  /**
+   * Get promotions through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getPromotions.
+   * @returns An Effect that succeeds with eBay's generated getPromotions response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getPromotions({ marketplaceId: 'marketplace-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/promotion/methods/getPromotions
+   */
+  public getPromotions = (
+    input: GetPromotionsInput,
+  ): Effect.Effect<MarketingOperationResponse<'getPromotions'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/promotion`;
+    const params = buildEndpointParams({
+      limit: { wireName: 'limit', value: input.limit },
+      marketplaceId: { wireName: 'marketplace_id', value: input.marketplaceId },
+      offset: { wireName: 'offset', value: input.offset },
+      promotionStatus: { wireName: 'promotion_status', value: input.promotionStatus },
+      promotionType: { wireName: 'promotion_type', value: input.promotionType },
+      q: { wireName: 'q', value: input.q },
+      sort: { wireName: 'sort', value: input.sort },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getPromotions'>>(this.client, path, params);
+  };
+
+  /**
+   * Pause promotion through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for pausePromotion.
+   * @returns An Effect that succeeds with eBay's generated pausePromotion response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.pausePromotion({ promotionId: 'promotion-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/promotion/methods/pausePromotion
+   */
+  public pausePromotion = (
+    input: PausePromotionInput,
+  ): Effect.Effect<MarketingOperationResponse<'pausePromotion'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/promotion/${input.promotionId}/pause`;
+    return requestPostEffect<MarketingOperationResponse<'pausePromotion'>>(this.client, path);
+  };
+
+  /**
+   * Resume promotion through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for resumePromotion.
+   * @returns An Effect that succeeds with eBay's generated resumePromotion response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.resumePromotion({ promotionId: 'promotion-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/promotion/methods/resumePromotion
+   */
+  public resumePromotion = (
+    input: ResumePromotionInput,
+  ): Effect.Effect<MarketingOperationResponse<'resumePromotion'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/promotion/${input.promotionId}/resume`;
+    return requestPostEffect<MarketingOperationResponse<'resumePromotion'>>(this.client, path);
+  };
+
+  /**
+   * Get promotion reports through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getPromotionReports.
+   * @returns An Effect that succeeds with eBay's generated getPromotionReports response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getPromotionReports({ marketplaceId: 'marketplace-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/promotion_report/methods/getPromotionReports
+   */
+  public getPromotionReports = (
+    input: GetPromotionReportsInput,
+  ): Effect.Effect<MarketingOperationResponse<'getPromotionReports'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/promotion_report`;
+    const params = buildEndpointParams({
+      limit: { wireName: 'limit', value: input.limit },
+      marketplaceId: { wireName: 'marketplace_id', value: input.marketplaceId },
+      offset: { wireName: 'offset', value: input.offset },
+      promotionStatus: { wireName: 'promotion_status', value: input.promotionStatus },
+      promotionType: { wireName: 'promotion_type', value: input.promotionType },
+      q: { wireName: 'q', value: input.q },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getPromotionReports'>>(
+      this.client,
+      path,
+      params,
+    );
+  };
+
+  /**
+   * Get promotion summary report through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getPromotionSummaryReport.
+   * @returns An Effect that succeeds with eBay's generated getPromotionSummaryReport response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getPromotionSummaryReport({ marketplaceId: 'marketplace-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/promotion_summary_report/methods/getPromotionSummaryReport
+   */
+  public getPromotionSummaryReport = (
+    input: GetPromotionSummaryReportInput,
+  ): Effect.Effect<MarketingOperationResponse<'getPromotionSummaryReport'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/promotion_summary_report`;
+    const params = buildEndpointParams({
+      marketplaceId: { wireName: 'marketplace_id', value: input.marketplaceId },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getPromotionSummaryReport'>>(
+      this.client,
+      path,
+      params,
+    );
+  };
+
+  /**
+   * Get email campaigns through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getEmailCampaigns.
+   * @returns An Effect that succeeds with eBay's generated getEmailCampaigns response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getEmailCampaigns());
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/getEmailCampaigns
+   */
+  public getEmailCampaigns = (
+    input: GetEmailCampaignsInput = {},
+  ): Effect.Effect<MarketingOperationResponse<'getEmailCampaigns'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/email_campaign`;
+    const params = buildEndpointParams({
+      limit: { wireName: 'limit', value: input.limit },
+      offset: { wireName: 'offset', value: input.offset },
+      q: { wireName: 'q', value: input.q },
+      sort: { wireName: 'sort', value: input.sort },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getEmailCampaigns'>>(
+      this.client,
+      path,
+      params,
+    );
+  };
+
+  /**
+   * Create email campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for createEmailCampaign.
+   * @returns An Effect that succeeds with eBay's generated createEmailCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.createEmailCampaign({ marketplaceId: 'EBAY_US', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/createEmailCampaign
+   */
+  public createEmailCampaign = (
+    input: CreateEmailCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'createEmailCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/email_campaign`;
+    const config = marketplaceHeader(input.marketplaceId);
+    return requestPostEffect<MarketingOperationResponse<'createEmailCampaign'>>(
+      this.client,
+      path,
+      input.request,
+      config,
+    );
+  };
+
+  /**
+   * Get email campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getEmailCampaign.
+   * @returns An Effect that succeeds with eBay's generated getEmailCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getEmailCampaign({ emailCampaignId: 'emailCampaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/getEmailCampaign
+   */
+  public getEmailCampaign = (
+    input: GetEmailCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'getEmailCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/email_campaign/${input.emailCampaignId}`;
+    return requestGetEffect<MarketingOperationResponse<'getEmailCampaign'>>(this.client, path);
+  };
+
+  /**
+   * Update email campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for updateEmailCampaign.
+   * @returns An Effect that succeeds with eBay's generated updateEmailCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.updateEmailCampaign({ emailCampaignId: 'emailCampaign-1', request: { ... } }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/updateEmailCampaign
+   */
+  public updateEmailCampaign = (
+    input: UpdateEmailCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'updateEmailCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/email_campaign/${input.emailCampaignId}`;
+    return requestPutEffect<MarketingOperationResponse<'updateEmailCampaign'>>(
+      this.client,
+      path,
+      input.request,
+    );
+  };
+
+  /**
+   * Delete email campaign through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for deleteEmailCampaign.
+   * @returns An Effect that succeeds with eBay's generated deleteEmailCampaign response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.deleteEmailCampaign({ emailCampaignId: 'emailCampaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/deleteEmailCampaign
+   */
+  public deleteEmailCampaign = (
+    input: DeleteEmailCampaignInput,
+  ): Effect.Effect<MarketingOperationResponse<'deleteEmailCampaign'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/email_campaign/${input.emailCampaignId}`;
+    return requestDeleteEffect<MarketingOperationResponse<'deleteEmailCampaign'>>(
+      this.client,
+      path,
+    );
+  };
+
+  /**
+   * Get audiences through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getAudiences.
+   * @returns An Effect that succeeds with eBay's generated getAudiences response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getAudiences({ emailCampaignType: 'emailCampaignType-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/getAudiences
+   */
+  public getAudiences = (
+    input: GetAudiencesInput,
+  ): Effect.Effect<MarketingOperationResponse<'getAudiences'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/email_campaign/audience`;
+    const params = buildEndpointParams({
+      emailCampaignType: { wireName: 'emailCampaignType', value: input.emailCampaignType },
+      limit: { wireName: 'limit', value: input.limit },
+      offset: { wireName: 'offset', value: input.offset },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getAudiences'>>(this.client, path, params);
+  };
+
+  /**
+   * Get email preview through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getEmailPreview.
+   * @returns An Effect that succeeds with eBay's generated getEmailPreview response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getEmailPreview({ emailCampaignId: 'emailCampaign-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/getEmailPreview
+   */
+  public getEmailPreview = (
+    input: GetEmailPreviewInput,
+  ): Effect.Effect<MarketingOperationResponse<'getEmailPreview'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/email_campaign/${input.emailCampaignId}/email_preview`;
+    return requestGetEffect<MarketingOperationResponse<'getEmailPreview'>>(this.client, path);
+  };
+
+  /**
+   * Get email report through the eBay Marketing API.
+   *
+   * @param input - Path, query, header, and request body values for getEmailReport.
+   * @returns An Effect that succeeds with eBay's generated getEmailReport response DTO.
+   *
+   * @example
+   * ```ts
+   * const response = await Effect.runPromise(marketingApi.getEmailReport({ endDate: 'endDate-1', startDate: 'startDate-1' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/getEmailReport
+   */
+  public getEmailReport = (
+    input: GetEmailReportInput,
+  ): Effect.Effect<MarketingOperationResponse<'getEmailReport'>, EbayApiError> => {
+    const path = `${MARKETING_BASE_PATH}/email_campaign/report`;
+    const params = buildEndpointParams({
+      endDate: { wireName: 'endDate', value: input.endDate },
+      startDate: { wireName: 'startDate', value: input.startDate },
+    });
+    return requestGetEffect<MarketingOperationResponse<'getEmailReport'>>(
+      this.client,
+      path,
+      params,
+    );
+  };
 }

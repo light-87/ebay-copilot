@@ -1,374 +1,945 @@
-import type { EbayApiClient } from '@/api/client.js';
+import type { EbayApiClient, EbayRequestConfig } from '@/api/client.js';
 import {
-  buildOptionalStringParams,
-  requireObject,
-  requireString,
-  withApiError,
+  buildEndpointParams,
+  type EbayApiError,
+  type EndpointInputError,
+  requestGetEffect,
+  requestPostEffect,
+  requireObjectEffect,
+  requireStringEffect,
+  optionalStringEffect,
 } from '@/api/shared/request.js';
+import type { components } from '@/types/sell-apps/listing-metadata/sellMetadataV1Oas3.js';
+import { Effect } from 'effect';
+
+/** Input accepted by marketplace-scoped Metadata policy endpoints. */
+export interface MetadataMarketplaceInput {
+  /** eBay marketplace identifier, such as EBAY_US. */
+  readonly marketplaceId: string;
+  /** Optional OpenAPI filter expression, usually categoryIds:{...}. */
+  readonly filter?: string;
+}
+
+/** Input accepted by marketplace-scoped Metadata endpoints with no filter. */
+export interface MetadataMarketplaceOnlyInput {
+  /** eBay marketplace identifier, such as EBAY_US. */
+  readonly marketplaceId: string;
+}
+
+/** Input accepted by Metadata getCompatibilitiesBySpecification. */
+export interface GetMetadataCompatibilitiesBySpecificationInput {
+  /** Marketplace header required by compatibility metadata endpoints. */
+  readonly marketplaceId: string;
+  /** Generated SpecificationRequest body. */
+  readonly specification: SpecificationRequest;
+}
+
+/** Input accepted by Metadata getCompatibilityPropertyNames. */
+export interface GetMetadataCompatibilityPropertyNamesInput {
+  /** Marketplace header required by compatibility metadata endpoints. */
+  readonly marketplaceId: string;
+  /** Generated PropertyNamesRequest body. */
+  readonly data: PropertyNamesRequest;
+}
+
+/** Input accepted by Metadata getCompatibilityPropertyValues. */
+export interface GetMetadataCompatibilityPropertyValuesInput {
+  /** Marketplace header required by compatibility metadata endpoints. */
+  readonly marketplaceId: string;
+  /** Generated PropertyValuesRequest body. */
+  readonly data: PropertyValuesRequest;
+}
+
+/** Input accepted by Metadata getMultiCompatibilityPropertyValues. */
+export interface GetMetadataMultiCompatibilityPropertyValuesInput {
+  /** Marketplace header required by compatibility metadata endpoints. */
+  readonly marketplaceId: string;
+  /** Generated MultiCompatibilityPropertyValuesRequest body. */
+  readonly data: MultiCompatibilityPropertyValuesRequest;
+}
+
+/** Input accepted by Metadata getProductCompatibilities. */
+export interface GetMetadataProductCompatibilitiesInput {
+  /** Marketplace header required by compatibility metadata endpoints. */
+  readonly marketplaceId: string;
+  /** Generated ProductRequest body. */
+  readonly data: ProductRequest;
+}
+
+/** Input accepted by Metadata getSalesTaxJurisdictions. */
+export interface GetMetadataSalesTaxJurisdictionsInput {
+  /** Two-letter ISO country code, currently US or CA for eBay sales-tax tables. */
+  readonly countryCode: string;
+}
 
 /**
- * Metadata API - Marketplace policies and configurations
- * Based on: docs/sell-apps/listing-metadata/sell_metadata_v1_oas3.json
+ * Response returned by getAutomotivePartsCompatibilityPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getAutomotivePartsCompatibilityPolicies
  */
+export type AutomotivePartsCompatibilityPoliciesResponse =
+  components['schemas']['AutomotivePartsCompatibilityPolicyResponse'];
+
+/**
+ * Response returned by getCategoryPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getCategoryPolicies
+ */
+export type CategoryPoliciesResponse = components['schemas']['CategoryPolicyResponse'];
+
+/**
+ * Response returned by getExtendedProducerResponsibilityPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getExtendedProducerResponsibilityPolicies
+ */
+export type ExtendedProducerResponsibilityPoliciesResponse =
+  components['schemas']['ExtendedProducerResponsibilityPolicyResponse'];
+
+/**
+ * Response returned by getHazardousMaterialsLabels.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getHazardousMaterialsLabels
+ */
+export type HazardousMaterialsLabelsResponse =
+  components['schemas']['HazardousMaterialDetailsResponse'];
+
+/**
+ * Response returned by getItemConditionPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getItemConditionPolicies
+ */
+export type ItemConditionPoliciesResponse = components['schemas']['ItemConditionPolicyResponse'];
+
+/**
+ * Response returned by getListingStructurePolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getListingStructurePolicies
+ */
+export type ListingStructurePoliciesResponse =
+  components['schemas']['ListingStructurePolicyResponse'];
+
+/**
+ * Response returned by getNegotiatedPricePolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getNegotiatedPricePolicies
+ */
+export type NegotiatedPricePoliciesResponse =
+  components['schemas']['NegotiatedPricePolicyResponse'];
+
+/**
+ * Response returned by getProductSafetyLabels.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getProductSafetyLabels
+ */
+export type ProductSafetyLabelsResponse = components['schemas']['ProductSafetyLabelsResponse'];
+
+/**
+ * Response returned by getRegulatoryPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getRegulatoryPolicies
+ */
+export type RegulatoryPoliciesResponse = components['schemas']['RegulatoryPolicyResponse'];
+
+/**
+ * Response returned by getReturnPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getReturnPolicies
+ */
+export type ReturnPoliciesMetadataResponse = components['schemas']['ReturnPolicyResponse'];
+
+/**
+ * Response returned by getClassifiedAdPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getClassifiedAdPolicies
+ */
+export type ClassifiedAdPoliciesResponse = components['schemas']['ClassifiedAdPolicyResponse'];
+
+/**
+ * Response returned by getCurrencies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getCurrencies
+ */
+export type GetCurrenciesResponse = components['schemas']['GetCurrenciesResponse'];
+
+/**
+ * Response returned by getListingTypePolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getListingTypePolicies
+ */
+export type ListingTypePoliciesResponse = components['schemas']['ListingTypePoliciesResponse'];
+
+/**
+ * Response returned by getMotorsListingPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getMotorsListingPolicies
+ */
+export type MotorsListingPoliciesResponse = components['schemas']['MotorsListingPoliciesResponse'];
+
+/**
+ * Response returned by getShippingPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getShippingPolicies
+ */
+export type ShippingPoliciesMetadataResponse = components['schemas']['ShippingPoliciesResponse'];
+
+/**
+ * Response returned by getSiteVisibilityPolicies.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getSiteVisibilityPolicies
+ */
+export type SiteVisibilityPoliciesResponse =
+  components['schemas']['SiteVisibilityPoliciesResponse'];
+
+/**
+ * Response returned by getCompatibilitiesBySpecification.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/compatibilities/methods/getCompatibilitiesBySpecification
+ */
+export type SpecificationResponse = components['schemas']['SpecificationResponse'];
+
+/**
+ * Response returned by getCompatibilityPropertyNames.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/compatibilities/methods/getCompatibilityPropertyNames
+ */
+export type PropertyNamesResponse = components['schemas']['PropertyNamesResponse'];
+
+/**
+ * Response returned by getCompatibilityPropertyValues.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/compatibilities/methods/getCompatibilityPropertyValues
+ */
+export type PropertyValuesResponse = components['schemas']['PropertyValuesResponse'];
+
+/**
+ * Response returned by getMultiCompatibilityPropertyValues.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/compatibilities/methods/getMultiCompatibilityPropertyValues
+ */
+export type MultiCompatibilityPropertyValuesResponse =
+  components['schemas']['MultiCompatibilityPropertyValuesResponse'];
+
+/**
+ * Response returned by getProductCompatibilities.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/compatibilities/methods/getProductCompatibilities
+ */
+export type ProductResponse = components['schemas']['ProductResponse'];
+
+/**
+ * Response returned by getSalesTaxJurisdictions.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/metadata/resources/country/methods/getSalesTaxJurisdictions
+ */
+export type SalesTaxJurisdictionsResponse = components['schemas']['SalesTaxJurisdictions'];
+
+/** Generated request body for getCompatibilitiesBySpecification. */
+type SpecificationRequest = components['schemas']['SpecificationRequest'];
+/** Generated request body for getCompatibilityPropertyNames. */
+type PropertyNamesRequest = components['schemas']['PropertyNamesRequest'];
+/** Generated request body for getCompatibilityPropertyValues. */
+type PropertyValuesRequest = components['schemas']['PropertyValuesRequest'];
+/** Generated request body for getMultiCompatibilityPropertyValues. */
+type MultiCompatibilityPropertyValuesRequest =
+  components['schemas']['MultiCompatibilityPropertyValuesRequest'];
+/** Generated request body for getProductCompatibilities. */
+type ProductRequest = components['schemas']['ProductRequest'];
+
+/** Metadata API - marketplace policies, compatibility metadata, and tax jurisdictions. */
 export class MetadataApi {
   private readonly basePath = '/sell/metadata/v1';
 
-  constructor(private client: EbayApiClient) {}
-
-  private async getMarketplacePolicy(
-    endpoint: string,
-    marketplaceId: string,
-    failureMessage: string,
-  ): Promise<unknown> {
-    requireString(marketplaceId, 'marketplaceId');
-    const path = `${this.basePath}/marketplace/${marketplaceId}/${endpoint}`;
-
-    return await withApiError(failureMessage, () => this.client.get(path));
-  }
-
-  private async getFilteredMarketplacePolicy(
-    endpoint: string,
-    marketplaceId: string,
-    failureMessage: string,
-    filter?: string,
-  ): Promise<unknown> {
-    requireString(marketplaceId, 'marketplaceId');
-    const params = buildOptionalStringParams({ filter });
-    const path = `${this.basePath}/marketplace/${marketplaceId}/${endpoint}`;
-
-    return await withApiError(failureMessage, () => this.client.get(path, params));
-  }
+  public constructor(private readonly client: EbayApiClient) {}
 
   /**
-   * Get automotive parts compatibility policies for a marketplace
-   * Endpoint: GET /marketplace/{marketplace_id}/get_automotive_parts_compatibility_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves automotive parts compatibility policies for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's AutomotivePartsCompatibilityPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getAutomotivePartsCompatibilityPolicies({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getAutomotivePartsCompatibilityPolicies
    */
-  async getAutomotivePartsCompatibilityPolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
+  public getAutomotivePartsCompatibilityPolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<
+    AutomotivePartsCompatibilityPoliciesResponse,
+    EbayApiError | EndpointInputError
+  > =>
+    this.getFilteredMarketplaceResource(
+      input,
       'get_automotive_parts_compatibility_policies',
-      marketplaceId,
-      'Failed to get automotive parts compatibility policies',
-      filter,
+      'getAutomotivePartsCompatibilityPolicies',
     );
-  }
 
   /**
-   * Get category policies for a marketplace
-   * Endpoint: GET /marketplace/{marketplace_id}/get_category_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves category policies for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's CategoryPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getCategoryPolicies({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getCategoryPolicies
    */
-  async getCategoryPolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
-      'get_category_policies',
-      marketplaceId,
-      'Failed to get category policies',
-      filter,
-    );
-  }
+  public getCategoryPolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<CategoryPoliciesResponse, EbayApiError | EndpointInputError> =>
+    this.getFilteredMarketplaceResource(input, 'get_category_policies', 'getCategoryPolicies');
 
   /**
-   * Get extended producer responsibility policies
-   * Endpoint: GET /marketplace/{marketplace_id}/get_extended_producer_responsibility_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves extended producer responsibility policies for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's ExtendedProducerResponsibilityPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getExtendedProducerResponsibilityPolicies({ marketplaceId: 'EBAY_DE' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getExtendedProducerResponsibilityPolicies
    */
-  async getExtendedProducerResponsibilityPolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
+  public getExtendedProducerResponsibilityPolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<
+    ExtendedProducerResponsibilityPoliciesResponse,
+    EbayApiError | EndpointInputError
+  > =>
+    this.getFilteredMarketplaceResource(
+      input,
       'get_extended_producer_responsibility_policies',
-      marketplaceId,
-      'Failed to get extended producer responsibility policies',
-      filter,
+      'getExtendedProducerResponsibilityPolicies',
     );
-  }
 
   /**
-   * Get hazardous materials labels
-   * Endpoint: GET /marketplace/{marketplace_id}/get_hazardous_materials_labels
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves hazardous materials labels for a marketplace.
+   *
+   * @param input - Marketplace identifier.
+   * @returns An Effect that succeeds with eBay's HazardousMaterialDetailsResponse.
+   *
+   * @example
+   * ```ts
+   * const labels = await Effect.runPromise(
+   *   metadataApi.getHazardousMaterialsLabels({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getHazardousMaterialsLabels
    */
-  async getHazardousMaterialsLabels(marketplaceId: string) {
-    return await this.getMarketplacePolicy(
+  public getHazardousMaterialsLabels = (
+    input: MetadataMarketplaceOnlyInput,
+  ): Effect.Effect<HazardousMaterialsLabelsResponse, EbayApiError | EndpointInputError> =>
+    this.getMarketplaceResource(
+      input,
       'get_hazardous_materials_labels',
-      marketplaceId,
-      'Failed to get hazardous materials labels',
+      'getHazardousMaterialsLabels',
     );
-  }
 
   /**
-   * Get item condition policies for a marketplace
-   * Endpoint: GET /marketplace/{marketplace_id}/get_item_condition_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves item condition policies for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's ItemConditionPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getItemConditionPolicies({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getItemConditionPolicies
    */
-  async getItemConditionPolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
+  public getItemConditionPolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<ItemConditionPoliciesResponse, EbayApiError | EndpointInputError> =>
+    this.getFilteredMarketplaceResource(
+      input,
       'get_item_condition_policies',
-      marketplaceId,
-      'Failed to get item condition policies',
-      filter,
+      'getItemConditionPolicies',
     );
-  }
 
   /**
-   * Get listing structure policies
-   * Endpoint: GET /marketplace/{marketplace_id}/get_listing_structure_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves listing structure policies for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's ListingStructurePolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getListingStructurePolicies({ marketplaceId: 'EBAY_GB' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getListingStructurePolicies
    */
-  async getListingStructurePolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
+  public getListingStructurePolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<ListingStructurePoliciesResponse, EbayApiError | EndpointInputError> =>
+    this.getFilteredMarketplaceResource(
+      input,
       'get_listing_structure_policies',
-      marketplaceId,
-      'Failed to get listing structure policies',
-      filter,
+      'getListingStructurePolicies',
     );
-  }
 
   /**
-   * Get negotiated price policies
-   * Endpoint: GET /marketplace/{marketplace_id}/get_negotiated_price_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves negotiated price policies for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's NegotiatedPricePolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getNegotiatedPricePolicies({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getNegotiatedPricePolicies
    */
-  async getNegotiatedPricePolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
+  public getNegotiatedPricePolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<NegotiatedPricePoliciesResponse, EbayApiError | EndpointInputError> =>
+    this.getFilteredMarketplaceResource(
+      input,
       'get_negotiated_price_policies',
-      marketplaceId,
-      'Failed to get negotiated price policies',
-      filter,
+      'getNegotiatedPricePolicies',
     );
-  }
 
   /**
-   * Get product safety labels
-   * Endpoint: GET /marketplace/{marketplace_id}/get_product_safety_labels
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves product safety labels for a marketplace.
+   *
+   * @param input - Marketplace identifier.
+   * @returns An Effect that succeeds with eBay's ProductSafetyLabelsResponse.
+   *
+   * @example
+   * ```ts
+   * const labels = await Effect.runPromise(
+   *   metadataApi.getProductSafetyLabels({ marketplaceId: 'EBAY_DE' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getProductSafetyLabels
    */
-  async getProductSafetyLabels(marketplaceId: string) {
-    return await this.getMarketplacePolicy(
-      'get_product_safety_labels',
-      marketplaceId,
-      'Failed to get product safety labels',
-    );
-  }
+  public getProductSafetyLabels = (
+    input: MetadataMarketplaceOnlyInput,
+  ): Effect.Effect<ProductSafetyLabelsResponse, EbayApiError | EndpointInputError> =>
+    this.getMarketplaceResource(input, 'get_product_safety_labels', 'getProductSafetyLabels');
 
   /**
-   * Get regulatory policies
-   * Endpoint: GET /marketplace/{marketplace_id}/get_regulatory_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves regulatory policies for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's RegulatoryPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getRegulatoryPolicies({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getRegulatoryPolicies
    */
-  async getRegulatoryPolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
-      'get_regulatory_policies',
-      marketplaceId,
-      'Failed to get regulatory policies',
-      filter,
-    );
-  }
+  public getRegulatoryPolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<RegulatoryPoliciesResponse, EbayApiError | EndpointInputError> =>
+    this.getFilteredMarketplaceResource(input, 'get_regulatory_policies', 'getRegulatoryPolicies');
 
   /**
-   * Get return policies for a marketplace
-   * Endpoint: GET /marketplace/{marketplace_id}/get_return_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves return policy metadata for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's ReturnPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getReturnPolicies({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getReturnPolicies
    */
-  async getReturnPolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
-      'get_return_policies',
-      marketplaceId,
-      'Failed to get return policies',
-      filter,
-    );
-  }
+  public getReturnPolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<ReturnPoliciesMetadataResponse, EbayApiError | EndpointInputError> =>
+    this.getFilteredMarketplaceResource(input, 'get_return_policies', 'getReturnPolicies');
 
   /**
-   * Get shipping cost type policies
-   * Endpoint: GET /marketplace/{marketplace_id}/get_shipping_cost_type_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves classified ad policies for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's ClassifiedAdPolicyResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getClassifiedAdPolicies({ marketplaceId: 'EBAY_MOTORS_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getClassifiedAdPolicies
    */
-  async getShippingCostTypePolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
-      'get_shipping_cost_type_policies',
-      marketplaceId,
-      'Failed to get shipping cost type policies',
-      filter,
-    );
-  }
-
-  /**
-   * Get classified ad policies for a marketplace
-   * Endpoint: GET /marketplace/{marketplace_id}/get_classified_ad_policies
-   * @throws Error if marketplaceId is missing or invalid
-   */
-  async getClassifiedAdPolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
+  public getClassifiedAdPolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<ClassifiedAdPoliciesResponse, EbayApiError | EndpointInputError> =>
+    this.getFilteredMarketplaceResource(
+      input,
       'get_classified_ad_policies',
-      marketplaceId,
-      'Failed to get classified ad policies',
-      filter,
+      'getClassifiedAdPolicies',
     );
-  }
 
   /**
-   * Get currencies for a marketplace
-   * Endpoint: GET /marketplace/{marketplace_id}/get_currencies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves currency metadata for a marketplace.
+   *
+   * @param input - Marketplace identifier.
+   * @returns An Effect that succeeds with eBay's GetCurrenciesResponse.
+   *
+   * @example
+   * ```ts
+   * const currencies = await Effect.runPromise(metadataApi.getCurrencies({ marketplaceId: 'EBAY_US' }));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getCurrencies
    */
-  async getCurrencies(marketplaceId: string) {
-    return await this.getMarketplacePolicy(
-      'get_currencies',
-      marketplaceId,
-      'Failed to get currencies',
-    );
-  }
+  public getCurrencies = (
+    input: MetadataMarketplaceOnlyInput,
+  ): Effect.Effect<GetCurrenciesResponse, EbayApiError | EndpointInputError> =>
+    this.getMarketplaceResource(input, 'get_currencies', 'getCurrencies');
 
   /**
-   * Get listing type policies for a marketplace
-   * Endpoint: GET /marketplace/{marketplace_id}/get_listing_type_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves listing type policies for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's ListingTypePoliciesResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getListingTypePolicies({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getListingTypePolicies
    */
-  async getListingTypePolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
+  public getListingTypePolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<ListingTypePoliciesResponse, EbayApiError | EndpointInputError> =>
+    this.getFilteredMarketplaceResource(
+      input,
       'get_listing_type_policies',
-      marketplaceId,
-      'Failed to get listing type policies',
-      filter,
+      'getListingTypePolicies',
     );
-  }
 
   /**
-   * Get motors listing policies for a marketplace
-   * Endpoint: GET /marketplace/{marketplace_id}/get_motors_listing_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves Motors listing policies for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's MotorsListingPoliciesResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getMotorsListingPolicies({ marketplaceId: 'EBAY_MOTORS_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getMotorsListingPolicies
    */
-  async getMotorsListingPolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
+  public getMotorsListingPolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<MotorsListingPoliciesResponse, EbayApiError | EndpointInputError> =>
+    this.getFilteredMarketplaceResource(
+      input,
       'get_motors_listing_policies',
-      marketplaceId,
-      'Failed to get motors listing policies',
-      filter,
+      'getMotorsListingPolicies',
     );
-  }
 
   /**
-   * Get shipping policies for a marketplace
-   * Endpoint: GET /marketplace/{marketplace_id}/get_shipping_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves shipping policies for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's ShippingPoliciesResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getShippingPolicies({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getShippingPolicies
    */
-  async getShippingPolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
-      'get_shipping_policies',
-      marketplaceId,
-      'Failed to get shipping policies',
-      filter,
-    );
-  }
+  public getShippingPolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<ShippingPoliciesMetadataResponse, EbayApiError | EndpointInputError> =>
+    this.getFilteredMarketplaceResource(input, 'get_shipping_policies', 'getShippingPolicies');
 
   /**
-   * Get site visibility policies for a marketplace
-   * Endpoint: GET /marketplace/{marketplace_id}/get_site_visibility_policies
-   * @throws Error if marketplaceId is missing or invalid
+   * Retrieves site visibility policies for a marketplace.
+   *
+   * @param input - Marketplace and optional category filter.
+   * @returns An Effect that succeeds with eBay's SiteVisibilityPoliciesResponse.
+   *
+   * @example
+   * ```ts
+   * const policies = await Effect.runPromise(
+   *   metadataApi.getSiteVisibilityPolicies({ marketplaceId: 'EBAY_US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/marketplace/methods/getSiteVisibilityPolicies
    */
-  async getSiteVisibilityPolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
+  public getSiteVisibilityPolicies = (
+    input: MetadataMarketplaceInput,
+  ): Effect.Effect<SiteVisibilityPoliciesResponse, EbayApiError | EndpointInputError> =>
+    this.getFilteredMarketplaceResource(
+      input,
       'get_site_visibility_policies',
-      marketplaceId,
-      'Failed to get site visibility policies',
-      filter,
+      'getSiteVisibilityPolicies',
     );
-  }
 
   /**
-   * Get compatibilities by specification
-   * Endpoint: POST /compatibilities/get_compatibilities_by_specification
-   * @throws Error if specification is missing or invalid
+   * Retrieves compatibility records matching part specifications.
+   *
+   * @param input - Marketplace header and generated SpecificationRequest body.
+   * @returns An Effect that succeeds with eBay's SpecificationResponse.
+   *
+   * @example
+   * ```ts
+   * const compatibilities = await Effect.runPromise(
+   *   metadataApi.getCompatibilitiesBySpecification({
+   *     marketplaceId: 'EBAY_US',
+   *     specification: { categoryId: '6016' },
+   *   }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/compatibilities/methods/getCompatibilitiesBySpecification
    */
-  async getCompatibilitiesBySpecification(specification: Record<string, unknown>) {
-    requireObject(specification, 'specification');
+  public getCompatibilitiesBySpecification = (
+    input: GetMetadataCompatibilitiesBySpecificationInput,
+  ): Effect.Effect<SpecificationResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/compatibilities/get_compatibilities_by_specification`;
 
-    return await withApiError('Failed to get compatibilities by specification', () =>
-      this.client.post(
-        `${this.basePath}/compatibilities/get_compatibilities_by_specification`,
-        specification,
-      ),
-    );
-  }
+    return Effect.gen(function* () {
+      const validatedInput =
+        yield* requireObjectEffect<GetMetadataCompatibilitiesBySpecificationInput>(input, 'input');
+      const marketplaceId = yield* requireStringEffect(
+        validatedInput.marketplaceId,
+        'marketplaceId',
+      );
+      const body = yield* requireObjectEffect<SpecificationRequest>(
+        validatedInput.specification,
+        'specification',
+      );
+
+      return yield* requestPostEffect<SpecificationResponse>(
+        client,
+        path,
+        body,
+        compatibilityHeaders(marketplaceId),
+      );
+    });
+  };
 
   /**
-   * Get compatibility property names
-   * Endpoint: POST /compatibilities/get_compatibility_property_names
-   * @throws Error if request data is missing or invalid
+   * Retrieves compatibility property names for a compatibility-enabled category.
+   *
+   * @param input - Marketplace header and generated PropertyNamesRequest body.
+   * @returns An Effect that succeeds with eBay's PropertyNamesResponse.
+   *
+   * @example
+   * ```ts
+   * const names = await Effect.runPromise(
+   *   metadataApi.getCompatibilityPropertyNames({
+   *     marketplaceId: 'EBAY_US',
+   *     data: { categoryId: '6016' },
+   *   }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/compatibilities/methods/getCompatibilityPropertyNames
    */
-  async getCompatibilityPropertyNames(data: Record<string, unknown>) {
-    requireObject(data, 'data');
+  public getCompatibilityPropertyNames = (
+    input: GetMetadataCompatibilityPropertyNamesInput,
+  ): Effect.Effect<PropertyNamesResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/compatibilities/get_compatibility_property_names`;
 
-    return await withApiError('Failed to get compatibility property names', () =>
-      this.client.post(`${this.basePath}/compatibilities/get_compatibility_property_names`, data),
-    );
-  }
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetMetadataCompatibilityPropertyNamesInput>(
+        input,
+        'input',
+      );
+      const marketplaceId = yield* requireStringEffect(
+        validatedInput.marketplaceId,
+        'marketplaceId',
+      );
+      const body = yield* requireObjectEffect<PropertyNamesRequest>(validatedInput.data, 'data');
+
+      return yield* requestPostEffect<PropertyNamesResponse>(
+        client,
+        path,
+        body,
+        compatibilityHeaders(marketplaceId),
+      );
+    });
+  };
 
   /**
-   * Get compatibility property values
-   * Endpoint: POST /compatibilities/get_compatibility_property_values
-   * @throws Error if request data is missing or invalid
+   * Retrieves compatibility property values for one property.
+   *
+   * @param input - Marketplace header and generated PropertyValuesRequest body.
+   * @returns An Effect that succeeds with eBay's PropertyValuesResponse.
+   *
+   * @example
+   * ```ts
+   * const values = await Effect.runPromise(
+   *   metadataApi.getCompatibilityPropertyValues({
+   *     marketplaceId: 'EBAY_US',
+   *     data: { categoryId: '6016', propertyName: 'Make' },
+   *   }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/compatibilities/methods/getCompatibilityPropertyValues
    */
-  async getCompatibilityPropertyValues(data: Record<string, unknown>) {
-    requireObject(data, 'data');
+  public getCompatibilityPropertyValues = (
+    input: GetMetadataCompatibilityPropertyValuesInput,
+  ): Effect.Effect<PropertyValuesResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/compatibilities/get_compatibility_property_values`;
 
-    return await withApiError('Failed to get compatibility property values', () =>
-      this.client.post(`${this.basePath}/compatibilities/get_compatibility_property_values`, data),
-    );
-  }
+    return Effect.gen(function* () {
+      const validatedInput =
+        yield* requireObjectEffect<GetMetadataCompatibilityPropertyValuesInput>(input, 'input');
+      const marketplaceId = yield* requireStringEffect(
+        validatedInput.marketplaceId,
+        'marketplaceId',
+      );
+      const body = yield* requireObjectEffect<PropertyValuesRequest>(validatedInput.data, 'data');
+
+      return yield* requestPostEffect<PropertyValuesResponse>(
+        client,
+        path,
+        body,
+        compatibilityHeaders(marketplaceId),
+      );
+    });
+  };
 
   /**
-   * Get multi compatibility property values
-   * Endpoint: POST /compatibilities/get_multi_compatibility_property_values
-   * @throws Error if request data is missing or invalid
+   * Retrieves values for multiple compatibility properties.
+   *
+   * @param input - Marketplace header and generated MultiCompatibilityPropertyValuesRequest body.
+   * @returns An Effect that succeeds with eBay's MultiCompatibilityPropertyValuesResponse.
+   *
+   * @example
+   * ```ts
+   * const values = await Effect.runPromise(
+   *   metadataApi.getMultiCompatibilityPropertyValues({
+   *     marketplaceId: 'EBAY_US',
+   *     data: { categoryId: '6016', propertyNames: ['Make', 'Model'] },
+   *   }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/compatibilities/methods/getMultiCompatibilityPropertyValues
    */
-  async getMultiCompatibilityPropertyValues(data: Record<string, unknown>) {
-    requireObject(data, 'data');
+  public getMultiCompatibilityPropertyValues = (
+    input: GetMetadataMultiCompatibilityPropertyValuesInput,
+  ): Effect.Effect<MultiCompatibilityPropertyValuesResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/compatibilities/get_multi_compatibility_property_values`;
 
-    return await withApiError('Failed to get multi compatibility property values', () =>
-      this.client.post(
-        `${this.basePath}/compatibilities/get_multi_compatibility_property_values`,
-        data,
-      ),
-    );
-  }
+    return Effect.gen(function* () {
+      const validatedInput =
+        yield* requireObjectEffect<GetMetadataMultiCompatibilityPropertyValuesInput>(
+          input,
+          'input',
+        );
+      const marketplaceId = yield* requireStringEffect(
+        validatedInput.marketplaceId,
+        'marketplaceId',
+      );
+      const body = yield* requireObjectEffect<MultiCompatibilityPropertyValuesRequest>(
+        validatedInput.data,
+        'data',
+      );
+
+      return yield* requestPostEffect<MultiCompatibilityPropertyValuesResponse>(
+        client,
+        path,
+        body,
+        compatibilityHeaders(marketplaceId),
+      );
+    });
+  };
 
   /**
-   * Get product compatibilities
-   * Endpoint: POST /compatibilities/get_product_compatibilities
-   * @throws Error if request data is missing or invalid
+   * Retrieves product compatibility metadata.
+   *
+   * @param input - Marketplace header and generated ProductRequest body.
+   * @returns An Effect that succeeds with eBay's ProductResponse.
+   *
+   * @example
+   * ```ts
+   * const products = await Effect.runPromise(
+   *   metadataApi.getProductCompatibilities({
+   *     marketplaceId: 'EBAY_US',
+   *     data: { categoryId: '6016' },
+   *   }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/compatibilities/methods/getProductCompatibilities
    */
-  async getProductCompatibilities(data: Record<string, unknown>) {
-    requireObject(data, 'data');
+  public getProductCompatibilities = (
+    input: GetMetadataProductCompatibilitiesInput,
+  ): Effect.Effect<ProductResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const path = `${this.basePath}/compatibilities/get_product_compatibilities`;
 
-    return await withApiError('Failed to get product compatibilities', () =>
-      this.client.post(`${this.basePath}/compatibilities/get_product_compatibilities`, data),
-    );
-  }
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetMetadataProductCompatibilitiesInput>(
+        input,
+        'input',
+      );
+      const marketplaceId = yield* requireStringEffect(
+        validatedInput.marketplaceId,
+        'marketplaceId',
+      );
+      const body = yield* requireObjectEffect<ProductRequest>(validatedInput.data, 'data');
+
+      return yield* requestPostEffect<ProductResponse>(
+        client,
+        path,
+        body,
+        compatibilityHeaders(marketplaceId),
+      );
+    });
+  };
 
   /**
-   * Get sales tax jurisdictions for a country
-   * Endpoint: GET /country/{countryCode}/sales_tax_jurisdiction
-   * @throws Error if countryCode is missing or invalid
+   * Retrieves sales-tax jurisdictions for a country.
+   *
+   * @param input - Country code whose sales-tax jurisdictions should be returned.
+   * @returns An Effect that succeeds with eBay's SalesTaxJurisdictions response.
+   *
+   * @example
+   * ```ts
+   * const jurisdictions = await Effect.runPromise(
+   *   metadataApi.getSalesTaxJurisdictions({ countryCode: 'US' }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/metadata/resources/country/methods/getSalesTaxJurisdictions
    */
-  async getSalesTaxJurisdictions(countryCode: string) {
-    requireString(countryCode, 'countryCode');
+  public getSalesTaxJurisdictions = (
+    input: GetMetadataSalesTaxJurisdictionsInput,
+  ): Effect.Effect<SalesTaxJurisdictionsResponse, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
 
-    return await withApiError('Failed to get sales tax jurisdictions', () =>
-      this.client.get(`${this.basePath}/country/${countryCode}/sales_tax_jurisdiction`),
-    );
-  }
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetMetadataSalesTaxJurisdictionsInput>(
+        input,
+        'input',
+      );
+      const countryCode = yield* requireStringEffect(validatedInput.countryCode, 'countryCode');
 
-  /**
-   * Get product compliance policies
-   * Endpoint: GET /marketplace/{marketplace_id}/get_product_compliance_policies
-   * @throws Error if marketplaceId is missing or invalid
-   */
-  async getProductCompliancePolicies(marketplaceId: string, filter?: string) {
-    return await this.getFilteredMarketplacePolicy(
-      'get_product_compliance_policies',
-      marketplaceId,
-      'Failed to get product compliance policies',
-      filter,
-    );
-  }
+      return yield* requestGetEffect<SalesTaxJurisdictionsResponse>(
+        client,
+        `${basePath}/country/${countryCode}/sales_tax_jurisdiction`,
+      );
+    });
+  };
+
+  private getMarketplaceResource = <Response>(
+    input: MetadataMarketplaceOnlyInput,
+    endpoint: string,
+    parameterName: string,
+  ): Effect.Effect<Response, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<MetadataMarketplaceOnlyInput>(
+        input,
+        'input',
+      );
+      const marketplaceId = yield* requireStringEffect(
+        validatedInput.marketplaceId,
+        'marketplaceId',
+      );
+
+      return yield* requestGetEffect<Response>(
+        client,
+        `${basePath}/marketplace/${marketplaceId}/${endpoint}`,
+      );
+    }).pipe(Effect.withSpan(`metadata.${parameterName}`));
+  };
+
+  private getFilteredMarketplaceResource = <Response>(
+    input: MetadataMarketplaceInput,
+    endpoint: string,
+    parameterName: string,
+  ): Effect.Effect<Response, EbayApiError | EndpointInputError> => {
+    const client = this.client;
+    const basePath = this.basePath;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<MetadataMarketplaceInput>(input, 'input');
+      const marketplaceId = yield* requireStringEffect(
+        validatedInput.marketplaceId,
+        'marketplaceId',
+      );
+      const filter = yield* optionalStringEffect(validatedInput.filter, 'filter');
+      const params = buildEndpointParams({
+        filter: { wireName: 'filter', value: filter },
+      });
+
+      return yield* requestGetEffect<Response>(
+        client,
+        `${basePath}/marketplace/${marketplaceId}/${endpoint}`,
+        params,
+      );
+    }).pipe(Effect.withSpan(`metadata.${parameterName}`));
+  };
 }
+
+/**
+ * Builds required headers for Metadata compatibility POST endpoints.
+ *
+ * @param marketplaceId - eBay marketplace identifier sent as X-EBAY-C-MARKETPLACE-ID.
+ * @returns Request config with the compatibility headers required by the OpenAPI spec.
+ *
+ * @example
+ * ```ts
+ * const config = compatibilityHeaders('EBAY_US');
+ * ```
+ */
+export const compatibilityHeaders = (marketplaceId: string): EbayRequestConfig => ({
+  headers: {
+    'Content-Type': 'application/json',
+    'X-EBAY-C-MARKETPLACE-ID': marketplaceId,
+  },
+});

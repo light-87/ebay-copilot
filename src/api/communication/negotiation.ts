@@ -1,12 +1,41 @@
-import type { EbayApiClient } from '@/api/client.js';
+import type { EbayApiClient, EbayRequestConfig } from '@/api/client.js';
 import {
-  assertRequiredString,
-  buildPaginatedQueryParams,
-  getPathWithContextError,
-  getWithContextError,
-} from './shared.js';
-import { buildTruthyPaginatedParams } from '@/api/shared/query-params.js';
-import { withApiError } from '@/api/shared/request.js';
+  buildEndpointParams,
+  type EbayApiError,
+  type EndpointInputError,
+  optionalNonNegativeNumberEffect,
+  optionalPositiveNumberEffect,
+  optionalStringEffect,
+  requestGetEffect,
+  requestPostEffect,
+  requireObjectEffect,
+} from '@/api/shared/request.js';
+import type { components } from '@/types/sell-apps/communication/sellNegotiationV1Oas3.js';
+import type {
+  findEligibleItemsSchema,
+  sendOfferToInterestedBuyersSchema,
+} from '@/utils/communication/negotiation.js';
+import { Effect } from 'effect';
+import type { z } from 'zod';
+
+type FindEligibleItemsInput = z.infer<typeof findEligibleItemsSchema>;
+type SendOfferToInterestedBuyersInput = z.infer<typeof sendOfferToInterestedBuyersSchema>;
+/** Request body accepted by sendOfferToInterestedBuyers. */
+type CreateOffersRequest = components['schemas']['CreateOffersRequest'];
+
+/**
+ * Response returned by eBay Negotiation findEligibleItems.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/negotiation/resources/offer/methods/findEligibleItems
+ */
+export type FindEligibleItemsResponse = components['schemas']['PagedEligibleItemCollection'];
+/**
+ * Response returned by eBay Negotiation sendOfferToInterestedBuyers.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/negotiation/resources/offer/methods/sendOfferToInterestedBuyers
+ */
+export type SendOfferToInterestedBuyersResponse =
+  components['schemas']['SendOfferToInterestedBuyersCollectionResponse'];
 
 /**
  * Negotiation API - Buyer-seller negotiations and offers
@@ -14,79 +43,92 @@ import { withApiError } from '@/api/shared/request.js';
  */
 export class NegotiationApi {
   private readonly basePath = '/sell/negotiation/v1';
+  private readonly client: EbayApiClient;
 
-  constructor(private client: EbayApiClient) {}
-
-  /**
-   * Find eligible items for a seller-initiated offer
-   * Endpoint: GET /find_eligible_items
-   * @param filter API filter expression.
-   * @param limit Maximum number of records to return.
-   * @param offset Zero-based pagination offset.
-   * @throws Error if the request fails
-   */
-  async findEligibleItems(filter?: string, limit?: number, offset?: number) {
-    const eligibleItemsPath = `${this.basePath}/find_eligible_items`;
-    const queryParams = buildPaginatedQueryParams(filter, limit, offset);
-
-    return await withApiError('Failed to find eligible items', () =>
-      this.client.get(eligibleItemsPath, queryParams),
-    );
+  constructor(client: EbayApiClient) {
+    this.client = client;
   }
 
   /**
-   * Send offer to interested buyers
-   * Endpoint: POST /send_offer_to_interested_buyers
-   * @throws Error if required parameters are missing or invalid
+   * Finds listings eligible for a seller-initiated offer.
+   *
+   * @param input - Optional marketplace header override plus pagination query parameters.
+   * @returns An Effect that succeeds with eBay's generated PagedEligibleItemCollection.
+   *
+   * @example
+   * ```ts
+   * const eligible = await Effect.runPromise(
+   *   negotiationApi.findEligibleItems({ marketplaceId: 'EBAY_US', limit: 10 }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/negotiation/resources/offer/methods/findEligibleItems
    */
-  async sendOfferToInterestedBuyers(offerData: Record<string, unknown>) {
-    if (!offerData || typeof offerData !== 'object') {
-      throw new Error('offerData is required and must be an object');
-    }
+  findEligibleItems = (
+    input: FindEligibleItemsInput = {},
+  ): Effect.Effect<FindEligibleItemsResponse, EbayApiError | EndpointInputError> => {
+    const apiClient = this.client;
+    const path = `${this.basePath}/find_eligible_items`;
 
-    return await withApiError('Failed to send offer to interested buyers', () =>
-      this.client.post(`${this.basePath}/send_offer_to_interested_buyers`, offerData),
-    );
-  }
+    return Effect.gen(function* () {
+      const request = yield* requireObjectEffect<FindEligibleItemsInput>(input, 'input');
+      const { marketplaceId: inputMarketplaceId, limit: inputLimit, offset: inputOffset } = request;
+      const marketplaceId = yield* optionalStringEffect(inputMarketplaceId, 'marketplaceId');
+      const limit = yield* optionalPositiveNumberEffect(inputLimit, 'limit');
+      const offset = yield* optionalNonNegativeNumberEffect(inputOffset, 'offset');
+      const params = buildEndpointParams({
+        limit: { wireName: 'limit', value: limit },
+        offset: { wireName: 'offset', value: offset },
+      });
+      const config: EbayRequestConfig | undefined =
+        marketplaceId === undefined
+          ? undefined
+          : { headers: { 'X-EBAY-C-MARKETPLACE-ID': marketplaceId } };
+
+      return yield* requestGetEffect<FindEligibleItemsResponse>(apiClient, path, params, config);
+    });
+  };
 
   /**
-   * Get offers to buyers (Best Offers)
-   * @param filter API filter expression.
-   * @param limit Maximum number of records to return.
-   * @param offset Zero-based pagination offset.
-   * @deprecated This method does not match any endpoint in the OpenAPI spec
+   * Sends an offer to buyers interested in a listing.
+   *
+   * @param input - Offer body fields plus optional marketplace header override.
+   * @returns An Effect that succeeds with eBay's generated offer collection response.
+   *
+   * @example
+   * ```ts
+   * const offers = await Effect.runPromise(
+   *   negotiationApi.sendOfferToInterestedBuyers({
+   *     marketplaceId: 'EBAY_US',
+   *     message: 'Limited offer',
+   *   }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/negotiation/resources/offer/methods/sendOfferToInterestedBuyers
    */
-  async getOffersToBuyers(filter?: string, limit?: number, offset?: number) {
-    const params = buildTruthyPaginatedParams(filter, limit, offset);
-    return await getWithContextError(
-      this.client,
-      `${this.basePath}/offer`,
-      params,
-      'Failed to get offers to buyers',
-    );
-  }
+  sendOfferToInterestedBuyers = (
+    input: SendOfferToInterestedBuyersInput,
+  ): Effect.Effect<SendOfferToInterestedBuyersResponse, EbayApiError | EndpointInputError> => {
+    const apiClient = this.client;
+    const path = `${this.basePath}/send_offer_to_interested_buyers`;
 
-  /**
-   * Get offers for listing (alias for getOffersToBuyers)
-   * Endpoint: GET /offer
-   * @throws Error if the request fails
-   */
-  async getOffersForListing(filter?: string, limit?: number, offset?: number) {
-    return await this.getOffersToBuyers(filter, limit, offset);
-  }
+    return Effect.gen(function* () {
+      const request = yield* requireObjectEffect<SendOfferToInterestedBuyersInput>(input, 'input');
+      const { marketplaceId, ...offerData } = request;
+      const body = yield* requireObjectEffect<CreateOffersRequest>(offerData, 'offerData');
+      const validatedMarketplaceId = yield* optionalStringEffect(marketplaceId, 'marketplaceId');
+      const config: EbayRequestConfig | undefined =
+        validatedMarketplaceId === undefined
+          ? undefined
+          : { headers: { 'X-EBAY-C-MARKETPLACE-ID': validatedMarketplaceId } };
 
-  /**
-   * Get a specific offer
-   * Endpoint: GET /offer/{offerId}
-   * @param offerId Offer identifier.
-   * @throws Error if required parameters are missing or invalid
-   */
-  async getOffer(offerId: string) {
-    assertRequiredString(offerId, 'offerId');
-    return await getPathWithContextError(
-      this.client,
-      `${this.basePath}/offer/${offerId}`,
-      'Failed to get offer',
-    );
-  }
+      return yield* requestPostEffect<SendOfferToInterestedBuyersResponse>(
+        apiClient,
+        path,
+        body,
+        config,
+      );
+    });
+  };
 }

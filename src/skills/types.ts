@@ -29,8 +29,11 @@ export type SkillScope = 'project' | 'global';
 
 /** One eBay API family in the live tool catalogue, with its current tool count. */
 export interface ToolFamily {
+  /** Stable registry key for the tool family. */
   key: string;
+  /** Human title for the tool family. */
   title: string;
+  /** Number of registered tools in this family. */
   count: number;
   /** Short human description of what the family covers, for the index. */
   blurb: string;
@@ -41,12 +44,15 @@ export interface ToolFamily {
  * skill so the catalogue never drifts from the code.
  */
 export interface RegistrySnapshot {
+  /** Total number of registered tools across all families. */
   toolCount: number;
+  /** Per-family catalogue data in registry order. */
   families: ToolFamily[];
 }
 
 /** A titled block of Markdown within a {@link SkillDoc}. */
 export interface SkillSection {
+  /** Section heading without Markdown heading markers. */
   heading: string;
   /** Markdown body (already formatted; no leading heading). */
   body: string;
@@ -66,6 +72,7 @@ export interface SkillDoc {
   description: string;
   /** Opening Markdown paragraph(s). */
   intro: string;
+  /** Ordered body sections for the skill document. */
   sections: SkillSection[];
 }
 
@@ -81,11 +88,15 @@ export type SkillTargetKind = 'owned-file' | 'managed-block';
 
 /** A resolved place to write one rendered skill, plus whether the provider is in use here. */
 export interface SkillTarget {
+  /** Provider whose instruction format this target uses. */
   provider: SkillProvider;
+  /** Effective write scope after provider coercion. */
   scope: SkillScope;
+  /** Skill layer rendered into this target. */
   layer: SkillLayer;
   /** Absolute path of the file to write or merge into. */
   path: string;
+  /** Whether this target owns a whole file or a managed block. */
   kind: SkillTargetKind;
   /** True when this provider already has a footprint at this scope (pre-selected in the UI). */
   detected: boolean;
@@ -104,7 +115,9 @@ export type WriteAction = 'create' | 'update' | 'unchanged' | 'skip-foreign';
 
 /** A planned write for one target: the action, the bytes we would write, and the prior file. */
 export interface WritePlan {
+  /** Destination whose contents would be created, updated, or skipped. */
   target: SkillTarget;
+  /** Planned write action. */
   action: WriteAction;
   /** Full file contents that would be written (whole file, including any preserved text). */
   nextContents: string;

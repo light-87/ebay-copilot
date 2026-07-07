@@ -1,7 +1,7 @@
 /**
  * Tool-result → {@link ViewModel} projections for the interactive MCP Apps layer.
  *
- * Each exported `map*` function is referenced by exactly one tool's `ui.map` in
+ * Each exported `map*` const is referenced by exactly one tool's `ui.map` in
  * `src/tools/categories/*`. Keeping them here (rather than inline in the category
  * files) does two things: it keeps the tool definitions terse, and it lets the
  * unit tests import every projection directly. Drift protection still holds — the
@@ -10,7 +10,7 @@
  *
  * Every input type is the exact generated OpenAPI schema the matching handler
  * returns; every output is the archetype view model the React app in `ui/`
- * renders. Formatting lives in `./map-helpers.js` so these stay declarative.
+ * renders. Formatting lives in `./mapHelpers.js` so these stay declarative.
  */
 
 import {
@@ -20,7 +20,7 @@ import {
   toLabel,
   toNumber,
   truncate,
-} from '@/tools/ui/map-helpers.js';
+} from '@/tools/ui/mapHelpers.js';
 import type {
   CardBadge,
   CardSection,
@@ -31,7 +31,7 @@ import type {
   StatViewModel,
   TableViewModel,
   Tone,
-} from '@/tools/ui/view-models.js';
+} from '@/tools/ui/viewModels.js';
 import type { DeveloperAnalyticsComponents } from '@/types/application-settings/developerAnalyticsV1BetaOas3.js';
 import type { components as AnalyticsSchemas } from '@/types/sell-apps/analytics-and-report/sellAnalyticsV1Oas3.js';
 import type { components as InventorySchemas } from '@/types/sell-apps/listing-management/sellInventoryV1Oas3.js';
@@ -63,15 +63,25 @@ type RateLimitsResponse = DeveloperAnalyticsComponents['schemas']['RateLimitsRes
  * server's reported total, e.g. `"Showing 25 of 240"`. Returns `undefined` when
  * the response carries no total so the table renders without a footnote.
  */
-function footnoteFor(shown: number, total: number | undefined): string | undefined {
+const footnoteFor = (shown: number, total: number | undefined): string | undefined => {
   if (total == null) {
-    return undefined;
+    return;
   }
   return total > shown ? `Showing ${shown} of ${total}` : `${total} total`;
-}
+};
 
-/** Projects a seller's orders into a table; rows drill into a single-order card. */
-export function mapOrdersToTable(result: OrderSearchPagedCollection): TableViewModel {
+/**
+ * Projects a seller's orders into a table; rows drill into a single-order card.
+ *
+ * @param result - Generated fulfillment order search response from eBay.
+ * @returns A table view model whose rows preserve order fields at the projection layer.
+ *
+ * @example
+ * ```ts
+ * const view = mapOrdersToTable({ orders: [{ orderId: '12-3456' }], total: 1 });
+ * ```
+ */
+export const mapOrdersToTable = (result: OrderSearchPagedCollection): TableViewModel => {
   const orders = result.orders ?? [];
   return {
     archetype: 'table',
@@ -100,10 +110,22 @@ export function mapOrdersToTable(result: OrderSearchPagedCollection): TableViewM
     })),
     footnote: footnoteFor(orders.length, result.total),
   };
-}
+};
 
-/** Projects an order's shipping fulfillments (tracking/carrier) into a table. */
-export function mapFulfillmentsToTable(result: ShippingFulfillmentPagedCollection): TableViewModel {
+/**
+ * Projects an order's shipping fulfillments (tracking/carrier) into a table.
+ *
+ * @param result - Generated fulfillment page from eBay.
+ * @returns A table view model with one row per fulfillment.
+ *
+ * @example
+ * ```ts
+ * const view = mapFulfillmentsToTable({ fulfillments: [{ fulfillmentId: 'f1' }] });
+ * ```
+ */
+export const mapFulfillmentsToTable = (
+  result: ShippingFulfillmentPagedCollection,
+): TableViewModel => {
   const fulfillments = result.fulfillments ?? [];
   return {
     archetype: 'table',
@@ -125,10 +147,20 @@ export function mapFulfillmentsToTable(result: ShippingFulfillmentPagedCollectio
     })),
     footnote: footnoteFor(fulfillments.length, result.total),
   };
-}
+};
 
-/** Projects a seller's offers into a table; rows drill into a single-offer card. */
-export function mapOffersToTable(result: Offers): TableViewModel {
+/**
+ * Projects a seller's offers into a table; rows drill into a single-offer card.
+ *
+ * @param result - Generated inventory offers response from eBay.
+ * @returns A table view model with offer rows and optional drill refs.
+ *
+ * @example
+ * ```ts
+ * const view = mapOffersToTable({ offers: [{ offerId: 'o1', sku: 'SKU-1' }] });
+ * ```
+ */
+export const mapOffersToTable = (result: Offers): TableViewModel => {
   const offers = result.offers ?? [];
   return {
     archetype: 'table',
@@ -159,10 +191,20 @@ export function mapOffersToTable(result: Offers): TableViewModel {
     })),
     footnote: footnoteFor(offers.length, result.total),
   };
-}
+};
 
-/** Projects inventory items into a table; rows drill into a single-item card. */
-export function mapInventoryItemsToTable(result: InventoryItems): TableViewModel {
+/**
+ * Projects inventory items into a table; rows drill into a single-item card.
+ *
+ * @param result - Generated inventory item collection from eBay.
+ * @returns A table view model with one row per inventory item.
+ *
+ * @example
+ * ```ts
+ * const view = mapInventoryItemsToTable({ inventoryItems: [{ sku: 'SKU-1' }] });
+ * ```
+ */
+export const mapInventoryItemsToTable = (result: InventoryItems): TableViewModel => {
   const items = result.inventoryItems ?? [];
   return {
     archetype: 'table',
@@ -187,10 +229,20 @@ export function mapInventoryItemsToTable(result: InventoryItems): TableViewModel
     })),
     footnote: footnoteFor(items.length, result.total),
   };
-}
+};
 
-/** Projects a seller's inventory locations into a table. */
-export function mapLocationsToTable(result: LocationResponse): TableViewModel {
+/**
+ * Projects a seller's inventory locations into a table.
+ *
+ * @param result - Generated inventory location response from eBay.
+ * @returns A table view model with location rows.
+ *
+ * @example
+ * ```ts
+ * const view = mapLocationsToTable({ locations: [{ merchantLocationKey: 'WAREHOUSE-1' }] });
+ * ```
+ */
+export const mapLocationsToTable = (result: LocationResponse): TableViewModel => {
   const locations = result.locations ?? [];
   return {
     archetype: 'table',
@@ -214,10 +266,22 @@ export function mapLocationsToTable(result: LocationResponse): TableViewModel {
     })),
     footnote: footnoteFor(locations.length, result.total),
   };
-}
+};
 
-/** Projects payment-dispute summaries into a table; rows drill into a dispute card. */
-export function mapDisputeSummariesToTable(result: DisputeSummaryResponse): TableViewModel {
+/**
+ * Projects payment-dispute summaries into a table; rows drill into a dispute card.
+ *
+ * @param result - Generated payment dispute summary response from eBay.
+ * @returns A table view model with dispute rows and optional drill refs.
+ *
+ * @example
+ * ```ts
+ * const view = mapDisputeSummariesToTable({
+ *   paymentDisputeSummaries: [{ paymentDisputeId: 'd1' }],
+ * });
+ * ```
+ */
+export const mapDisputeSummariesToTable = (result: DisputeSummaryResponse): TableViewModel => {
   const disputes = result.paymentDisputeSummaries ?? [];
   return {
     archetype: 'table',
@@ -252,10 +316,20 @@ export function mapDisputeSummariesToTable(result: DisputeSummaryResponse): Tabl
     })),
     footnote: footnoteFor(disputes.length, result.total),
   };
-}
+};
 
-/** Projects a single order into a detail card with status badges and line items. */
-export function mapOrderToCard(result: Order): CardViewModel {
+/**
+ * Projects a single order into a detail card with status badges and line items.
+ *
+ * @param result - Generated fulfillment order response from eBay.
+ * @returns A card view model with summary and line-item sections.
+ *
+ * @example
+ * ```ts
+ * const view = mapOrderToCard({ orderId: '12-3456' });
+ * ```
+ */
+export const mapOrderToCard = (result: Order): CardViewModel => {
   const lineItems = result.lineItems ?? [];
   return {
     archetype: 'card',
@@ -284,15 +358,25 @@ export function mapOrderToCard(result: Order): CardViewModel {
         heading: 'Items',
         fields: lineItems.map((lineItem) => ({
           label: truncate(lineItem.title, 60) || (lineItem.sku ?? 'Item'),
-          value: lineItem.quantity != null ? `×${lineItem.quantity}` : null,
+          value: lineItem.quantity == null ? null : `×${lineItem.quantity}`,
         })),
       },
     ],
   };
-}
+};
 
-/** Projects a single offer into a detail card with pricing and listing sections. */
-export function mapOfferToCard(result: EbayOfferDetailsWithAll): CardViewModel {
+/**
+ * Projects a single offer into a detail card with pricing and listing sections.
+ *
+ * @param result - Generated inventory offer detail response from eBay.
+ * @returns A card view model with pricing and listing sections.
+ *
+ * @example
+ * ```ts
+ * const view = mapOfferToCard({ offerId: 'o1', sku: 'SKU-1' });
+ * ```
+ */
+export const mapOfferToCard = (result: EbayOfferDetailsWithAll): CardViewModel => {
   const badges: CardBadge[] = [
     { label: humanizeStatus(result.status), tone: statusTone(result.status) },
   ];
@@ -322,10 +406,22 @@ export function mapOfferToCard(result: EbayOfferDetailsWithAll): CardViewModel {
       },
     ],
   };
-}
+};
 
-/** Projects a single inventory item into a detail card (product + availability). */
-export function mapInventoryItemToCard(result: InventoryItemWithSkuLocaleGroupid): CardViewModel {
+/**
+ * Projects a single inventory item into a detail card (product + availability).
+ *
+ * @param result - Generated inventory item detail response from eBay.
+ * @returns A card view model with product and availability sections.
+ *
+ * @example
+ * ```ts
+ * const view = mapInventoryItemToCard({ sku: 'SKU-1' });
+ * ```
+ */
+export const mapInventoryItemToCard = (
+  result: InventoryItemWithSkuLocaleGroupid,
+): CardViewModel => {
   const product = result.product;
   return {
     archetype: 'card',
@@ -352,10 +448,20 @@ export function mapInventoryItemToCard(result: InventoryItemWithSkuLocaleGroupid
       },
     ],
   };
-}
+};
 
-/** Projects a single payment dispute into a detail card, listing available actions. */
-export function mapDisputeToCard(result: PaymentDispute): CardViewModel {
+/**
+ * Projects a single payment dispute into a detail card, listing available actions.
+ *
+ * @param result - Generated payment dispute response from eBay.
+ * @returns A card view model with detail and available-action sections.
+ *
+ * @example
+ * ```ts
+ * const view = mapDisputeToCard({ paymentDisputeId: 'd1' });
+ * ```
+ */
+export const mapDisputeToCard = (result: PaymentDispute): CardViewModel => {
   const sections: CardSection[] = [
     {
       heading: 'Details',
@@ -390,10 +496,20 @@ export function mapDisputeToCard(result: PaymentDispute): CardViewModel {
     ],
     sections,
   };
-}
+};
 
-/** Projects a seller standards profile into a detail card (cycle + per-metric values). */
-export function mapStandardsProfileToCard(result: StandardsProfile): CardViewModel {
+/**
+ * Projects a seller standards profile into a detail card (cycle + per-metric values).
+ *
+ * @param result - Generated seller standards profile response from eBay.
+ * @returns A card view model with profile and metric sections.
+ *
+ * @example
+ * ```ts
+ * const view = mapStandardsProfileToCard({ program: 'PROGRAM_US' });
+ * ```
+ */
+export const mapStandardsProfileToCard = (result: StandardsProfile): CardViewModel => {
   const metrics = result.metrics ?? [];
   const sections: CardSection[] = [
     {
@@ -423,15 +539,23 @@ export function mapStandardsProfileToCard(result: StandardsProfile): CardViewMod
     ],
     sections,
   };
-}
+};
 
 /**
  * Projects a traffic report into a line chart: one series per metric column in
  * the report header, plotted across each record's first dimension value (day or
  * listing). Falls back to the first record's metric count when the header omits
  * metric definitions.
+ *
+ * @param result - Generated analytics report response from eBay.
+ * @returns A line chart view model with one series per metric.
+ *
+ * @example
+ * ```ts
+ * const view = mapTrafficReportToChart({ records: [] });
+ * ```
  */
-export function mapTrafficReportToChart(result: Report): ChartViewModel {
+export const mapTrafficReportToChart = (result: Report): ChartViewModel => {
   const records = result.records ?? [];
   const metricDefs = result.header?.metrics ?? [];
   const seriesCount = metricDefs.length || records[0]?.metricValues?.length || 0;
@@ -448,16 +572,24 @@ export function mapTrafficReportToChart(result: Report): ChartViewModel {
     kind: 'line',
     series,
   };
-}
+};
 
 /**
  * Projects customer-service metrics into a bar chart: one series per metric key
  * (e.g. `RATE`, `COUNT`), with a bar per evaluated dimension. Grouping by metric
  * key keeps related bars in the same series regardless of dimension ordering.
+ *
+ * @param result - Generated customer-service metric response from eBay.
+ * @returns A bar chart view model grouped by metric key.
+ *
+ * @example
+ * ```ts
+ * const view = mapCustomerServiceMetricToChart({ dimensionMetrics: [] });
+ * ```
  */
-export function mapCustomerServiceMetricToChart(
+export const mapCustomerServiceMetricToChart = (
   result: GetCustomerServiceMetricResponse,
-): ChartViewModel {
+): ChartViewModel => {
   const dimensionMetrics = result.dimensionMetrics ?? [];
   const pointsByMetric = new Map<string, ChartSeries['points']>();
   for (const dimensionMetric of dimensionMetrics) {
@@ -476,14 +608,14 @@ export function mapCustomerServiceMetricToChart(
     kind: 'bar',
     series,
   };
-}
+};
 
 /**
  * Buckets remaining API headroom into a tile tone: healthy above a quarter of
  * the quota, warning as it drains, danger near exhaustion. A missing or zero
  * limit is neutral — there is no meaningful ratio to colour.
  */
-function headroomTone(remaining: number, limit: number): Tone {
+const headroomTone = (remaining: number, limit: number): Tone => {
   if (limit <= 0) {
     return 'neutral';
   }
@@ -495,14 +627,14 @@ function headroomTone(remaining: number, limit: number): Tone {
     return 'warning';
   }
   return 'success';
-}
+};
 
 /**
  * Flattens a rate-limit response into one tile per API resource, showing calls
  * remaining against the quota with a tone that reflects headroom. Shared by the
  * application- and user-scoped rate-limit tools, which return the same shape.
  */
-function rateLimitTiles(result: RateLimitsResponse): StatTile[] {
+const rateLimitTiles = (result: RateLimitsResponse): StatTile[] => {
   const tiles: StatTile[] = [];
   for (const rateLimit of result.rateLimits ?? []) {
     for (const resource of rateLimit.resources ?? []) {
@@ -522,22 +654,38 @@ function rateLimitTiles(result: RateLimitsResponse): StatTile[] {
     }
   }
   return tiles;
-}
+};
 
-/** Projects application rate limits into a stat grid (calls remaining per resource). */
-export function mapRateLimitsToStat(result: RateLimitsResponse): StatViewModel {
-  return {
-    archetype: 'stat',
-    title: 'Application rate limits',
-    tiles: rateLimitTiles(result),
-  };
-}
+/**
+ * Projects application rate limits into a stat grid (calls remaining per resource).
+ *
+ * @param result - Generated application rate-limit response from eBay.
+ * @returns A stat view model with one tile per rated resource.
+ *
+ * @example
+ * ```ts
+ * const view = mapRateLimitsToStat({ rateLimits: [] });
+ * ```
+ */
+export const mapRateLimitsToStat = (result: RateLimitsResponse): StatViewModel => ({
+  archetype: 'stat',
+  title: 'Application rate limits',
+  tiles: rateLimitTiles(result),
+});
 
-/** Projects user rate limits into a stat grid (per-user calls remaining per resource). */
-export function mapUserRateLimitsToStat(result: RateLimitsResponse): StatViewModel {
-  return {
-    archetype: 'stat',
-    title: 'User rate limits',
-    tiles: rateLimitTiles(result),
-  };
-}
+/**
+ * Projects user rate limits into a stat grid (per-user calls remaining per resource).
+ *
+ * @param result - Generated user rate-limit response from eBay.
+ * @returns A stat view model with one tile per rated resource.
+ *
+ * @example
+ * ```ts
+ * const view = mapUserRateLimitsToStat({ rateLimits: [] });
+ * ```
+ */
+export const mapUserRateLimitsToStat = (result: RateLimitsResponse): StatViewModel => ({
+  archetype: 'stat',
+  title: 'User rate limits',
+  tiles: rateLimitTiles(result),
+});

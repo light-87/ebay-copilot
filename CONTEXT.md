@@ -55,7 +55,7 @@ Two cross-cutting concerns shape the surface:
 - **Tool gating** (`EBAY_MCP_TOOLS`): `all` exposes everything; `dynamic` exposes
   discovery meta-tools that reveal families on demand (to keep an agent's context
   small); a family list exposes just those. Applied in `src/mcp/runtime.ts`.
-- **Transports**: `src/index.ts` (STDIO) and `src/server-http.ts` (HTTP) wrap the
+- **Transports**: `src/index.ts` (STDIO) and `src/serverHttp.ts` (HTTP) wrap the
   same runtime; **stdout is reserved for the protocol**, so all logs go to stderr.
 
 ## Where to look first

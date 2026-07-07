@@ -42,11 +42,14 @@ export * from './metadata/metadata.js';
 // Analytics (Reports, Metrics, Standards)
 export * from './analytics/analytics.js';
 
+// Developer (Rate limits, client registration, signing keys)
+export * from './developer/developer.js';
+
 // Taxonomy (Categories, Suggestions, Aspects)
 export * from './taxonomy/taxonomy.js';
 
 // Other APIs (Identity, Compliance, VERO, Translation, eDelivery)
-export * from './other/other-apis.js';
+export * from './other/otherApis.js';
 
 // Re-export commonly used schema converters
 import { getAccountManagementJsonSchemas } from './account-management/account.js';
@@ -56,29 +59,33 @@ import { getFulfillmentJsonSchemas } from './fulfillment/orders.js';
 import { getMarketingJsonSchemas } from './marketing/marketing.js';
 import { getMetadataJsonSchemas } from './metadata/metadata.js';
 import { getAnalyticsJsonSchemas } from './analytics/analytics.js';
+import { getDeveloperJsonSchemas } from './developer/developer.js';
 import { getTaxonomyJsonSchemas } from './taxonomy/taxonomy.js';
-import { getOtherApisJsonSchemas } from './other/other-apis.js';
+import { getOtherApisJsonSchemas } from './other/otherApis.js';
 
 /**
- * Get all JSON schemas for all eBay APIs
+ * Gets all JSON schemas for all eBay APIs.
  *
- * @returns An object containing all JSON schemas organized by API category
+ * @returns JSON schemas organized by API category.
+ * @example
+ * ```ts
+ * const schemas = getAllJsonSchemas();
+ * ```
  */
-export function getAllJsonSchemas() {
-  return {
-    accountManagement: getAccountManagementJsonSchemas(),
-    inventoryManagement: getInventoryManagementJsonSchemas(),
-    communication: getCommunicationJsonSchemas(),
-    fulfillment: getFulfillmentJsonSchemas(),
-    marketing: getMarketingJsonSchemas(),
-    metadata: getMetadataJsonSchemas(),
-    analytics: getAnalyticsJsonSchemas(),
-    taxonomy: getTaxonomyJsonSchemas(),
-    otherApis: getOtherApisJsonSchemas(),
-  };
-}
+export const getAllJsonSchemas = () => ({
+  accountManagement: getAccountManagementJsonSchemas(),
+  inventoryManagement: getInventoryManagementJsonSchemas(),
+  communication: getCommunicationJsonSchemas(),
+  fulfillment: getFulfillmentJsonSchemas(),
+  marketing: getMarketingJsonSchemas(),
+  metadata: getMetadataJsonSchemas(),
+  analytics: getAnalyticsJsonSchemas(),
+  developer: getDeveloperJsonSchemas(),
+  taxonomy: getTaxonomyJsonSchemas(),
+  otherApis: getOtherApisJsonSchemas(),
+});
 
 /**
- * Type representing all available JSON schemas
+ * Type representing all available JSON schemas grouped by API category.
  */
 export type AllJsonSchemas = ReturnType<typeof getAllJsonSchemas>;

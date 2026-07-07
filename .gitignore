@@ -197,7 +197,7 @@ GEMINI.md
 .mcp.json
 
 # Generated reports
-dev-sync-report.json
+devSyncReport.json
 
 # Project docs — kept out of version control per maintainer preference.
 # Files already committed stay tracked; new files under docs/ are ignored.

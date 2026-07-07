@@ -1,5 +1,11 @@
-import { z } from 'zod';
-import { defineTool } from '@/tools/define-tool.js';
+import { Effect } from 'effect';
+import {
+  findSellerStandardsProfilesInputSchema,
+  getCustomerServiceMetricInputSchema,
+  getSellerStandardsProfileInputSchema,
+  getTrafficReportInputSchema,
+} from '@/schemas/analytics/analytics.js';
+import { defineTool } from '@/tools/defineTool.js';
 import type { ToolEntry } from '@/tools/registry.js';
 import {
   mapCustomerServiceMetricToChart,
@@ -12,12 +18,7 @@ export const analyticsEntries: ToolEntry[] = [
   defineTool({
     name: 'ebay_get_traffic_report',
     description: 'Get traffic report for listings',
-    inputSchema: {
-      dimension: z.string().describe('Dimension for the report (e.g., LISTING, DAY)'),
-      filter: z.string().describe('Filter criteria'),
-      metric: z.string().describe('Metrics to retrieve (e.g., CLICK_THROUGH_RATE, IMPRESSION)'),
-      sort: z.string().optional().describe('Sort order'),
-    },
+    inputSchema: getTrafficReportInputSchema.shape,
     outputSchema: {
       type: 'object',
       properties: {
@@ -26,14 +27,13 @@ export const analyticsEntries: ToolEntry[] = [
       },
       description: 'Traffic report data',
     },
-    handler: (api, args) =>
-      api.analytics.getTrafficReport(args.dimension, args.filter, args.metric, args.sort),
+    handler: (api, args) => Effect.runPromise(api.analytics.getTrafficReport(args)),
     ui: { archetype: 'chart', map: mapTrafficReportToChart },
   }),
   defineTool({
     name: 'ebay_find_seller_standards_profiles',
     description: 'Find all seller standards profiles',
-    inputSchema: {},
+    inputSchema: findSellerStandardsProfilesInputSchema.shape,
     outputSchema: {
       type: 'object',
       properties: {
@@ -41,15 +41,12 @@ export const analyticsEntries: ToolEntry[] = [
       },
       description: 'Seller standards profiles',
     },
-    handler: (api) => api.analytics.findSellerStandardsProfiles(),
+    handler: (api, args) => Effect.runPromise(api.analytics.findSellerStandardsProfiles(args)),
   }),
   defineTool({
     name: 'ebay_get_seller_standards_profile',
     description: 'Get a specific seller standards profile',
-    inputSchema: {
-      program: z.string().describe('The program (e.g., CUSTOMER_SERVICE)'),
-      cycle: z.string().describe('The cycle (e.g., CURRENT)'),
-    },
+    inputSchema: getSellerStandardsProfileInputSchema.shape,
     outputSchema: {
       type: 'object',
       properties: {
@@ -59,17 +56,13 @@ export const analyticsEntries: ToolEntry[] = [
       },
       description: 'Seller standards profile data',
     },
-    handler: (api, args) => api.analytics.getSellerStandardsProfile(args.program, args.cycle),
+    handler: (api, args) => Effect.runPromise(api.analytics.getSellerStandardsProfile(args)),
     ui: { archetype: 'card', map: mapStandardsProfileToCard },
   }),
   defineTool({
     name: 'ebay_get_customer_service_metric',
     description: 'Get customer service metrics',
-    inputSchema: {
-      customerServiceMetricType: z.string().describe('Type of metric'),
-      evaluationType: z.string().describe('Evaluation type'),
-      evaluationMarketplaceId: z.string().describe('Marketplace ID for evaluation'),
-    },
+    inputSchema: getCustomerServiceMetricInputSchema.shape,
     outputSchema: {
       type: 'object',
       properties: {
@@ -77,12 +70,7 @@ export const analyticsEntries: ToolEntry[] = [
       },
       description: 'Customer service metric data',
     },
-    handler: (api, args) =>
-      api.analytics.getCustomerServiceMetric(
-        args.customerServiceMetricType,
-        args.evaluationType,
-        args.evaluationMarketplaceId,
-      ),
+    handler: (api, args) => Effect.runPromise(api.analytics.getCustomerServiceMetric(args)),
     ui: { archetype: 'chart', map: mapCustomerServiceMetricToChart },
   }),
 ];

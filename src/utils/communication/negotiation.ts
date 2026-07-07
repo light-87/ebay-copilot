@@ -1,65 +1,52 @@
 import { z } from 'zod';
 
 /**
- * Zod schemas for Negotiation API input validation
- * Based on: src/api/communication/negotiation.ts
+ * Zod schemas for Negotiation API input validation.
  * OpenAPI spec: docs/sell-apps/communication/sell_negotiation_v1_oas3.json
- * Types from: src/types/sell_negotiation_v1_oas3.ts
  */
 
-// Reusable schema for filter parameter
-const filterSchema = z
-  .string({
-    message: 'Filter must be a string',
-    invalid_type_error: 'filter must be a string',
-    description: 'Filter criteria for the query',
-  })
-  .optional();
-
-// Reusable schema for limit parameter (string in API)
+/** Optional positive page size accepted by Negotiation list endpoints. */
 const limitSchema = z
-  .string({
-    invalid_type_error: 'limit must be a string',
+  .number({
+    invalid_type_error: 'limit must be a number',
     description: 'Maximum number of items to return (1-200)',
   })
+  .positive('limit must be a positive number')
   .optional();
 
-// Reusable schema for offset parameter (string in API)
+/** Optional zero-based page offset accepted by Negotiation list endpoints. */
 const offsetSchema = z
-  .string({
-    invalid_type_error: 'offset must be a string',
+  .number({
+    invalid_type_error: 'offset must be a number',
     description: 'Number of items to skip',
   })
+  .min(0, 'offset must be a non-negative number')
   .optional();
 
-/**
- * Schema for findEligibleItems method
- * Endpoint: GET /find_eligible_items
- * Query Params: FindEligibleItemsParams - limit, offset
- * Headers: X-EBAY-C-MARKETPLACE-ID (required)
- */
+/** Schema for findEligibleItems input. */
 export const findEligibleItemsSchema = z.object({
   limit: limitSchema,
   offset: offsetSchema,
-  marketplace_id: z
+  marketplaceId: z
     .string({
-      invalid_type_error: 'marketplace_id must be a string',
+      invalid_type_error: 'marketplaceId must be a string',
       description: 'The eBay marketplace ID (X-EBAY-C-MARKETPLACE-ID header)',
     })
     .optional(),
 });
 
-/**
- * Schema for sendOfferToInterestedBuyers method
- * Endpoint: POST /send_offer_to_interested_buyers
- * Body: CreateOffersRequest - allowCounterOffer, message, offerDuration, offeredItems
- * Headers: X-EBAY-C-MARKETPLACE-ID (required)
- */
+/** Schema for sendOfferToInterestedBuyers input. */
 export const sendOfferToInterestedBuyersSchema = z.object({
-  allow_counter_offer: z
+  allowCounterOffer: z
     .boolean({
-      invalid_type_error: 'allow_counter_offer must be a boolean',
+      invalid_type_error: 'allowCounterOffer must be a boolean',
       description: 'Whether to allow counter-offers (currently must be false)',
+    })
+    .optional(),
+  marketplaceId: z
+    .string({
+      invalid_type_error: 'marketplaceId must be a string',
+      description: 'The eBay marketplace ID (X-EBAY-C-MARKETPLACE-ID header)',
     })
     .optional(),
   message: z
@@ -69,7 +56,7 @@ export const sendOfferToInterestedBuyersSchema = z.object({
     })
     .max(2000, 'message must be 2000 characters or less')
     .optional(),
-  offer_duration: z
+  offerDuration: z
     .object(
       {
         unit: z
@@ -89,23 +76,23 @@ export const sendOfferToInterestedBuyersSchema = z.object({
           .optional(),
       },
       {
-        invalid_type_error: 'offer_duration must be an object',
+        invalid_type_error: 'offerDuration must be an object',
         description: 'Duration the offer is valid (default: 2 days)',
       },
     )
     .optional(),
-  offered_items: z
+  offeredItems: z
     .array(
       z.object({
-        discount_percentage: z
+        discountPercentage: z
           .string({
-            invalid_type_error: 'discount_percentage must be a string',
+            invalid_type_error: 'discountPercentage must be a string',
             description: 'Percentage discount (minimum 5)',
           })
           .optional(),
-        listing_id: z
+        listingId: z
           .string({
-            invalid_type_error: 'listing_id must be a string',
+            invalid_type_error: 'listingId must be a string',
             description: 'The unique eBay listing ID',
           })
           .optional(),
@@ -142,25 +129,9 @@ export const sendOfferToInterestedBuyersSchema = z.object({
           .optional(),
       }),
       {
-        invalid_type_error: 'offered_items must be an array',
+        invalid_type_error: 'offeredItems must be an array',
         description: 'Array of items to offer (currently limited to one item)',
       },
     )
     .optional(),
-  marketplace_id: z
-    .string({
-      invalid_type_error: 'marketplace_id must be a string',
-      description: 'The eBay marketplace ID (X-EBAY-C-MARKETPLACE-ID header)',
-    })
-    .optional(),
-});
-
-/**
- * Schema for getOffersToBuyers method (deprecated)
- * Note: This method does not match any endpoint in the OpenAPI spec
- */
-export const getOffersToBuyersSchema = z.object({
-  filter: filterSchema,
-  limit: limitSchema,
-  offset: offsetSchema,
 });

@@ -5,28 +5,39 @@ import { createEbayMcpRuntime, type EbayMcpRuntime } from '@/mcp/runtime.js';
 import { runSetup } from '@/scripts/setup.js';
 import { runSkillsWizard } from '@/scripts/skills.js';
 import { getErrorMessage } from '@/utils/errors.js';
-import { serverLogger, getLogPaths } from '@/utils/logger.js';
+import { serverLogger, getLogPaths, isFileLoggingEnabled } from '@/utils/logger.js';
 import { getCachedUpdateNotice } from '@/utils/version.js';
+import { Effect, Either } from 'effect';
+import process from 'node:process';
 
 const args = process.argv.slice(2);
-if (args.includes('setup')) {
-  try {
-    await runSetup();
-    process.exit(0);
-  } catch (error) {
-    console.error('Setup failed:', error instanceof Error ? error.message : error);
+
+const runCliCommand = async (label: string, command: () => Promise<void>): Promise<void> => {
+  const result = await Effect.runPromise(
+    Effect.either(
+      Effect.tryPromise({
+        try: command,
+        catch: (error) => error,
+      }),
+    ),
+  );
+
+  if (Either.isLeft(result)) {
+    serverLogger.error(`${label} failed`, {
+      error: getErrorMessage(result.left, String(result.left)),
+    });
     process.exit(1);
   }
+
+  process.exit(0);
+};
+
+if (args.includes('setup')) {
+  await runCliCommand('Setup', runSetup);
 }
 
 if (args.includes('skills')) {
-  try {
-    await runSkillsWizard();
-    process.exit(0);
-  } catch (error) {
-    console.error('Skills install failed:', error instanceof Error ? error.message : error);
-    process.exit(1);
-  }
+  await runCliCommand('Skills install', runSkillsWizard);
 }
 
 /**
@@ -95,7 +106,7 @@ class EbayMcpServer {
     await this.initialize();
 
     // Log log file locations if file logging is enabled
-    if (process.env.EBAY_ENABLE_FILE_LOGGING === 'true') {
+    if (isFileLoggingEnabled()) {
       const paths = getLogPaths();
       serverLogger.info('File logging enabled', {
         logDir: paths.logDir,
@@ -112,10 +123,20 @@ class EbayMcpServer {
 
 // Start the server
 const server = new EbayMcpServer();
-server.run().catch((error) => {
+const started = await Effect.runPromise(
+  Effect.either(
+    Effect.tryPromise({
+      try: () => server.run(),
+      catch: (error) => error,
+    }),
+  ),
+);
+
+if (Either.isLeft(started)) {
+  const error = started.left;
   serverLogger.error('Fatal error running server', {
     error: getErrorMessage(error, String(error)),
     stack: error instanceof Error ? error.stack : undefined,
   });
   process.exit(1);
-});
+}

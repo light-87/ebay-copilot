@@ -17,7 +17,7 @@ body:
       options:
         - label: I have searched existing issues for similar documentation requests
           required: true
-        - label: I have checked all relevant documentation files (README, CLAUDE.md, etc.)
+        - label: I have checked all relevant documentation files (README.md, AGENTS.md, CODE-STYLE.md, etc.)
           required: true
 
   - type: dropdown
@@ -44,8 +44,10 @@ body:
       multiple: true
       options:
         - README.md
+        - AGENTS.md
         - CLAUDE.md
-        - GEMINI.md
+        - CODE-STYLE.md
+        - PROJECT.md / CONTEXT.md / LANGUAGE.md
         - OAUTH-SETUP.md
         - CONTRIBUTING.md
         - SECURITY.md

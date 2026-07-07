@@ -1,13 +1,11 @@
 import { z } from 'zod';
 
 /**
- * Zod schemas for Feedback API input validation
- * Based on: src/api/communication/feedback.ts
+ * Zod schemas for Feedback API input validation.
  * OpenAPI spec: docs/sell-apps/communication/commerce_feedback_v1_beta_oas3.json
- * Types from: src/types/commerce_feedback_v1_beta_oas3.ts
  */
 
-// Reusable schema for filter parameter
+/** Optional feedback filter expression. */
 const filterSchema = z
   .string({
     message: 'Filter must be a string',
@@ -16,23 +14,25 @@ const filterSchema = z
   })
   .optional();
 
-// Reusable schema for limit parameter (string in API, converted to number)
+/** Optional positive page size accepted by Feedback list endpoints. */
 const limitSchema = z
-  .string({
-    invalid_type_error: 'limit must be a string',
+  .number({
+    invalid_type_error: 'limit must be a number',
     description: 'Maximum number of items to return per page (25-200)',
   })
+  .positive('limit must be a positive number')
   .optional();
 
-// Reusable schema for offset parameter (string in API, converted to number)
+/** Optional zero-based page offset accepted by Feedback list endpoints. */
 const offsetSchema = z
-  .string({
-    invalid_type_error: 'offset must be a string',
+  .number({
+    invalid_type_error: 'offset must be a number',
     description: 'Number of items to skip',
   })
+  .min(0, 'offset must be a non-negative number')
   .optional();
 
-// Reusable schema for sort parameter
+/** Optional feedback result sort order. */
 const sortSchema = z
   .string({
     invalid_type_error: 'sort must be a string',
@@ -40,11 +40,7 @@ const sortSchema = z
   })
   .optional();
 
-/**
- * Schema for getAwaitingFeedback method
- * Endpoint: GET /awaiting_feedback
- * Params: GetAwaitingFeedbackParams - filter, limit, offset, sort
- */
+/** Schema for getAwaitingFeedback input. */
 export const getAwaitingFeedbackSchema = z.object({
   filter: filterSchema,
   limit: limitSchema,
@@ -52,64 +48,56 @@ export const getAwaitingFeedbackSchema = z.object({
   sort: sortSchema,
 });
 
-/**
- * Schema for getFeedback method
- * Endpoint: GET /feedback
- * Params: GetFeedbackParams - user_id (required), feedback_type (required), feedback_id, filter, limit, listing_id, offset, order_line_item_id, sort, transaction_id
- */
+/** Schema for getFeedback input. */
 export const getFeedbackSchema = z.object({
-  user_id: z.string({
+  userId: z.string({
     message: 'User ID is required',
-    required_error: 'user_id is required',
-    invalid_type_error: 'user_id must be a string',
+    required_error: 'userId is required',
+    invalid_type_error: 'userId must be a string',
     description: 'The unique identifier (eBay username) of the user',
   }),
-  feedback_type: z.string({
+  feedbackType: z.string({
     message: 'Feedback type is required',
-    required_error: 'feedback_type is required',
-    invalid_type_error: 'feedback_type must be a string',
+    required_error: 'feedbackType is required',
+    invalid_type_error: 'feedbackType must be a string',
     description: 'Type of feedback (FEEDBACK_RECEIVED or FEEDBACK_SENT)',
   }),
-  feedback_id: z
+  feedbackId: z
     .string({
-      invalid_type_error: 'feedback_id must be a string',
+      invalid_type_error: 'feedbackId must be a string',
       description: 'Filter by specific feedback ID',
     })
     .optional(),
   filter: filterSchema,
   limit: limitSchema,
-  listing_id: z
+  listingId: z
     .string({
-      invalid_type_error: 'listing_id must be a string',
+      invalid_type_error: 'listingId must be a string',
       description: 'Filter by listing ID',
     })
     .optional(),
   offset: offsetSchema,
-  order_line_item_id: z
+  orderLineItemId: z
     .string({
-      invalid_type_error: 'order_line_item_id must be a string',
+      invalid_type_error: 'orderLineItemId must be a string',
       description: 'Filter by order line item ID',
     })
     .optional(),
   sort: sortSchema,
-  transaction_id: z
+  transactionId: z
     .string({
-      invalid_type_error: 'transaction_id must be a string',
-      description: 'Filter by transaction ID',
+      invalid_type_error: 'transactionId must be a string',
+      description: 'The unique identifier of the transaction',
     })
     .optional(),
 });
 
-/**
- * Schema for getFeedbackRatingSummary method
- * Endpoint: GET /feedback_rating_summary
- * Params: GetFeedbackRatingSummaryParams - user_id (required), filter (required)
- */
+/** Schema for getFeedbackRatingSummary input. */
 export const getFeedbackRatingSummarySchema = z.object({
-  user_id: z.string({
+  userId: z.string({
     message: 'User ID is required',
-    required_error: 'user_id is required',
-    invalid_type_error: 'user_id must be a string',
+    required_error: 'userId is required',
+    invalid_type_error: 'userId must be a string',
     description: 'The unique identifier of the eBay user',
   }),
   filter: z.string({
@@ -120,22 +108,18 @@ export const getFeedbackRatingSummarySchema = z.object({
   }),
 });
 
-/**
- * Schema for leaveFeedbackForBuyer method
- * Endpoint: POST /feedback
- * Body: LeaveFeedbackRequest - commentText, commentType, images, listingId, orderLineItemId, sellerRatings, transactionId
- */
+/** Schema for leaveFeedback input. */
 export const leaveFeedbackForBuyerSchema = z.object({
-  comment_text: z
+  commentText: z
     .string({
-      invalid_type_error: 'comment_text must be a string',
+      invalid_type_error: 'commentText must be a string',
       description: 'The feedback comment text (max 500 characters)',
     })
-    .max(500, 'comment_text must be 500 characters or less')
+    .max(500, 'commentText must be 500 characters or less')
     .optional(),
-  comment_type: z
+  commentType: z
     .string({
-      invalid_type_error: 'comment_type must be a string',
+      invalid_type_error: 'commentType must be a string',
       description: 'Overall rating: POSITIVE, NEUTRAL, or NEGATIVE',
     })
     .optional(),
@@ -156,19 +140,19 @@ export const leaveFeedbackForBuyerSchema = z.object({
     )
     .max(5, 'Maximum 5 images allowed')
     .optional(),
-  listing_id: z
+  listingId: z
     .string({
-      invalid_type_error: 'listing_id must be a string',
+      invalid_type_error: 'listingId must be a string',
       description: 'The listing ID related to the transaction',
     })
     .optional(),
-  order_line_item_id: z
+  orderLineItemId: z
     .string({
-      invalid_type_error: 'order_line_item_id must be a string',
+      invalid_type_error: 'orderLineItemId must be a string',
       description: 'The unique identifier of the line item',
     })
     .optional(),
-  seller_ratings: z
+  sellerRatings: z
     .array(
       z.object({
         key: z
@@ -185,47 +169,43 @@ export const leaveFeedbackForBuyerSchema = z.object({
           .optional(),
       }),
       {
-        invalid_type_error: 'seller_ratings must be an array',
+        invalid_type_error: 'sellerRatings must be an array',
         description: 'Array of seller performance ratings',
       },
     )
     .optional(),
-  transaction_id: z
+  transactionId: z
     .string({
-      invalid_type_error: 'transaction_id must be a string',
+      invalid_type_error: 'transactionId must be a string',
       description: 'The unique identifier of the transaction',
     })
     .optional(),
 });
 
-/**
- * Schema for respondToFeedback method
- * Endpoint: POST /respond_to_feedback
- * Body: RespondToFeedbackRequest - feedbackId, recipientUserId, responseText, responseType
- */
+/** Schema for respondToFeedback input. */
 export const respondToFeedbackSchema = z.object({
-  feedback_id: z
+  feedbackId: z
     .string({
-      invalid_type_error: 'feedback_id must be a string',
+      invalid_type_error: 'feedbackId must be a string',
       description: 'The unique identifier of the feedback being responded to',
     })
     .optional(),
-  recipient_user_id: z
+  recipientUserId: z
     .string({
-      invalid_type_error: 'recipient_user_id must be a string',
+      invalid_type_error: 'recipientUserId must be a string',
       description: 'The user ID of the feedback provider',
     })
     .optional(),
-  response_text: z
+  responseText: z
     .string({
-      invalid_type_error: 'response_text must be a string',
+      invalid_type_error: 'responseText must be a string',
       description: 'The text content of the response (max 500 characters)',
     })
-    .max(500, 'response_text must be 500 characters or less')
+    .max(500, 'responseText must be 500 characters or less')
     .optional(),
-  response_type: z
+  responseType: z
     .string({
-      invalid_type_error: 'response_type must be a string',
+      invalid_type_error: 'responseType must be a string',
       description: 'The type of response: REPLY or FOLLOW_UP',
     })
     .optional(),

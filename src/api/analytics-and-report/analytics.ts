@@ -1,10 +1,57 @@
 import type { components } from '@/types/sell-apps/analytics-and-report/sellAnalyticsV1Oas3.js';
 import type { EbayApiClient } from '@/api/client.js';
-import { withApiError } from '@/api/shared/request.js';
+import {
+  buildEndpointParams,
+  type EbayApiError,
+  type EndpointInputError,
+  optionalStringEffect,
+  requestGetEffect,
+  requireObjectEffect,
+  requireStringEffect,
+} from '@/api/shared/request.js';
+import type {
+  findSellerStandardsProfilesInputSchema,
+  getCustomerServiceMetricInputSchema,
+  getSellerStandardsProfileInputSchema,
+  getTrafficReportInputSchema,
+} from '@/schemas/analytics/analytics.js';
+import { Effect } from 'effect';
+import type { z } from 'zod';
 
-type Report = components['schemas']['Report'];
-type StandardsProfile = components['schemas']['StandardsProfile'];
-type GetCustomerServiceMetricResponse = components['schemas']['GetCustomerServiceMetricResponse'];
+type GetTrafficReportInput = z.infer<typeof getTrafficReportInputSchema>;
+type FindSellerStandardsProfilesInput = z.infer<typeof findSellerStandardsProfilesInputSchema>;
+type GetSellerStandardsProfileInput = z.infer<typeof getSellerStandardsProfileInputSchema>;
+type GetCustomerServiceMetricInput = z.infer<typeof getCustomerServiceMetricInputSchema>;
+
+/**
+ * Traffic report response returned by eBay Analytics getTrafficReport.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/analytics/resources/traffic_report/methods/getTrafficReport
+ */
+export type GetTrafficReportResponse = components['schemas']['Report'];
+
+/**
+ * Seller standards profile response returned by eBay Analytics getSellerStandardsProfile.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/analytics/resources/seller_standards_profile/methods/getSellerStandardsProfile
+ */
+export type GetSellerStandardsProfileResponse = components['schemas']['StandardsProfile'];
+
+/**
+ * Seller standards profile collection returned by eBay Analytics findSellerStandardsProfiles.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/analytics/resources/seller_standards_profile/methods/findSellerStandardsProfiles
+ */
+export type FindSellerStandardsProfilesResponse =
+  components['schemas']['FindSellerStandardsProfilesResponse'];
+
+/**
+ * Customer service metric response returned by eBay Analytics getCustomerServiceMetric.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/analytics/resources/customer_service_metric/methods/getCustomerServiceMetric
+ */
+export type GetCustomerServiceMetricResponse =
+  components['schemas']['GetCustomerServiceMetricResponse'];
 
 /**
  * Analytics API - Sales and traffic analytics
@@ -12,107 +59,168 @@ type GetCustomerServiceMetricResponse = components['schemas']['GetCustomerServic
  */
 export class AnalyticsApi {
   private readonly basePath = '/sell/analytics/v1';
+  private readonly client: EbayApiClient;
 
-  constructor(private client: EbayApiClient) {}
-
-  /**
-   * Get traffic report for listings
-   * @throws Error if required parameters are missing or invalid
-   */
-  async getTrafficReport(
-    dimension: string,
-    filter: string,
-    metric: string,
-    sort?: string,
-  ): Promise<Report> {
-    // Input validation
-    if (!dimension || typeof dimension !== 'string') {
-      throw new Error('dimension is required and must be a string');
-    }
-    if (!filter || typeof filter !== 'string') {
-      throw new Error('filter is required and must be a string');
-    }
-    if (!metric || typeof metric !== 'string') {
-      throw new Error('metric is required and must be a string');
-    }
-    if (sort !== undefined && typeof sort !== 'string') {
-      throw new Error('sort must be a string when provided');
-    }
-
-    const params: Record<string, string> = {
-      dimension,
-      filter,
-      metric,
-    };
-    if (sort) params.sort = sort;
-
-    return await withApiError('Failed to get traffic report', () =>
-      this.client.get<Report>(`${this.basePath}/traffic_report`, params),
-    );
+  constructor(client: EbayApiClient) {
+    this.client = client;
   }
 
   /**
-   * Find all seller standards profiles
-   * Endpoint: GET /seller_standards_profile
-   * @throws Error if the request fails
+   * Retrieves listing traffic report metrics.
+   *
+   * @param input - Traffic report dimension, filter, metric, and optional sort expression.
+   * @returns An Effect that succeeds with eBay's generated traffic report response.
+   *
+   * @example
+   * ```ts
+   * const report = await Effect.runPromise(
+   *   analyticsApi.getTrafficReport({
+   *     dimension: 'LISTING',
+   *     filter: 'listing_ids:{123}',
+   *     metric: 'IMPRESSION',
+   *   }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/analytics/resources/traffic_report/methods/getTrafficReport
    */
-  async findSellerStandardsProfiles() {
-    return await withApiError('Failed to find seller standards profiles', () =>
-      this.client.get(`${this.basePath}/seller_standards_profile`),
-    );
-  }
+  getTrafficReport = (
+    input: GetTrafficReportInput,
+  ): Effect.Effect<GetTrafficReportResponse, EbayApiError | EndpointInputError> => {
+    const { basePath, client } = this;
+    const path = `${basePath}/traffic_report`;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetTrafficReportInput>(input, 'input');
+      const validatedDimension = yield* requireStringEffect(validatedInput.dimension, 'dimension');
+      const validatedFilter = yield* requireStringEffect(validatedInput.filter, 'filter');
+      const validatedMetric = yield* requireStringEffect(validatedInput.metric, 'metric');
+      const validatedSort = yield* optionalStringEffect(validatedInput.sort, 'sort');
+      const params = buildEndpointParams({
+        dimension: { wireName: 'dimension', value: validatedDimension },
+        filter: { wireName: 'filter', value: validatedFilter },
+        metric: { wireName: 'metric', value: validatedMetric },
+        sort: { wireName: 'sort', value: validatedSort },
+      });
+
+      return yield* requestGetEffect<GetTrafficReportResponse>(client, path, params);
+    });
+  };
 
   /**
-   * Get a specific seller standards profile
-   * Endpoint: GET /seller_standards_profile/{program}/{cycle}
-   * @throws Error if required parameters are missing or invalid
+   * Retrieves every seller standards profile available for the seller.
+   *
+   * @param input - Empty endpoint input object.
+   * @returns An Effect that succeeds with eBay's generated seller standards profile collection.
+   *
+   * @example
+   * ```ts
+   * const profiles = await Effect.runPromise(analyticsApi.findSellerStandardsProfiles({}));
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/analytics/resources/seller_standards_profile/methods/findSellerStandardsProfiles
    */
-  async getSellerStandardsProfile(program: string, cycle: string): Promise<StandardsProfile> {
-    // Input validation
-    if (!program || typeof program !== 'string') {
-      throw new Error('program is required and must be a string');
-    }
-    if (!cycle || typeof cycle !== 'string') {
-      throw new Error('cycle is required and must be a string');
-    }
-
-    return await withApiError('Failed to get seller standards profile', () =>
-      this.client.get<StandardsProfile>(
-        `${this.basePath}/seller_standards_profile/${program}/${cycle}`,
-      ),
+  findSellerStandardsProfiles = (
+    input: FindSellerStandardsProfilesInput = {},
+  ): Effect.Effect<FindSellerStandardsProfilesResponse, EbayApiError> => {
+    void input;
+    return requestGetEffect<FindSellerStandardsProfilesResponse>(
+      this.client,
+      `${this.basePath}/seller_standards_profile`,
     );
-  }
+  };
 
   /**
-   * Get customer service metrics
-   * Endpoint: GET /customer_service_metric/{customer_service_metric_type}/{evaluation_type}
-   * @throws Error if required parameters are missing or invalid
+   * Retrieves one seller standards profile by program and cycle.
+   *
+   * @param input - Seller standards program identifier and cycle.
+   * @returns An Effect that succeeds with eBay's generated StandardsProfile response.
+   *
+   * @example
+   * ```ts
+   * const profile = await Effect.runPromise(
+   *   analyticsApi.getSellerStandardsProfile({
+   *     program: 'CUSTOMER_SERVICE',
+   *     cycle: 'CURRENT',
+   *   }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/analytics/resources/seller_standards_profile/methods/getSellerStandardsProfile
    */
-  async getCustomerServiceMetric(
-    customerServiceMetricType: string,
-    evaluationType: string,
-    evaluationMarketplaceId: string,
-  ): Promise<GetCustomerServiceMetricResponse> {
-    // Input validation
-    if (!customerServiceMetricType || typeof customerServiceMetricType !== 'string') {
-      throw new Error('customerServiceMetricType is required and must be a string');
-    }
-    if (!evaluationType || typeof evaluationType !== 'string') {
-      throw new Error('evaluationType is required and must be a string');
-    }
-    if (!evaluationMarketplaceId || typeof evaluationMarketplaceId !== 'string') {
-      throw new Error('evaluationMarketplaceId is required and must be a string');
-    }
+  getSellerStandardsProfile = (
+    input: GetSellerStandardsProfileInput,
+  ): Effect.Effect<GetSellerStandardsProfileResponse, EbayApiError | EndpointInputError> => {
+    const { basePath, client } = this;
 
-    const params = {
-      evaluation_marketplace_id: evaluationMarketplaceId,
-    };
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetSellerStandardsProfileInput>(
+        input,
+        'input',
+      );
+      const validatedProgram = yield* requireStringEffect(validatedInput.program, 'program');
+      const validatedCycle = yield* requireStringEffect(validatedInput.cycle, 'cycle');
 
-    return await withApiError('Failed to get customer service metric', () =>
-      this.client.get<GetCustomerServiceMetricResponse>(
-        `${this.basePath}/customer_service_metric/${customerServiceMetricType}/${evaluationType}`,
+      return yield* requestGetEffect<GetSellerStandardsProfileResponse>(
+        client,
+        `${basePath}/seller_standards_profile/${validatedProgram}/${validatedCycle}`,
+      );
+    });
+  };
+
+  /**
+   * Retrieves customer service metric benchmarks for a marketplace.
+   *
+   * @param input - Metric type, evaluation type, and marketplace identifier.
+   * @returns An Effect that succeeds with eBay's generated customer service metric response.
+   *
+   * @example
+   * ```ts
+   * const metric = await Effect.runPromise(
+   *   analyticsApi.getCustomerServiceMetric({
+   *     customerServiceMetricType: 'ITEM_NOT_AS_DESCRIBED',
+   *     evaluationType: 'CURRENT',
+   *     evaluationMarketplaceId: 'EBAY_US',
+   *   }),
+   * );
+   * ```
+   *
+   * @see https://developer.ebay.com/api-docs/sell/analytics/resources/customer_service_metric/methods/getCustomerServiceMetric
+   */
+  getCustomerServiceMetric = (
+    input: GetCustomerServiceMetricInput,
+  ): Effect.Effect<GetCustomerServiceMetricResponse, EbayApiError | EndpointInputError> => {
+    const { basePath, client } = this;
+
+    return Effect.gen(function* () {
+      const validatedInput = yield* requireObjectEffect<GetCustomerServiceMetricInput>(
+        input,
+        'input',
+      );
+      const validatedMetricType = yield* requireStringEffect(
+        validatedInput.customerServiceMetricType,
+        'customerServiceMetricType',
+      );
+      const validatedEvaluationType = yield* requireStringEffect(
+        validatedInput.evaluationType,
+        'evaluationType',
+      );
+      const validatedMarketplaceId = yield* requireStringEffect(
+        validatedInput.evaluationMarketplaceId,
+        'evaluationMarketplaceId',
+      );
+      const params = buildEndpointParams({
+        evaluationMarketplaceId: {
+          wireName: 'evaluation_marketplace_id',
+          value: validatedMarketplaceId,
+        },
+      });
+
+      return yield* requestGetEffect<GetCustomerServiceMetricResponse>(
+        client,
+        `${basePath}/customer_service_metric/${validatedMetricType}/${validatedEvaluationType}`,
         params,
-      ),
-    );
-  }
+      );
+    });
+  };
 }

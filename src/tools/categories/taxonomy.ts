@@ -1,15 +1,36 @@
 import { z } from 'zod';
-import { defineTool } from '@/tools/define-tool.js';
+import { defineTool } from '@/tools/defineTool.js';
 import type { ToolEntry } from '@/tools/registry.js';
+import { Effect } from 'effect';
+
+/** Tool input for Taxonomy API getDefaultCategoryTreeId. */
+const getDefaultCategoryTreeIdSchema = z.object({
+  marketplaceId: z.string().describe('Marketplace ID (e.g., EBAY_US)'),
+});
+
+/** Tool input for Taxonomy API getCategoryTree. */
+const getCategoryTreeSchema = z.object({
+  categoryTreeId: z.string().describe('Category tree ID'),
+});
+
+/** Tool input for Taxonomy API getCategorySuggestions. */
+const getCategorySuggestionsSchema = z.object({
+  categoryTreeId: z.string().describe('Category tree ID'),
+  query: z.string().describe('Search query for category suggestions'),
+});
+
+/** Tool input for Taxonomy API getItemAspectsForCategory. */
+const getItemAspectsForCategorySchema = z.object({
+  categoryTreeId: z.string().describe('Category tree ID'),
+  categoryId: z.string().describe('Category ID'),
+});
 
 /** Taxonomy API tools for category trees, category suggestions, and compatibility metadata. */
 export const taxonomyEntries: ToolEntry[] = [
   defineTool({
     name: 'ebay_get_default_category_tree_id',
     description: 'Get the default category tree ID for a marketplace',
-    inputSchema: {
-      marketplaceId: z.string().describe('Marketplace ID (e.g., EBAY_US)'),
-    },
+    inputSchema: getDefaultCategoryTreeIdSchema.shape,
     outputSchema: {
       type: 'object',
       properties: {
@@ -18,14 +39,12 @@ export const taxonomyEntries: ToolEntry[] = [
       },
       description: 'Default category tree ID response',
     },
-    handler: (api, args) => api.taxonomy.getDefaultCategoryTreeId(args.marketplaceId),
+    handler: (api, args) => Effect.runPromise(api.taxonomy.getDefaultCategoryTreeId(args)),
   }),
   defineTool({
     name: 'ebay_get_category_tree',
     description: 'Get category tree by ID',
-    inputSchema: {
-      categoryTreeId: z.string().describe('Category tree ID'),
-    },
+    inputSchema: getCategoryTreeSchema.shape,
     outputSchema: {
       type: 'object',
       properties: {
@@ -35,15 +54,12 @@ export const taxonomyEntries: ToolEntry[] = [
       },
       description: 'Category tree details',
     },
-    handler: (api, args) => api.taxonomy.getCategoryTree(args.categoryTreeId),
+    handler: (api, args) => Effect.runPromise(api.taxonomy.getCategoryTree(args)),
   }),
   defineTool({
     name: 'ebay_get_category_suggestions',
     description: 'Get category suggestions based on query',
-    inputSchema: {
-      categoryTreeId: z.string().describe('Category tree ID'),
-      query: z.string().describe('Search query for category suggestions'),
-    },
+    inputSchema: getCategorySuggestionsSchema.shape,
     outputSchema: {
       type: 'object',
       properties: {
@@ -51,15 +67,12 @@ export const taxonomyEntries: ToolEntry[] = [
       },
       description: 'Category suggestions response',
     },
-    handler: (api, args) => api.taxonomy.getCategorySuggestions(args.categoryTreeId, args.query),
+    handler: (api, args) => Effect.runPromise(api.taxonomy.getCategorySuggestions(args)),
   }),
   defineTool({
     name: 'ebay_get_item_aspects_for_category',
     description: 'Get item aspects for a specific category',
-    inputSchema: {
-      categoryTreeId: z.string().describe('Category tree ID'),
-      categoryId: z.string().describe('Category ID'),
-    },
+    inputSchema: getItemAspectsForCategorySchema.shape,
     outputSchema: {
       type: 'object',
       properties: {
@@ -67,7 +80,6 @@ export const taxonomyEntries: ToolEntry[] = [
       },
       description: 'Item aspects for category',
     },
-    handler: (api, args) =>
-      api.taxonomy.getItemAspectsForCategory(args.categoryTreeId, args.categoryId),
+    handler: (api, args) => Effect.runPromise(api.taxonomy.getItemAspectsForCategory(args)),
   }),
 ];
