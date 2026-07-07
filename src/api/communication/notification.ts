@@ -68,8 +68,6 @@ type CreateSubscriptionRequest = components['schemas']['CreateSubscriptionReques
 type UpdateSubscriptionRequest = components['schemas']['UpdateSubscriptionRequest'];
 /** Subscription filter body accepted by createSubscriptionFilter. */
 type CreateSubscriptionFilterRequest = Pick<CreateSubscriptionFilterInput, 'filterSchema'>;
-/** Empty body returned by create endpoints. */
-type EmptyResponse = Record<string, never>;
 
 /**
  * Notification API configuration returned by eBay getConfig.
@@ -290,7 +288,7 @@ export class NotificationApi {
    * Creates a notification destination.
    *
    * @param input - Destination request body.
-   * @returns An Effect that succeeds with eBay's generated empty response body.
+   * @returns An Effect that succeeds when eBay accepts the destination.
    *
    * @example
    * ```ts
@@ -301,14 +299,14 @@ export class NotificationApi {
    */
   createDestination = (
     input: CreateDestinationInput,
-  ): Effect.Effect<EmptyResponse, EbayApiError | EndpointInputError> => {
+  ): Effect.Effect<void, EbayApiError | EndpointInputError> => {
     const apiClient = this.client;
     const path = `${this.basePath}/destination`;
 
     return Effect.gen(function* () {
       const body = yield* requireObjectEffect<DestinationRequest>(input, 'input');
 
-      return yield* requestPostEffect<EmptyResponse>(apiClient, path, body);
+      return yield* requestPostEffect<void>(apiClient, path, body);
     });
   };
 
@@ -419,7 +417,7 @@ export class NotificationApi {
    * Creates a notification subscription.
    *
    * @param input - Subscription creation request body.
-   * @returns An Effect that succeeds with eBay's generated empty response body.
+   * @returns An Effect that succeeds when eBay accepts the subscription.
    *
    * @example
    * ```ts
@@ -430,14 +428,14 @@ export class NotificationApi {
    */
   createSubscription = (
     input: CreateSubscriptionInput,
-  ): Effect.Effect<EmptyResponse, EbayApiError | EndpointInputError> => {
+  ): Effect.Effect<void, EbayApiError | EndpointInputError> => {
     const apiClient = this.client;
     const path = `${this.basePath}/subscription`;
 
     return Effect.gen(function* () {
       const body = yield* requireObjectEffect<CreateSubscriptionRequest>(input, 'input');
 
-      return yield* requestPostEffect<EmptyResponse>(apiClient, path, body);
+      return yield* requestPostEffect<void>(apiClient, path, body);
     });
   };
 
@@ -731,7 +729,7 @@ export class NotificationApi {
    */
   createSubscriptionFilter = (
     input: CreateSubscriptionFilterInput,
-  ): Effect.Effect<EmptyResponse, EbayApiError | EndpointInputError> => {
+  ): Effect.Effect<void, EbayApiError | EndpointInputError> => {
     const apiClient = this.client;
     const apiBasePath = this.basePath;
 
@@ -741,7 +739,7 @@ export class NotificationApi {
       const validatedSubscriptionId = yield* requireStringEffect(subscriptionId, 'subscriptionId');
       const body = yield* requireObjectEffect<CreateSubscriptionFilterRequest>(filter, 'filter');
 
-      return yield* requestPostEffect<EmptyResponse>(
+      return yield* requestPostEffect<void>(
         apiClient,
         `${apiBasePath}/subscription/${validatedSubscriptionId}/filter`,
         body,

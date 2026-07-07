@@ -76,7 +76,7 @@ Other useful scripts:
 <!-- rules digest — full guide in CODE-STYLE.md; edit there -->
 
 - **Imports:** `@/` alias for anything outside the current folder; `./sibling.js` only for same-dir. Keep NodeNext `.js` extensions (not `.ts`).
-- **Files:** hand-written source/test/UI filenames are camelCase; generated specs/types and external docs keep upstream names.
+- **Files:** hand-written source/test/UI file basenames are camelCase, never kebab-case or snake_case; generated specs/types and external docs keep upstream names.
 - **Functions & exports:** new/migrated exported functions use `export const ... = (...) =>`; named exports only (no default exports). Existing API classes may stay classes, with migrated endpoint methods as public arrow properties. Tool-loader config files may use `module.exports` only when the tool cannot load named exports.
 - **Effect & errors:** fallible async/API work returns `Effect.Effect<Success, TaggedError, Requirements>`; run with `Effect.runPromise` only at MCP/HTTP/CLI boundaries. No endpoint/tool `try/catch`; migrated API code uses typed tagged errors.
 - **Docs:** endpoint-backed API methods require TSDoc with `@param`, `@returns`, a small `@example`, and the official eBay `@see` URL. Exported shared utilities document params/returns; public generated-response aliases include `@see`.

@@ -46,7 +46,7 @@ function Chart({ view }: { view: ChartViewModel }): ReactNode {
   return (
     <div className="chart">
       {view.title ? <h1 className="view-title">{view.title}</h1> : null}
-      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={view.title ?? 'Chart'}>
+      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={view.title}>
         <line
           className="chart-axis"
           x1={PAD.left}
@@ -62,7 +62,7 @@ function Chart({ view }: { view: ChartViewModel }): ReactNode {
         {view.kind === 'line'
           ? view.series.map((series, seriesIndex) => (
               <polyline
-                key={series.name}
+                key={`${series.name}-${seriesIndex}`}
                 fill="none"
                 stroke={seriesColor(series, seriesIndex)}
                 strokeWidth={2}
@@ -104,7 +104,7 @@ function Chart({ view }: { view: ChartViewModel }): ReactNode {
 
       <div className="chart-legend">
         {view.series.map((series, index) => (
-          <span key={series.name}>
+          <span key={`${series.name}-${index}`}>
             <span className="chart-swatch" style={{ background: seriesColor(series, index) }} />
             {series.name}
           </span>

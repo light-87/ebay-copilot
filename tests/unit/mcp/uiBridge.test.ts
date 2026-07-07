@@ -99,6 +99,39 @@ describe('summarizeView', () => {
       'Application rate limits: 2 metrics. Rendered as an interactive stat grid.',
     );
   });
+
+  it('does not invent titles for untitled views', () => {
+    expect(
+      summarizeView({
+        archetype: 'table',
+        columns: [],
+        rows: [],
+      }),
+    ).toBe('0 rows. Rendered as an interactive table.');
+
+    expect(
+      summarizeView({
+        archetype: 'card',
+        subtitle: 'Buyer: buyer1',
+        sections: [{ heading: 'Summary', fields: [] }],
+      }),
+    ).toBe('Buyer: buyer1: 0 fields. Rendered as an interactive detail card.');
+
+    expect(
+      summarizeView({
+        archetype: 'chart',
+        kind: 'line',
+        series: [],
+      }),
+    ).toBe('0 series, 0 points. Rendered as an interactive chart.');
+
+    expect(
+      summarizeView({
+        archetype: 'stat',
+        tiles: [],
+      }),
+    ).toBe('0 metrics. Rendered as an interactive stat grid.');
+  });
 });
 
 describe('buildUiToolResult', () => {

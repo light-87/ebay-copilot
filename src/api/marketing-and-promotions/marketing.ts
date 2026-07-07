@@ -211,6 +211,600 @@ type GetAudiencesInput = z.infer<typeof getAudiencesInputSchema>;
 type GetEmailPreviewInput = z.infer<typeof getEmailPreviewInputSchema>;
 type GetEmailReportInput = z.infer<typeof getEmailReportInputSchema>;
 
+/**
+ * Response returned by eBay Marketing API bulkCreateAdsByInventoryReference.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkCreateAdsByInventoryReference
+ */
+export type BulkCreateAdsByInventoryReferenceResponse =
+  MarketingOperationResponse<'bulkCreateAdsByInventoryReference'>;
+
+/**
+ * Response returned by eBay Marketing API bulkCreateAdsByListingId.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkCreateAdsByListingId
+ */
+export type BulkCreateAdsByListingIdResponse =
+  MarketingOperationResponse<'bulkCreateAdsByListingId'>;
+
+/**
+ * Response returned by eBay Marketing API bulkDeleteAdsByInventoryReference.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkDeleteAdsByInventoryReference
+ */
+export type BulkDeleteAdsByInventoryReferenceResponse =
+  MarketingOperationResponse<'bulkDeleteAdsByInventoryReference'>;
+
+/**
+ * Response returned by eBay Marketing API bulkDeleteAdsByListingId.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkDeleteAdsByListingId
+ */
+export type BulkDeleteAdsByListingIdResponse =
+  MarketingOperationResponse<'bulkDeleteAdsByListingId'>;
+
+/**
+ * Response returned by eBay Marketing API bulkUpdateAdsBidByInventoryReference.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkUpdateAdsBidByInventoryReference
+ */
+export type BulkUpdateAdsBidByInventoryReferenceResponse =
+  MarketingOperationResponse<'bulkUpdateAdsBidByInventoryReference'>;
+
+/**
+ * Response returned by eBay Marketing API bulkUpdateAdsBidByListingId.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkUpdateAdsBidByListingId
+ */
+export type BulkUpdateAdsBidByListingIdResponse =
+  MarketingOperationResponse<'bulkUpdateAdsBidByListingId'>;
+
+/**
+ * Response returned by eBay Marketing API bulkUpdateAdsStatus.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkUpdateAdsStatus
+ */
+export type BulkUpdateAdsStatusResponse = MarketingOperationResponse<'bulkUpdateAdsStatus'>;
+
+/**
+ * Response returned by eBay Marketing API bulkUpdateAdsStatusByListingId.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/bulkUpdateAdsStatusByListingId
+ */
+export type BulkUpdateAdsStatusByListingIdResponse =
+  MarketingOperationResponse<'bulkUpdateAdsStatusByListingId'>;
+
+/**
+ * Response returned by eBay Marketing API getAds.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/getAds
+ */
+export type GetAdsResponse = MarketingOperationResponse<'getAds'>;
+
+/**
+ * Response returned by eBay Marketing API createAdByListingId.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/createAdByListingId
+ */
+export type CreateAdByListingIdResponse = MarketingOperationResponse<'createAdByListingId'>;
+
+/**
+ * Response returned by eBay Marketing API createAdsByInventoryReference.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/createAdsByInventoryReference
+ */
+export type CreateAdsByInventoryReferenceResponse =
+  MarketingOperationResponse<'createAdsByInventoryReference'>;
+
+/**
+ * Response returned by eBay Marketing API getAd.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/getAd
+ */
+export type GetAdResponse = MarketingOperationResponse<'getAd'>;
+
+/**
+ * Response returned by eBay Marketing API deleteAd.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/deleteAd
+ */
+export type DeleteAdResponse = MarketingOperationResponse<'deleteAd'>;
+
+/**
+ * Response returned by eBay Marketing API deleteAdsByInventoryReference.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/deleteAdsByInventoryReference
+ */
+export type DeleteAdsByInventoryReferenceResponse =
+  MarketingOperationResponse<'deleteAdsByInventoryReference'>;
+
+/**
+ * Response returned by eBay Marketing API getAdsByInventoryReference.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/getAdsByInventoryReference
+ */
+export type GetAdsByInventoryReferenceResponse =
+  MarketingOperationResponse<'getAdsByInventoryReference'>;
+
+/**
+ * Response returned by eBay Marketing API updateBid.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/updateBid
+ */
+export type UpdateBidResponse = MarketingOperationResponse<'updateBid'>;
+
+/**
+ * Response returned by eBay Marketing API getAdGroups.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/getAdGroups
+ */
+export type GetAdGroupsResponse = MarketingOperationResponse<'getAdGroups'>;
+
+/**
+ * Response returned by eBay Marketing API createAdGroup.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/createAdGroup
+ */
+export type CreateAdGroupResponse = MarketingOperationResponse<'createAdGroup'>;
+
+/**
+ * Response returned by eBay Marketing API getAdGroup.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/getAdGroup
+ */
+export type GetAdGroupResponse = MarketingOperationResponse<'getAdGroup'>;
+
+/**
+ * Response returned by eBay Marketing API updateAdGroup.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/updateAdGroup
+ */
+export type UpdateAdGroupResponse = MarketingOperationResponse<'updateAdGroup'>;
+
+/**
+ * Response returned by eBay Marketing API suggestBids.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/suggestBids
+ */
+export type SuggestBidsResponse = MarketingOperationResponse<'suggestBids'>;
+
+/**
+ * Response returned by eBay Marketing API suggestKeywords.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/suggestKeywords
+ */
+export type SuggestKeywordsResponse = MarketingOperationResponse<'suggestKeywords'>;
+
+/**
+ * Response returned by eBay Marketing API cloneCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/cloneCampaign
+ */
+export type CloneCampaignResponse = MarketingOperationResponse<'cloneCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API getCampaigns.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/getCampaigns
+ */
+export type GetCampaignsResponse = MarketingOperationResponse<'getCampaigns'>;
+
+/**
+ * Response returned by eBay Marketing API createCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/createCampaign
+ */
+export type CreateCampaignResponse = MarketingOperationResponse<'createCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API getCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/getCampaign
+ */
+export type GetCampaignResponse = MarketingOperationResponse<'getCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API deleteCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/deleteCampaign
+ */
+export type DeleteCampaignResponse = MarketingOperationResponse<'deleteCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API endCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/endCampaign
+ */
+export type EndCampaignResponse = MarketingOperationResponse<'endCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API findCampaignByAdReference.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/findCampaignByAdReference
+ */
+export type FindCampaignByAdReferenceResponse =
+  MarketingOperationResponse<'findCampaignByAdReference'>;
+
+/**
+ * Response returned by eBay Marketing API getCampaignByName.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/getCampaignByName
+ */
+export type GetCampaignByNameResponse = MarketingOperationResponse<'getCampaignByName'>;
+
+/**
+ * Response returned by eBay Marketing API launchCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/launchCampaign
+ */
+export type LaunchCampaignResponse = MarketingOperationResponse<'launchCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API pauseCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/pauseCampaign
+ */
+export type PauseCampaignResponse = MarketingOperationResponse<'pauseCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API resumeCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/resumeCampaign
+ */
+export type ResumeCampaignResponse = MarketingOperationResponse<'resumeCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API setupQuickCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/setupQuickCampaign
+ */
+export type SetupQuickCampaignResponse = MarketingOperationResponse<'setupQuickCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API suggestBudget.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/suggestBudget
+ */
+export type SuggestBudgetResponse = MarketingOperationResponse<'suggestBudget'>;
+
+/**
+ * Response returned by eBay Marketing API suggestItems.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/suggestItems
+ */
+export type SuggestItemsResponse = MarketingOperationResponse<'suggestItems'>;
+
+/**
+ * Response returned by eBay Marketing API suggestMaxCpc.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/suggestMaxCpc
+ */
+export type SuggestMaxCpcResponse = MarketingOperationResponse<'suggestMaxCpc'>;
+
+/**
+ * Response returned by eBay Marketing API updateAdRateStrategy.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/updateAdRateStrategy
+ */
+export type UpdateAdRateStrategyResponse = MarketingOperationResponse<'updateAdRateStrategy'>;
+
+/**
+ * Response returned by eBay Marketing API updateBiddingStrategy.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/updateBiddingStrategy
+ */
+export type UpdateBiddingStrategyResponse = MarketingOperationResponse<'updateBiddingStrategy'>;
+
+/**
+ * Response returned by eBay Marketing API updateCampaignBudget.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/updateCampaignBudget
+ */
+export type UpdateCampaignBudgetResponse = MarketingOperationResponse<'updateCampaignBudget'>;
+
+/**
+ * Response returned by eBay Marketing API updateCampaignIdentification.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/campaign/methods/updateCampaignIdentification
+ */
+export type UpdateCampaignIdentificationResponse =
+  MarketingOperationResponse<'updateCampaignIdentification'>;
+
+/**
+ * Response returned by eBay Marketing API bulkCreateKeyword.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/bulkCreateKeyword
+ */
+export type BulkCreateKeywordResponse = MarketingOperationResponse<'bulkCreateKeyword'>;
+
+/**
+ * Response returned by eBay Marketing API bulkUpdateKeyword.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/bulkUpdateKeyword
+ */
+export type BulkUpdateKeywordResponse = MarketingOperationResponse<'bulkUpdateKeyword'>;
+
+/**
+ * Response returned by eBay Marketing API getKeywords.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/getKeywords
+ */
+export type GetKeywordsResponse = MarketingOperationResponse<'getKeywords'>;
+
+/**
+ * Response returned by eBay Marketing API createKeyword.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/createKeyword
+ */
+export type CreateKeywordResponse = MarketingOperationResponse<'createKeyword'>;
+
+/**
+ * Response returned by eBay Marketing API getKeyword.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/getKeyword
+ */
+export type GetKeywordResponse = MarketingOperationResponse<'getKeyword'>;
+
+/**
+ * Response returned by eBay Marketing API updateKeyword.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/updateKeyword
+ */
+export type UpdateKeywordResponse = MarketingOperationResponse<'updateKeyword'>;
+
+/**
+ * Response returned by eBay Marketing API bulkCreateNegativeKeyword.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/negative_keyword/methods/bulkCreateNegativeKeyword
+ */
+export type BulkCreateNegativeKeywordResponse =
+  MarketingOperationResponse<'bulkCreateNegativeKeyword'>;
+
+/**
+ * Response returned by eBay Marketing API bulkUpdateNegativeKeyword.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/negative_keyword/methods/bulkUpdateNegativeKeyword
+ */
+export type BulkUpdateNegativeKeywordResponse =
+  MarketingOperationResponse<'bulkUpdateNegativeKeyword'>;
+
+/**
+ * Response returned by eBay Marketing API getNegativeKeywords.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/negative_keyword/methods/getNegativeKeywords
+ */
+export type GetNegativeKeywordsResponse = MarketingOperationResponse<'getNegativeKeywords'>;
+
+/**
+ * Response returned by eBay Marketing API createNegativeKeyword.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/negative_keyword/methods/createNegativeKeyword
+ */
+export type CreateNegativeKeywordResponse = MarketingOperationResponse<'createNegativeKeyword'>;
+
+/**
+ * Response returned by eBay Marketing API getNegativeKeyword.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/negative_keyword/methods/getNegativeKeyword
+ */
+export type GetNegativeKeywordResponse = MarketingOperationResponse<'getNegativeKeyword'>;
+
+/**
+ * Response returned by eBay Marketing API updateNegativeKeyword.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/negative_keyword/methods/updateNegativeKeyword
+ */
+export type UpdateNegativeKeywordResponse = MarketingOperationResponse<'updateNegativeKeyword'>;
+
+/**
+ * Response returned by eBay Marketing API getReport.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report/methods/getReport
+ */
+export type GetReportResponse = MarketingOperationResponse<'getReport'>;
+
+/**
+ * Response returned by eBay Marketing API getReportMetadata.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report_metadata/methods/getReportMetadata
+ */
+export type GetReportMetadataResponse = MarketingOperationResponse<'getReportMetadata'>;
+
+/**
+ * Response returned by eBay Marketing API getReportMetadataForReportType.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report_metadata/methods/getReportMetadataForReportType
+ */
+export type GetReportMetadataForReportTypeResponse =
+  MarketingOperationResponse<'getReportMetadataForReportType'>;
+
+/**
+ * Response returned by eBay Marketing API getReportTasks.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report_task/methods/getReportTasks
+ */
+export type GetReportTasksResponse = MarketingOperationResponse<'getReportTasks'>;
+
+/**
+ * Response returned by eBay Marketing API createReportTask.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report_task/methods/createReportTask
+ */
+export type CreateReportTaskResponse = MarketingOperationResponse<'createReportTask'>;
+
+/**
+ * Response returned by eBay Marketing API getReportTask.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report_task/methods/getReportTask
+ */
+export type GetReportTaskResponse = MarketingOperationResponse<'getReportTask'>;
+
+/**
+ * Response returned by eBay Marketing API deleteReportTask.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report_task/methods/deleteReportTask
+ */
+export type DeleteReportTaskResponse = MarketingOperationResponse<'deleteReportTask'>;
+
+/**
+ * Response returned by eBay Marketing API createItemPriceMarkdownPromotion.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_price_markdown/methods/createItemPriceMarkdownPromotion
+ */
+export type CreateItemPriceMarkdownPromotionResponse =
+  MarketingOperationResponse<'createItemPriceMarkdownPromotion'>;
+
+/**
+ * Response returned by eBay Marketing API getItemPriceMarkdownPromotion.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_price_markdown/methods/getItemPriceMarkdownPromotion
+ */
+export type GetItemPriceMarkdownPromotionResponse =
+  MarketingOperationResponse<'getItemPriceMarkdownPromotion'>;
+
+/**
+ * Response returned by eBay Marketing API updateItemPriceMarkdownPromotion.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_price_markdown/methods/updateItemPriceMarkdownPromotion
+ */
+export type UpdateItemPriceMarkdownPromotionResponse =
+  MarketingOperationResponse<'updateItemPriceMarkdownPromotion'>;
+
+/**
+ * Response returned by eBay Marketing API deleteItemPriceMarkdownPromotion.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_price_markdown/methods/deleteItemPriceMarkdownPromotion
+ */
+export type DeleteItemPriceMarkdownPromotionResponse =
+  MarketingOperationResponse<'deleteItemPriceMarkdownPromotion'>;
+
+/**
+ * Response returned by eBay Marketing API createItemPromotion.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_promotion/methods/createItemPromotion
+ */
+export type CreateItemPromotionResponse = MarketingOperationResponse<'createItemPromotion'>;
+
+/**
+ * Response returned by eBay Marketing API getItemPromotion.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_promotion/methods/getItemPromotion
+ */
+export type GetItemPromotionResponse = MarketingOperationResponse<'getItemPromotion'>;
+
+/**
+ * Response returned by eBay Marketing API updateItemPromotion.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_promotion/methods/updateItemPromotion
+ */
+export type UpdateItemPromotionResponse = MarketingOperationResponse<'updateItemPromotion'>;
+
+/**
+ * Response returned by eBay Marketing API deleteItemPromotion.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/item_promotion/methods/deleteItemPromotion
+ */
+export type DeleteItemPromotionResponse = MarketingOperationResponse<'deleteItemPromotion'>;
+
+/**
+ * Response returned by eBay Marketing API getListingSet.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/promotion/methods/getListingSet
+ */
+export type GetListingSetResponse = MarketingOperationResponse<'getListingSet'>;
+
+/**
+ * Response returned by eBay Marketing API getPromotions.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/promotion/methods/getPromotions
+ */
+export type GetPromotionsResponse = MarketingOperationResponse<'getPromotions'>;
+
+/**
+ * Response returned by eBay Marketing API pausePromotion.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/promotion/methods/pausePromotion
+ */
+export type PausePromotionResponse = MarketingOperationResponse<'pausePromotion'>;
+
+/**
+ * Response returned by eBay Marketing API resumePromotion.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/promotion/methods/resumePromotion
+ */
+export type ResumePromotionResponse = MarketingOperationResponse<'resumePromotion'>;
+
+/**
+ * Response returned by eBay Marketing API getPromotionReports.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/promotion_report/methods/getPromotionReports
+ */
+export type GetPromotionReportsResponse = MarketingOperationResponse<'getPromotionReports'>;
+
+/**
+ * Response returned by eBay Marketing API getPromotionSummaryReport.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/promotion_summary_report/methods/getPromotionSummaryReport
+ */
+export type GetPromotionSummaryReportResponse =
+  MarketingOperationResponse<'getPromotionSummaryReport'>;
+
+/**
+ * Response returned by eBay Marketing API getEmailCampaigns.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/getEmailCampaigns
+ */
+export type GetEmailCampaignsResponse = MarketingOperationResponse<'getEmailCampaigns'>;
+
+/**
+ * Response returned by eBay Marketing API createEmailCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/createEmailCampaign
+ */
+export type CreateEmailCampaignResponse = MarketingOperationResponse<'createEmailCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API getEmailCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/getEmailCampaign
+ */
+export type GetEmailCampaignResponse = MarketingOperationResponse<'getEmailCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API updateEmailCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/updateEmailCampaign
+ */
+export type UpdateEmailCampaignResponse = MarketingOperationResponse<'updateEmailCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API deleteEmailCampaign.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/deleteEmailCampaign
+ */
+export type DeleteEmailCampaignResponse = MarketingOperationResponse<'deleteEmailCampaign'>;
+
+/**
+ * Response returned by eBay Marketing API getAudiences.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/getAudiences
+ */
+export type GetAudiencesResponse = MarketingOperationResponse<'getAudiences'>;
+
+/**
+ * Response returned by eBay Marketing API getEmailPreview.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/getEmailPreview
+ */
+export type GetEmailPreviewResponse = MarketingOperationResponse<'getEmailPreview'>;
+
+/**
+ * Response returned by eBay Marketing API getEmailReport.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/marketing/resources/email_campaign/methods/getEmailReport
+ */
+export type GetEmailReportResponse = MarketingOperationResponse<'getEmailReport'>;
+
 const marketplaceHeader = (marketplaceId: string): EbayRequestConfig => ({
   headers: { 'X-EBAY-C-MARKETPLACE-ID': marketplaceId },
 });
@@ -234,12 +828,9 @@ export class MarketingApi {
    */
   public bulkCreateAdsByInventoryReference = (
     input: BulkCreateAdsByInventoryReferenceInput,
-  ): Effect.Effect<
-    MarketingOperationResponse<'bulkCreateAdsByInventoryReference'>,
-    EbayApiError
-  > => {
+  ): Effect.Effect<BulkCreateAdsByInventoryReferenceResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_create_ads_by_inventory_reference`;
-    return requestPostEffect<MarketingOperationResponse<'bulkCreateAdsByInventoryReference'>>(
+    return requestPostEffect<BulkCreateAdsByInventoryReferenceResponse>(
       this.client,
       path,
       input.request,
@@ -261,13 +852,9 @@ export class MarketingApi {
    */
   public bulkCreateAdsByListingId = (
     input: BulkCreateAdsByListingIdInput,
-  ): Effect.Effect<MarketingOperationResponse<'bulkCreateAdsByListingId'>, EbayApiError> => {
+  ): Effect.Effect<BulkCreateAdsByListingIdResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_create_ads_by_listing_id`;
-    return requestPostEffect<MarketingOperationResponse<'bulkCreateAdsByListingId'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<BulkCreateAdsByListingIdResponse>(this.client, path, input.request);
   };
 
   /**
@@ -285,12 +872,9 @@ export class MarketingApi {
    */
   public bulkDeleteAdsByInventoryReference = (
     input: BulkDeleteAdsByInventoryReferenceInput,
-  ): Effect.Effect<
-    MarketingOperationResponse<'bulkDeleteAdsByInventoryReference'>,
-    EbayApiError
-  > => {
+  ): Effect.Effect<BulkDeleteAdsByInventoryReferenceResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_delete_ads_by_inventory_reference`;
-    return requestPostEffect<MarketingOperationResponse<'bulkDeleteAdsByInventoryReference'>>(
+    return requestPostEffect<BulkDeleteAdsByInventoryReferenceResponse>(
       this.client,
       path,
       input.request,
@@ -312,13 +896,9 @@ export class MarketingApi {
    */
   public bulkDeleteAdsByListingId = (
     input: BulkDeleteAdsByListingIdInput,
-  ): Effect.Effect<MarketingOperationResponse<'bulkDeleteAdsByListingId'>, EbayApiError> => {
+  ): Effect.Effect<BulkDeleteAdsByListingIdResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_delete_ads_by_listing_id`;
-    return requestPostEffect<MarketingOperationResponse<'bulkDeleteAdsByListingId'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<BulkDeleteAdsByListingIdResponse>(this.client, path, input.request);
   };
 
   /**
@@ -336,12 +916,9 @@ export class MarketingApi {
    */
   public bulkUpdateAdsBidByInventoryReference = (
     input: BulkUpdateAdsBidByInventoryReferenceInput,
-  ): Effect.Effect<
-    MarketingOperationResponse<'bulkUpdateAdsBidByInventoryReference'>,
-    EbayApiError
-  > => {
+  ): Effect.Effect<BulkUpdateAdsBidByInventoryReferenceResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_update_ads_bid_by_inventory_reference`;
-    return requestPostEffect<MarketingOperationResponse<'bulkUpdateAdsBidByInventoryReference'>>(
+    return requestPostEffect<BulkUpdateAdsBidByInventoryReferenceResponse>(
       this.client,
       path,
       input.request,
@@ -363,13 +940,9 @@ export class MarketingApi {
    */
   public bulkUpdateAdsBidByListingId = (
     input: BulkUpdateAdsBidByListingIdInput,
-  ): Effect.Effect<MarketingOperationResponse<'bulkUpdateAdsBidByListingId'>, EbayApiError> => {
+  ): Effect.Effect<BulkUpdateAdsBidByListingIdResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_update_ads_bid_by_listing_id`;
-    return requestPostEffect<MarketingOperationResponse<'bulkUpdateAdsBidByListingId'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<BulkUpdateAdsBidByListingIdResponse>(this.client, path, input.request);
   };
 
   /**
@@ -387,13 +960,9 @@ export class MarketingApi {
    */
   public bulkUpdateAdsStatus = (
     input: BulkUpdateAdsStatusInput,
-  ): Effect.Effect<MarketingOperationResponse<'bulkUpdateAdsStatus'>, EbayApiError> => {
+  ): Effect.Effect<BulkUpdateAdsStatusResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_update_ads_status`;
-    return requestPostEffect<MarketingOperationResponse<'bulkUpdateAdsStatus'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<BulkUpdateAdsStatusResponse>(this.client, path, input.request);
   };
 
   /**
@@ -411,9 +980,9 @@ export class MarketingApi {
    */
   public bulkUpdateAdsStatusByListingId = (
     input: BulkUpdateAdsStatusByListingIdInput,
-  ): Effect.Effect<MarketingOperationResponse<'bulkUpdateAdsStatusByListingId'>, EbayApiError> => {
+  ): Effect.Effect<BulkUpdateAdsStatusByListingIdResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_update_ads_status_by_listing_id`;
-    return requestPostEffect<MarketingOperationResponse<'bulkUpdateAdsStatusByListingId'>>(
+    return requestPostEffect<BulkUpdateAdsStatusByListingIdResponse>(
       this.client,
       path,
       input.request,
@@ -433,9 +1002,7 @@ export class MarketingApi {
    *
    * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/getAds
    */
-  public getAds = (
-    input: GetAdsInput,
-  ): Effect.Effect<MarketingOperationResponse<'getAds'>, EbayApiError> => {
+  public getAds = (input: GetAdsInput): Effect.Effect<GetAdsResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad`;
     const params = buildEndpointParams({
       adGroupIds: { wireName: 'ad_group_ids', value: input.adGroupIds },
@@ -444,7 +1011,7 @@ export class MarketingApi {
       listingIds: { wireName: 'listing_ids', value: input.listingIds },
       offset: { wireName: 'offset', value: input.offset },
     });
-    return requestGetEffect<MarketingOperationResponse<'getAds'>>(this.client, path, params);
+    return requestGetEffect<GetAdsResponse>(this.client, path, params);
   };
 
   /**
@@ -462,13 +1029,9 @@ export class MarketingApi {
    */
   public createAdByListingId = (
     input: CreateAdByListingIdInput,
-  ): Effect.Effect<MarketingOperationResponse<'createAdByListingId'>, EbayApiError> => {
+  ): Effect.Effect<CreateAdByListingIdResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad`;
-    return requestPostEffect<MarketingOperationResponse<'createAdByListingId'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<CreateAdByListingIdResponse>(this.client, path, input.request);
   };
 
   /**
@@ -486,9 +1049,9 @@ export class MarketingApi {
    */
   public createAdsByInventoryReference = (
     input: CreateAdsByInventoryReferenceInput,
-  ): Effect.Effect<MarketingOperationResponse<'createAdsByInventoryReference'>, EbayApiError> => {
+  ): Effect.Effect<CreateAdsByInventoryReferenceResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/create_ads_by_inventory_reference`;
-    return requestPostEffect<MarketingOperationResponse<'createAdsByInventoryReference'>>(
+    return requestPostEffect<CreateAdsByInventoryReferenceResponse>(
       this.client,
       path,
       input.request,
@@ -508,11 +1071,9 @@ export class MarketingApi {
    *
    * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/getAd
    */
-  public getAd = (
-    input: GetAdInput,
-  ): Effect.Effect<MarketingOperationResponse<'getAd'>, EbayApiError> => {
+  public getAd = (input: GetAdInput): Effect.Effect<GetAdResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad/${input.adId}`;
-    return requestGetEffect<MarketingOperationResponse<'getAd'>>(this.client, path);
+    return requestGetEffect<GetAdResponse>(this.client, path);
   };
 
   /**
@@ -528,11 +1089,9 @@ export class MarketingApi {
    *
    * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/deleteAd
    */
-  public deleteAd = (
-    input: DeleteAdInput,
-  ): Effect.Effect<MarketingOperationResponse<'deleteAd'>, EbayApiError> => {
+  public deleteAd = (input: DeleteAdInput): Effect.Effect<DeleteAdResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad/${input.adId}`;
-    return requestDeleteEffect<MarketingOperationResponse<'deleteAd'>>(this.client, path);
+    return requestDeleteEffect<DeleteAdResponse>(this.client, path);
   };
 
   /**
@@ -550,9 +1109,9 @@ export class MarketingApi {
    */
   public deleteAdsByInventoryReference = (
     input: DeleteAdsByInventoryReferenceInput,
-  ): Effect.Effect<MarketingOperationResponse<'deleteAdsByInventoryReference'>, EbayApiError> => {
+  ): Effect.Effect<DeleteAdsByInventoryReferenceResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/delete_ads_by_inventory_reference`;
-    return requestPostEffect<MarketingOperationResponse<'deleteAdsByInventoryReference'>>(
+    return requestPostEffect<DeleteAdsByInventoryReferenceResponse>(
       this.client,
       path,
       input.request,
@@ -574,7 +1133,7 @@ export class MarketingApi {
    */
   public getAdsByInventoryReference = (
     input: GetAdsByInventoryReferenceInput,
-  ): Effect.Effect<MarketingOperationResponse<'getAdsByInventoryReference'>, EbayApiError> => {
+  ): Effect.Effect<GetAdsByInventoryReferenceResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/get_ads_by_inventory_reference`;
     const params = buildEndpointParams({
       inventoryReferenceId: {
@@ -586,11 +1145,7 @@ export class MarketingApi {
         value: input.inventoryReferenceType,
       },
     });
-    return requestGetEffect<MarketingOperationResponse<'getAdsByInventoryReference'>>(
-      this.client,
-      path,
-      params,
-    );
+    return requestGetEffect<GetAdsByInventoryReferenceResponse>(this.client, path, params);
   };
 
   /**
@@ -606,15 +1161,9 @@ export class MarketingApi {
    *
    * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad/methods/updateBid
    */
-  public updateBid = (
-    input: UpdateBidInput,
-  ): Effect.Effect<MarketingOperationResponse<'updateBid'>, EbayApiError> => {
+  public updateBid = (input: UpdateBidInput): Effect.Effect<UpdateBidResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad/${input.adId}/update_bid`;
-    return requestPostEffect<MarketingOperationResponse<'updateBid'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<UpdateBidResponse>(this.client, path, input.request);
   };
 
   /**
@@ -632,14 +1181,14 @@ export class MarketingApi {
    */
   public getAdGroups = (
     input: GetAdGroupsInput,
-  ): Effect.Effect<MarketingOperationResponse<'getAdGroups'>, EbayApiError> => {
+  ): Effect.Effect<GetAdGroupsResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad_group`;
     const params = buildEndpointParams({
       adGroupStatus: { wireName: 'ad_group_status', value: input.adGroupStatus },
       limit: { wireName: 'limit', value: input.limit },
       offset: { wireName: 'offset', value: input.offset },
     });
-    return requestGetEffect<MarketingOperationResponse<'getAdGroups'>>(this.client, path, params);
+    return requestGetEffect<GetAdGroupsResponse>(this.client, path, params);
   };
 
   /**
@@ -657,13 +1206,9 @@ export class MarketingApi {
    */
   public createAdGroup = (
     input: CreateAdGroupInput,
-  ): Effect.Effect<MarketingOperationResponse<'createAdGroup'>, EbayApiError> => {
+  ): Effect.Effect<CreateAdGroupResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad_group`;
-    return requestPostEffect<MarketingOperationResponse<'createAdGroup'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<CreateAdGroupResponse>(this.client, path, input.request);
   };
 
   /**
@@ -679,11 +1224,9 @@ export class MarketingApi {
    *
    * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_group/methods/getAdGroup
    */
-  public getAdGroup = (
-    input: GetAdGroupInput,
-  ): Effect.Effect<MarketingOperationResponse<'getAdGroup'>, EbayApiError> => {
+  public getAdGroup = (input: GetAdGroupInput): Effect.Effect<GetAdGroupResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad_group/${input.adGroupId}`;
-    return requestGetEffect<MarketingOperationResponse<'getAdGroup'>>(this.client, path);
+    return requestGetEffect<GetAdGroupResponse>(this.client, path);
   };
 
   /**
@@ -701,13 +1244,9 @@ export class MarketingApi {
    */
   public updateAdGroup = (
     input: UpdateAdGroupInput,
-  ): Effect.Effect<MarketingOperationResponse<'updateAdGroup'>, EbayApiError> => {
+  ): Effect.Effect<UpdateAdGroupResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad_group/${input.adGroupId}`;
-    return requestPutEffect<MarketingOperationResponse<'updateAdGroup'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPutEffect<UpdateAdGroupResponse>(this.client, path, input.request);
   };
 
   /**
@@ -725,13 +1264,9 @@ export class MarketingApi {
    */
   public suggestBids = (
     input: SuggestBidsInput,
-  ): Effect.Effect<MarketingOperationResponse<'suggestBids'>, EbayApiError> => {
+  ): Effect.Effect<SuggestBidsResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad_group/${input.adGroupId}/suggest_bids`;
-    return requestPostEffect<MarketingOperationResponse<'suggestBids'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<SuggestBidsResponse>(this.client, path, input.request);
   };
 
   /**
@@ -749,13 +1284,9 @@ export class MarketingApi {
    */
   public suggestKeywords = (
     input: SuggestKeywordsInput,
-  ): Effect.Effect<MarketingOperationResponse<'suggestKeywords'>, EbayApiError> => {
+  ): Effect.Effect<SuggestKeywordsResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/ad_group/${input.adGroupId}/suggest_keywords`;
-    return requestPostEffect<MarketingOperationResponse<'suggestKeywords'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<SuggestKeywordsResponse>(this.client, path, input.request);
   };
 
   /**
@@ -773,13 +1304,9 @@ export class MarketingApi {
    */
   public cloneCampaign = (
     input: CloneCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'cloneCampaign'>, EbayApiError> => {
+  ): Effect.Effect<CloneCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/clone`;
-    return requestPostEffect<MarketingOperationResponse<'cloneCampaign'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<CloneCampaignResponse>(this.client, path, input.request);
   };
 
   /**
@@ -797,7 +1324,7 @@ export class MarketingApi {
    */
   public getCampaigns = (
     input: GetCampaignsInput = {},
-  ): Effect.Effect<MarketingOperationResponse<'getCampaigns'>, EbayApiError> => {
+  ): Effect.Effect<GetCampaignsResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign`;
     const params = buildEndpointParams({
       campaignName: { wireName: 'campaign_name', value: input.campaignName },
@@ -813,7 +1340,7 @@ export class MarketingApi {
       offset: { wireName: 'offset', value: input.offset },
       startDateRange: { wireName: 'start_date_range', value: input.startDateRange },
     });
-    return requestGetEffect<MarketingOperationResponse<'getCampaigns'>>(this.client, path, params);
+    return requestGetEffect<GetCampaignsResponse>(this.client, path, params);
   };
 
   /**
@@ -831,13 +1358,9 @@ export class MarketingApi {
    */
   public createCampaign = (
     input: CreateCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'createCampaign'>, EbayApiError> => {
+  ): Effect.Effect<CreateCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign`;
-    return requestPostEffect<MarketingOperationResponse<'createCampaign'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<CreateCampaignResponse>(this.client, path, input.request);
   };
 
   /**
@@ -855,9 +1378,9 @@ export class MarketingApi {
    */
   public getCampaign = (
     input: GetCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'getCampaign'>, EbayApiError> => {
+  ): Effect.Effect<GetCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}`;
-    return requestGetEffect<MarketingOperationResponse<'getCampaign'>>(this.client, path);
+    return requestGetEffect<GetCampaignResponse>(this.client, path);
   };
 
   /**
@@ -875,9 +1398,9 @@ export class MarketingApi {
    */
   public deleteCampaign = (
     input: DeleteCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'deleteCampaign'>, EbayApiError> => {
+  ): Effect.Effect<DeleteCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}`;
-    return requestDeleteEffect<MarketingOperationResponse<'deleteCampaign'>>(this.client, path);
+    return requestDeleteEffect<DeleteCampaignResponse>(this.client, path);
   };
 
   /**
@@ -895,9 +1418,9 @@ export class MarketingApi {
    */
   public endCampaign = (
     input: EndCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'endCampaign'>, EbayApiError> => {
+  ): Effect.Effect<EndCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/end`;
-    return requestPostEffect<MarketingOperationResponse<'endCampaign'>>(this.client, path);
+    return requestPostEffect<EndCampaignResponse>(this.client, path);
   };
 
   /**
@@ -915,7 +1438,7 @@ export class MarketingApi {
    */
   public findCampaignByAdReference = (
     input: FindCampaignByAdReferenceInput = {},
-  ): Effect.Effect<MarketingOperationResponse<'findCampaignByAdReference'>, EbayApiError> => {
+  ): Effect.Effect<FindCampaignByAdReferenceResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/find_campaign_by_ad_reference`;
     const params = buildEndpointParams({
       inventoryReferenceId: {
@@ -928,11 +1451,7 @@ export class MarketingApi {
       },
       listingId: { wireName: 'listing_id', value: input.listingId },
     });
-    return requestGetEffect<MarketingOperationResponse<'findCampaignByAdReference'>>(
-      this.client,
-      path,
-      params,
-    );
+    return requestGetEffect<FindCampaignByAdReferenceResponse>(this.client, path, params);
   };
 
   /**
@@ -950,16 +1469,12 @@ export class MarketingApi {
    */
   public getCampaignByName = (
     input: GetCampaignByNameInput,
-  ): Effect.Effect<MarketingOperationResponse<'getCampaignByName'>, EbayApiError> => {
+  ): Effect.Effect<GetCampaignByNameResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/get_campaign_by_name`;
     const params = buildEndpointParams({
       campaignName: { wireName: 'campaign_name', value: input.campaignName },
     });
-    return requestGetEffect<MarketingOperationResponse<'getCampaignByName'>>(
-      this.client,
-      path,
-      params,
-    );
+    return requestGetEffect<GetCampaignByNameResponse>(this.client, path, params);
   };
 
   /**
@@ -977,9 +1492,9 @@ export class MarketingApi {
    */
   public launchCampaign = (
     input: LaunchCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'launchCampaign'>, EbayApiError> => {
+  ): Effect.Effect<LaunchCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/launch`;
-    return requestPostEffect<MarketingOperationResponse<'launchCampaign'>>(this.client, path);
+    return requestPostEffect<LaunchCampaignResponse>(this.client, path);
   };
 
   /**
@@ -997,9 +1512,9 @@ export class MarketingApi {
    */
   public pauseCampaign = (
     input: PauseCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'pauseCampaign'>, EbayApiError> => {
+  ): Effect.Effect<PauseCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/pause`;
-    return requestPostEffect<MarketingOperationResponse<'pauseCampaign'>>(this.client, path);
+    return requestPostEffect<PauseCampaignResponse>(this.client, path);
   };
 
   /**
@@ -1017,9 +1532,9 @@ export class MarketingApi {
    */
   public resumeCampaign = (
     input: ResumeCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'resumeCampaign'>, EbayApiError> => {
+  ): Effect.Effect<ResumeCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/resume`;
-    return requestPostEffect<MarketingOperationResponse<'resumeCampaign'>>(this.client, path);
+    return requestPostEffect<ResumeCampaignResponse>(this.client, path);
   };
 
   /**
@@ -1037,13 +1552,9 @@ export class MarketingApi {
    */
   public setupQuickCampaign = (
     input: SetupQuickCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'setupQuickCampaign'>, EbayApiError> => {
+  ): Effect.Effect<SetupQuickCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/setup_quick_campaign`;
-    return requestPostEffect<MarketingOperationResponse<'setupQuickCampaign'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<SetupQuickCampaignResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1061,15 +1572,10 @@ export class MarketingApi {
    */
   public suggestBudget = (
     input: SuggestBudgetInput,
-  ): Effect.Effect<MarketingOperationResponse<'suggestBudget'>, EbayApiError> => {
+  ): Effect.Effect<SuggestBudgetResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/suggest_budget`;
     const config = marketplaceHeader(input.marketplaceId);
-    return requestGetEffect<MarketingOperationResponse<'suggestBudget'>>(
-      this.client,
-      path,
-      undefined,
-      config,
-    );
+    return requestGetEffect<SuggestBudgetResponse>(this.client, path, undefined, config);
   };
 
   /**
@@ -1087,14 +1593,14 @@ export class MarketingApi {
    */
   public suggestItems = (
     input: SuggestItemsInput,
-  ): Effect.Effect<MarketingOperationResponse<'suggestItems'>, EbayApiError> => {
+  ): Effect.Effect<SuggestItemsResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/suggest_items`;
     const params = buildEndpointParams({
       categoryIds: { wireName: 'category_ids', value: input.categoryIds },
       limit: { wireName: 'limit', value: input.limit },
       offset: { wireName: 'offset', value: input.offset },
     });
-    return requestGetEffect<MarketingOperationResponse<'suggestItems'>>(this.client, path, params);
+    return requestGetEffect<SuggestItemsResponse>(this.client, path, params);
   };
 
   /**
@@ -1112,13 +1618,9 @@ export class MarketingApi {
    */
   public suggestMaxCpc = (
     input: SuggestMaxCpcInput,
-  ): Effect.Effect<MarketingOperationResponse<'suggestMaxCpc'>, EbayApiError> => {
+  ): Effect.Effect<SuggestMaxCpcResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/suggest_max_cpc`;
-    return requestPostEffect<MarketingOperationResponse<'suggestMaxCpc'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<SuggestMaxCpcResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1136,13 +1638,9 @@ export class MarketingApi {
    */
   public updateAdRateStrategy = (
     input: UpdateAdRateStrategyInput,
-  ): Effect.Effect<MarketingOperationResponse<'updateAdRateStrategy'>, EbayApiError> => {
+  ): Effect.Effect<UpdateAdRateStrategyResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/update_ad_rate_strategy`;
-    return requestPostEffect<MarketingOperationResponse<'updateAdRateStrategy'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<UpdateAdRateStrategyResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1160,13 +1658,9 @@ export class MarketingApi {
    */
   public updateBiddingStrategy = (
     input: UpdateBiddingStrategyInput,
-  ): Effect.Effect<MarketingOperationResponse<'updateBiddingStrategy'>, EbayApiError> => {
+  ): Effect.Effect<UpdateBiddingStrategyResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/update_bidding_strategy`;
-    return requestPostEffect<MarketingOperationResponse<'updateBiddingStrategy'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<UpdateBiddingStrategyResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1184,13 +1678,9 @@ export class MarketingApi {
    */
   public updateCampaignBudget = (
     input: UpdateCampaignBudgetInput,
-  ): Effect.Effect<MarketingOperationResponse<'updateCampaignBudget'>, EbayApiError> => {
+  ): Effect.Effect<UpdateCampaignBudgetResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/update_campaign_budget`;
-    return requestPostEffect<MarketingOperationResponse<'updateCampaignBudget'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<UpdateCampaignBudgetResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1208,9 +1698,9 @@ export class MarketingApi {
    */
   public updateCampaignIdentification = (
     input: UpdateCampaignIdentificationInput,
-  ): Effect.Effect<MarketingOperationResponse<'updateCampaignIdentification'>, EbayApiError> => {
+  ): Effect.Effect<UpdateCampaignIdentificationResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/update_campaign_identification`;
-    return requestPostEffect<MarketingOperationResponse<'updateCampaignIdentification'>>(
+    return requestPostEffect<UpdateCampaignIdentificationResponse>(
       this.client,
       path,
       input.request,
@@ -1232,13 +1722,9 @@ export class MarketingApi {
    */
   public bulkCreateKeyword = (
     input: BulkCreateKeywordInput,
-  ): Effect.Effect<MarketingOperationResponse<'bulkCreateKeyword'>, EbayApiError> => {
+  ): Effect.Effect<BulkCreateKeywordResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_create_keyword`;
-    return requestPostEffect<MarketingOperationResponse<'bulkCreateKeyword'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<BulkCreateKeywordResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1256,13 +1742,9 @@ export class MarketingApi {
    */
   public bulkUpdateKeyword = (
     input: BulkUpdateKeywordInput,
-  ): Effect.Effect<MarketingOperationResponse<'bulkUpdateKeyword'>, EbayApiError> => {
+  ): Effect.Effect<BulkUpdateKeywordResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/bulk_update_keyword`;
-    return requestPostEffect<MarketingOperationResponse<'bulkUpdateKeyword'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<BulkUpdateKeywordResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1280,7 +1762,7 @@ export class MarketingApi {
    */
   public getKeywords = (
     input: GetKeywordsInput,
-  ): Effect.Effect<MarketingOperationResponse<'getKeywords'>, EbayApiError> => {
+  ): Effect.Effect<GetKeywordsResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/keyword`;
     const params = buildEndpointParams({
       adGroupIds: { wireName: 'ad_group_ids', value: input.adGroupIds },
@@ -1288,7 +1770,7 @@ export class MarketingApi {
       limit: { wireName: 'limit', value: input.limit },
       offset: { wireName: 'offset', value: input.offset },
     });
-    return requestGetEffect<MarketingOperationResponse<'getKeywords'>>(this.client, path, params);
+    return requestGetEffect<GetKeywordsResponse>(this.client, path, params);
   };
 
   /**
@@ -1306,13 +1788,9 @@ export class MarketingApi {
    */
   public createKeyword = (
     input: CreateKeywordInput,
-  ): Effect.Effect<MarketingOperationResponse<'createKeyword'>, EbayApiError> => {
+  ): Effect.Effect<CreateKeywordResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/keyword`;
-    return requestPostEffect<MarketingOperationResponse<'createKeyword'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<CreateKeywordResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1328,11 +1806,9 @@ export class MarketingApi {
    *
    * @see https://developer.ebay.com/api-docs/sell/marketing/resources/keyword/methods/getKeyword
    */
-  public getKeyword = (
-    input: GetKeywordInput,
-  ): Effect.Effect<MarketingOperationResponse<'getKeyword'>, EbayApiError> => {
+  public getKeyword = (input: GetKeywordInput): Effect.Effect<GetKeywordResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/keyword/${input.keywordId}`;
-    return requestGetEffect<MarketingOperationResponse<'getKeyword'>>(this.client, path);
+    return requestGetEffect<GetKeywordResponse>(this.client, path);
   };
 
   /**
@@ -1350,13 +1826,9 @@ export class MarketingApi {
    */
   public updateKeyword = (
     input: UpdateKeywordInput,
-  ): Effect.Effect<MarketingOperationResponse<'updateKeyword'>, EbayApiError> => {
+  ): Effect.Effect<UpdateKeywordResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_campaign/${input.campaignId}/keyword/${input.keywordId}`;
-    return requestPutEffect<MarketingOperationResponse<'updateKeyword'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPutEffect<UpdateKeywordResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1374,13 +1846,9 @@ export class MarketingApi {
    */
   public bulkCreateNegativeKeyword = (
     input: BulkCreateNegativeKeywordInput,
-  ): Effect.Effect<MarketingOperationResponse<'bulkCreateNegativeKeyword'>, EbayApiError> => {
+  ): Effect.Effect<BulkCreateNegativeKeywordResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/bulk_create_negative_keyword`;
-    return requestPostEffect<MarketingOperationResponse<'bulkCreateNegativeKeyword'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<BulkCreateNegativeKeywordResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1398,13 +1866,9 @@ export class MarketingApi {
    */
   public bulkUpdateNegativeKeyword = (
     input: BulkUpdateNegativeKeywordInput,
-  ): Effect.Effect<MarketingOperationResponse<'bulkUpdateNegativeKeyword'>, EbayApiError> => {
+  ): Effect.Effect<BulkUpdateNegativeKeywordResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/bulk_update_negative_keyword`;
-    return requestPostEffect<MarketingOperationResponse<'bulkUpdateNegativeKeyword'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<BulkUpdateNegativeKeywordResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1422,7 +1886,7 @@ export class MarketingApi {
    */
   public getNegativeKeywords = (
     input: GetNegativeKeywordsInput = {},
-  ): Effect.Effect<MarketingOperationResponse<'getNegativeKeywords'>, EbayApiError> => {
+  ): Effect.Effect<GetNegativeKeywordsResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/negative_keyword`;
     const params = buildEndpointParams({
       adGroupIds: { wireName: 'ad_group_ids', value: input.adGroupIds },
@@ -1434,11 +1898,7 @@ export class MarketingApi {
       },
       offset: { wireName: 'offset', value: input.offset },
     });
-    return requestGetEffect<MarketingOperationResponse<'getNegativeKeywords'>>(
-      this.client,
-      path,
-      params,
-    );
+    return requestGetEffect<GetNegativeKeywordsResponse>(this.client, path, params);
   };
 
   /**
@@ -1456,13 +1916,9 @@ export class MarketingApi {
    */
   public createNegativeKeyword = (
     input: CreateNegativeKeywordInput,
-  ): Effect.Effect<MarketingOperationResponse<'createNegativeKeyword'>, EbayApiError> => {
+  ): Effect.Effect<CreateNegativeKeywordResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/negative_keyword`;
-    return requestPostEffect<MarketingOperationResponse<'createNegativeKeyword'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<CreateNegativeKeywordResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1480,9 +1936,9 @@ export class MarketingApi {
    */
   public getNegativeKeyword = (
     input: GetNegativeKeywordInput,
-  ): Effect.Effect<MarketingOperationResponse<'getNegativeKeyword'>, EbayApiError> => {
+  ): Effect.Effect<GetNegativeKeywordResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/negative_keyword/${input.negativeKeywordId}`;
-    return requestGetEffect<MarketingOperationResponse<'getNegativeKeyword'>>(this.client, path);
+    return requestGetEffect<GetNegativeKeywordResponse>(this.client, path);
   };
 
   /**
@@ -1500,13 +1956,9 @@ export class MarketingApi {
    */
   public updateNegativeKeyword = (
     input: UpdateNegativeKeywordInput,
-  ): Effect.Effect<MarketingOperationResponse<'updateNegativeKeyword'>, EbayApiError> => {
+  ): Effect.Effect<UpdateNegativeKeywordResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/negative_keyword/${input.negativeKeywordId}`;
-    return requestPutEffect<MarketingOperationResponse<'updateNegativeKeyword'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPutEffect<UpdateNegativeKeywordResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1522,11 +1974,9 @@ export class MarketingApi {
    *
    * @see https://developer.ebay.com/api-docs/sell/marketing/resources/ad_report/methods/getReport
    */
-  public getReport = (
-    input: GetReportInput,
-  ): Effect.Effect<MarketingOperationResponse<'getReport'>, EbayApiError> => {
+  public getReport = (input: GetReportInput): Effect.Effect<GetReportResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_report/${input.reportId}`;
-    return requestGetEffect<MarketingOperationResponse<'getReport'>>(this.client, path);
+    return requestGetEffect<GetReportResponse>(this.client, path);
   };
 
   /**
@@ -1544,17 +1994,13 @@ export class MarketingApi {
    */
   public getReportMetadata = (
     input: GetReportMetadataInput = {},
-  ): Effect.Effect<MarketingOperationResponse<'getReportMetadata'>, EbayApiError> => {
+  ): Effect.Effect<GetReportMetadataResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_report_metadata`;
     const params = buildEndpointParams({
       fundingModel: { wireName: 'funding_model', value: input.fundingModel },
       channel: { wireName: 'channel', value: input.channel },
     });
-    return requestGetEffect<MarketingOperationResponse<'getReportMetadata'>>(
-      this.client,
-      path,
-      params,
-    );
+    return requestGetEffect<GetReportMetadataResponse>(this.client, path, params);
   };
 
   /**
@@ -1572,17 +2018,13 @@ export class MarketingApi {
    */
   public getReportMetadataForReportType = (
     input: GetReportMetadataForReportTypeInput,
-  ): Effect.Effect<MarketingOperationResponse<'getReportMetadataForReportType'>, EbayApiError> => {
+  ): Effect.Effect<GetReportMetadataForReportTypeResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_report_metadata/${input.reportType}`;
     const params = buildEndpointParams({
       fundingModel: { wireName: 'funding_model', value: input.fundingModel },
       channel: { wireName: 'channel', value: input.channel },
     });
-    return requestGetEffect<MarketingOperationResponse<'getReportMetadataForReportType'>>(
-      this.client,
-      path,
-      params,
-    );
+    return requestGetEffect<GetReportMetadataForReportTypeResponse>(this.client, path, params);
   };
 
   /**
@@ -1600,18 +2042,14 @@ export class MarketingApi {
    */
   public getReportTasks = (
     input: GetReportTasksInput = {},
-  ): Effect.Effect<MarketingOperationResponse<'getReportTasks'>, EbayApiError> => {
+  ): Effect.Effect<GetReportTasksResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_report_task`;
     const params = buildEndpointParams({
       limit: { wireName: 'limit', value: input.limit },
       offset: { wireName: 'offset', value: input.offset },
       reportTaskStatuses: { wireName: 'report_task_statuses', value: input.reportTaskStatuses },
     });
-    return requestGetEffect<MarketingOperationResponse<'getReportTasks'>>(
-      this.client,
-      path,
-      params,
-    );
+    return requestGetEffect<GetReportTasksResponse>(this.client, path, params);
   };
 
   /**
@@ -1629,13 +2067,9 @@ export class MarketingApi {
    */
   public createReportTask = (
     input: CreateReportTaskInput,
-  ): Effect.Effect<MarketingOperationResponse<'createReportTask'>, EbayApiError> => {
+  ): Effect.Effect<CreateReportTaskResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_report_task`;
-    return requestPostEffect<MarketingOperationResponse<'createReportTask'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<CreateReportTaskResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1653,9 +2087,9 @@ export class MarketingApi {
    */
   public getReportTask = (
     input: GetReportTaskInput,
-  ): Effect.Effect<MarketingOperationResponse<'getReportTask'>, EbayApiError> => {
+  ): Effect.Effect<GetReportTaskResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_report_task/${input.reportTaskId}`;
-    return requestGetEffect<MarketingOperationResponse<'getReportTask'>>(this.client, path);
+    return requestGetEffect<GetReportTaskResponse>(this.client, path);
   };
 
   /**
@@ -1673,9 +2107,9 @@ export class MarketingApi {
    */
   public deleteReportTask = (
     input: DeleteReportTaskInput,
-  ): Effect.Effect<MarketingOperationResponse<'deleteReportTask'>, EbayApiError> => {
+  ): Effect.Effect<DeleteReportTaskResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/ad_report_task/${input.reportTaskId}`;
-    return requestDeleteEffect<MarketingOperationResponse<'deleteReportTask'>>(this.client, path);
+    return requestDeleteEffect<DeleteReportTaskResponse>(this.client, path);
   };
 
   /**
@@ -1693,12 +2127,9 @@ export class MarketingApi {
    */
   public createItemPriceMarkdownPromotion = (
     input: CreateItemPriceMarkdownPromotionInput,
-  ): Effect.Effect<
-    MarketingOperationResponse<'createItemPriceMarkdownPromotion'>,
-    EbayApiError
-  > => {
+  ): Effect.Effect<CreateItemPriceMarkdownPromotionResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/item_price_markdown`;
-    return requestPostEffect<MarketingOperationResponse<'createItemPriceMarkdownPromotion'>>(
+    return requestPostEffect<CreateItemPriceMarkdownPromotionResponse>(
       this.client,
       path,
       input.request,
@@ -1720,12 +2151,9 @@ export class MarketingApi {
    */
   public getItemPriceMarkdownPromotion = (
     input: GetItemPriceMarkdownPromotionInput,
-  ): Effect.Effect<MarketingOperationResponse<'getItemPriceMarkdownPromotion'>, EbayApiError> => {
+  ): Effect.Effect<GetItemPriceMarkdownPromotionResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/item_price_markdown/${input.promotionId}`;
-    return requestGetEffect<MarketingOperationResponse<'getItemPriceMarkdownPromotion'>>(
-      this.client,
-      path,
-    );
+    return requestGetEffect<GetItemPriceMarkdownPromotionResponse>(this.client, path);
   };
 
   /**
@@ -1743,12 +2171,9 @@ export class MarketingApi {
    */
   public updateItemPriceMarkdownPromotion = (
     input: UpdateItemPriceMarkdownPromotionInput,
-  ): Effect.Effect<
-    MarketingOperationResponse<'updateItemPriceMarkdownPromotion'>,
-    EbayApiError
-  > => {
+  ): Effect.Effect<UpdateItemPriceMarkdownPromotionResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/item_price_markdown/${input.promotionId}`;
-    return requestPutEffect<MarketingOperationResponse<'updateItemPriceMarkdownPromotion'>>(
+    return requestPutEffect<UpdateItemPriceMarkdownPromotionResponse>(
       this.client,
       path,
       input.request,
@@ -1770,15 +2195,9 @@ export class MarketingApi {
    */
   public deleteItemPriceMarkdownPromotion = (
     input: DeleteItemPriceMarkdownPromotionInput,
-  ): Effect.Effect<
-    MarketingOperationResponse<'deleteItemPriceMarkdownPromotion'>,
-    EbayApiError
-  > => {
+  ): Effect.Effect<DeleteItemPriceMarkdownPromotionResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/item_price_markdown/${input.promotionId}`;
-    return requestDeleteEffect<MarketingOperationResponse<'deleteItemPriceMarkdownPromotion'>>(
-      this.client,
-      path,
-    );
+    return requestDeleteEffect<DeleteItemPriceMarkdownPromotionResponse>(this.client, path);
   };
 
   /**
@@ -1796,13 +2215,9 @@ export class MarketingApi {
    */
   public createItemPromotion = (
     input: CreateItemPromotionInput,
-  ): Effect.Effect<MarketingOperationResponse<'createItemPromotion'>, EbayApiError> => {
+  ): Effect.Effect<CreateItemPromotionResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/item_promotion`;
-    return requestPostEffect<MarketingOperationResponse<'createItemPromotion'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPostEffect<CreateItemPromotionResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1820,9 +2235,9 @@ export class MarketingApi {
    */
   public getItemPromotion = (
     input: GetItemPromotionInput,
-  ): Effect.Effect<MarketingOperationResponse<'getItemPromotion'>, EbayApiError> => {
+  ): Effect.Effect<GetItemPromotionResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/item_promotion/${input.promotionId}`;
-    return requestGetEffect<MarketingOperationResponse<'getItemPromotion'>>(this.client, path);
+    return requestGetEffect<GetItemPromotionResponse>(this.client, path);
   };
 
   /**
@@ -1840,13 +2255,9 @@ export class MarketingApi {
    */
   public updateItemPromotion = (
     input: UpdateItemPromotionInput,
-  ): Effect.Effect<MarketingOperationResponse<'updateItemPromotion'>, EbayApiError> => {
+  ): Effect.Effect<UpdateItemPromotionResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/item_promotion/${input.promotionId}`;
-    return requestPutEffect<MarketingOperationResponse<'updateItemPromotion'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPutEffect<UpdateItemPromotionResponse>(this.client, path, input.request);
   };
 
   /**
@@ -1864,12 +2275,9 @@ export class MarketingApi {
    */
   public deleteItemPromotion = (
     input: DeleteItemPromotionInput,
-  ): Effect.Effect<MarketingOperationResponse<'deleteItemPromotion'>, EbayApiError> => {
+  ): Effect.Effect<DeleteItemPromotionResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/item_promotion/${input.promotionId}`;
-    return requestDeleteEffect<MarketingOperationResponse<'deleteItemPromotion'>>(
-      this.client,
-      path,
-    );
+    return requestDeleteEffect<DeleteItemPromotionResponse>(this.client, path);
   };
 
   /**
@@ -1887,7 +2295,7 @@ export class MarketingApi {
    */
   public getListingSet = (
     input: GetListingSetInput,
-  ): Effect.Effect<MarketingOperationResponse<'getListingSet'>, EbayApiError> => {
+  ): Effect.Effect<GetListingSetResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/promotion/${input.promotionId}/get_listing_set`;
     const params = buildEndpointParams({
       limit: { wireName: 'limit', value: input.limit },
@@ -1896,7 +2304,7 @@ export class MarketingApi {
       sort: { wireName: 'sort', value: input.sort },
       status: { wireName: 'status', value: input.status },
     });
-    return requestGetEffect<MarketingOperationResponse<'getListingSet'>>(this.client, path, params);
+    return requestGetEffect<GetListingSetResponse>(this.client, path, params);
   };
 
   /**
@@ -1914,7 +2322,7 @@ export class MarketingApi {
    */
   public getPromotions = (
     input: GetPromotionsInput,
-  ): Effect.Effect<MarketingOperationResponse<'getPromotions'>, EbayApiError> => {
+  ): Effect.Effect<GetPromotionsResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/promotion`;
     const params = buildEndpointParams({
       limit: { wireName: 'limit', value: input.limit },
@@ -1925,7 +2333,7 @@ export class MarketingApi {
       q: { wireName: 'q', value: input.q },
       sort: { wireName: 'sort', value: input.sort },
     });
-    return requestGetEffect<MarketingOperationResponse<'getPromotions'>>(this.client, path, params);
+    return requestGetEffect<GetPromotionsResponse>(this.client, path, params);
   };
 
   /**
@@ -1943,9 +2351,9 @@ export class MarketingApi {
    */
   public pausePromotion = (
     input: PausePromotionInput,
-  ): Effect.Effect<MarketingOperationResponse<'pausePromotion'>, EbayApiError> => {
+  ): Effect.Effect<PausePromotionResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/promotion/${input.promotionId}/pause`;
-    return requestPostEffect<MarketingOperationResponse<'pausePromotion'>>(this.client, path);
+    return requestPostEffect<PausePromotionResponse>(this.client, path);
   };
 
   /**
@@ -1963,9 +2371,9 @@ export class MarketingApi {
    */
   public resumePromotion = (
     input: ResumePromotionInput,
-  ): Effect.Effect<MarketingOperationResponse<'resumePromotion'>, EbayApiError> => {
+  ): Effect.Effect<ResumePromotionResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/promotion/${input.promotionId}/resume`;
-    return requestPostEffect<MarketingOperationResponse<'resumePromotion'>>(this.client, path);
+    return requestPostEffect<ResumePromotionResponse>(this.client, path);
   };
 
   /**
@@ -1983,7 +2391,7 @@ export class MarketingApi {
    */
   public getPromotionReports = (
     input: GetPromotionReportsInput,
-  ): Effect.Effect<MarketingOperationResponse<'getPromotionReports'>, EbayApiError> => {
+  ): Effect.Effect<GetPromotionReportsResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/promotion_report`;
     const params = buildEndpointParams({
       limit: { wireName: 'limit', value: input.limit },
@@ -1993,11 +2401,7 @@ export class MarketingApi {
       promotionType: { wireName: 'promotion_type', value: input.promotionType },
       q: { wireName: 'q', value: input.q },
     });
-    return requestGetEffect<MarketingOperationResponse<'getPromotionReports'>>(
-      this.client,
-      path,
-      params,
-    );
+    return requestGetEffect<GetPromotionReportsResponse>(this.client, path, params);
   };
 
   /**
@@ -2015,16 +2419,12 @@ export class MarketingApi {
    */
   public getPromotionSummaryReport = (
     input: GetPromotionSummaryReportInput,
-  ): Effect.Effect<MarketingOperationResponse<'getPromotionSummaryReport'>, EbayApiError> => {
+  ): Effect.Effect<GetPromotionSummaryReportResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/promotion_summary_report`;
     const params = buildEndpointParams({
       marketplaceId: { wireName: 'marketplace_id', value: input.marketplaceId },
     });
-    return requestGetEffect<MarketingOperationResponse<'getPromotionSummaryReport'>>(
-      this.client,
-      path,
-      params,
-    );
+    return requestGetEffect<GetPromotionSummaryReportResponse>(this.client, path, params);
   };
 
   /**
@@ -2042,7 +2442,7 @@ export class MarketingApi {
    */
   public getEmailCampaigns = (
     input: GetEmailCampaignsInput = {},
-  ): Effect.Effect<MarketingOperationResponse<'getEmailCampaigns'>, EbayApiError> => {
+  ): Effect.Effect<GetEmailCampaignsResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/email_campaign`;
     const params = buildEndpointParams({
       limit: { wireName: 'limit', value: input.limit },
@@ -2050,11 +2450,7 @@ export class MarketingApi {
       q: { wireName: 'q', value: input.q },
       sort: { wireName: 'sort', value: input.sort },
     });
-    return requestGetEffect<MarketingOperationResponse<'getEmailCampaigns'>>(
-      this.client,
-      path,
-      params,
-    );
+    return requestGetEffect<GetEmailCampaignsResponse>(this.client, path, params);
   };
 
   /**
@@ -2072,15 +2468,10 @@ export class MarketingApi {
    */
   public createEmailCampaign = (
     input: CreateEmailCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'createEmailCampaign'>, EbayApiError> => {
+  ): Effect.Effect<CreateEmailCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/email_campaign`;
     const config = marketplaceHeader(input.marketplaceId);
-    return requestPostEffect<MarketingOperationResponse<'createEmailCampaign'>>(
-      this.client,
-      path,
-      input.request,
-      config,
-    );
+    return requestPostEffect<CreateEmailCampaignResponse>(this.client, path, input.request, config);
   };
 
   /**
@@ -2098,9 +2489,9 @@ export class MarketingApi {
    */
   public getEmailCampaign = (
     input: GetEmailCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'getEmailCampaign'>, EbayApiError> => {
+  ): Effect.Effect<GetEmailCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/email_campaign/${input.emailCampaignId}`;
-    return requestGetEffect<MarketingOperationResponse<'getEmailCampaign'>>(this.client, path);
+    return requestGetEffect<GetEmailCampaignResponse>(this.client, path);
   };
 
   /**
@@ -2118,13 +2509,9 @@ export class MarketingApi {
    */
   public updateEmailCampaign = (
     input: UpdateEmailCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'updateEmailCampaign'>, EbayApiError> => {
+  ): Effect.Effect<UpdateEmailCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/email_campaign/${input.emailCampaignId}`;
-    return requestPutEffect<MarketingOperationResponse<'updateEmailCampaign'>>(
-      this.client,
-      path,
-      input.request,
-    );
+    return requestPutEffect<UpdateEmailCampaignResponse>(this.client, path, input.request);
   };
 
   /**
@@ -2142,12 +2529,9 @@ export class MarketingApi {
    */
   public deleteEmailCampaign = (
     input: DeleteEmailCampaignInput,
-  ): Effect.Effect<MarketingOperationResponse<'deleteEmailCampaign'>, EbayApiError> => {
+  ): Effect.Effect<DeleteEmailCampaignResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/email_campaign/${input.emailCampaignId}`;
-    return requestDeleteEffect<MarketingOperationResponse<'deleteEmailCampaign'>>(
-      this.client,
-      path,
-    );
+    return requestDeleteEffect<DeleteEmailCampaignResponse>(this.client, path);
   };
 
   /**
@@ -2165,14 +2549,14 @@ export class MarketingApi {
    */
   public getAudiences = (
     input: GetAudiencesInput,
-  ): Effect.Effect<MarketingOperationResponse<'getAudiences'>, EbayApiError> => {
+  ): Effect.Effect<GetAudiencesResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/email_campaign/audience`;
     const params = buildEndpointParams({
       emailCampaignType: { wireName: 'emailCampaignType', value: input.emailCampaignType },
       limit: { wireName: 'limit', value: input.limit },
       offset: { wireName: 'offset', value: input.offset },
     });
-    return requestGetEffect<MarketingOperationResponse<'getAudiences'>>(this.client, path, params);
+    return requestGetEffect<GetAudiencesResponse>(this.client, path, params);
   };
 
   /**
@@ -2190,9 +2574,9 @@ export class MarketingApi {
    */
   public getEmailPreview = (
     input: GetEmailPreviewInput,
-  ): Effect.Effect<MarketingOperationResponse<'getEmailPreview'>, EbayApiError> => {
+  ): Effect.Effect<GetEmailPreviewResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/email_campaign/${input.emailCampaignId}/email_preview`;
-    return requestGetEffect<MarketingOperationResponse<'getEmailPreview'>>(this.client, path);
+    return requestGetEffect<GetEmailPreviewResponse>(this.client, path);
   };
 
   /**
@@ -2210,16 +2594,12 @@ export class MarketingApi {
    */
   public getEmailReport = (
     input: GetEmailReportInput,
-  ): Effect.Effect<MarketingOperationResponse<'getEmailReport'>, EbayApiError> => {
+  ): Effect.Effect<GetEmailReportResponse, EbayApiError> => {
     const path = `${MARKETING_BASE_PATH}/email_campaign/report`;
     const params = buildEndpointParams({
       endDate: { wireName: 'endDate', value: input.endDate },
       startDate: { wireName: 'startDate', value: input.startDate },
     });
-    return requestGetEffect<MarketingOperationResponse<'getEmailReport'>>(
-      this.client,
-      path,
-      params,
-    );
+    return requestGetEffect<GetEmailReportResponse>(this.client, path, params);
   };
 }

@@ -60,8 +60,8 @@ describe('mapHelpers', () => {
       expect(humanizeStatus('FULFILLED')).toBe('Fulfilled');
     });
 
-    it('returns an em dash for a missing status', () => {
-      expect(humanizeStatus(undefined)).toBe('—');
+    it('returns null for a missing status', () => {
+      expect(humanizeStatus(undefined)).toBeNull();
     });
   });
 
@@ -84,10 +84,10 @@ describe('mapHelpers', () => {
       expect(toNumber(42)).toBe(42);
     });
 
-    it('defaults non-numeric input to 0', () => {
-      expect(toNumber('abc')).toBe(0);
-      expect(toNumber({})).toBe(0);
-      expect(toNumber(undefined)).toBe(0);
+    it('returns null for non-numeric input', () => {
+      expect(toNumber('abc')).toBeNull();
+      expect(toNumber({})).toBeNull();
+      expect(toNumber(undefined)).toBeNull();
     });
 
     it('labels primitives and blanks out objects', () => {
@@ -429,8 +429,8 @@ describe('stat mappers', () => {
     expect(view.tiles[0].tone).toBe('warning');
   });
 
-  it('falls back to a generic label and neutral tone when data is sparse', () => {
+  it('leaves the label empty and uses neutral tone when data is sparse', () => {
     const view = mapRateLimitsToStat({ rateLimits: [{ resources: [{ rates: [{}] }] }] });
-    expect(view.tiles[0]).toEqual({ label: 'Resource', value: '0', sub: 'of 0', tone: 'neutral' });
+    expect(view.tiles[0]).toEqual({ label: '', value: '0', sub: 'of 0', tone: 'neutral' });
   });
 });

@@ -17,6 +17,29 @@ const DOCS_DIR = join(PROJECT_ROOT, 'docs');
 const TYPES_DIR = join(PROJECT_ROOT, 'src/types');
 const TOOLS_DIRS = [join(PROJECT_ROOT, 'src/tools/categories')];
 
+/** Repo-specific OpenAPI namespace aliases preserved after type regeneration. */
+const GENERATED_TYPE_ALIASES: Record<
+  string,
+  { readonly components: string; readonly operations: string }
+> = {
+  developerAnalyticsV1BetaOas3: {
+    components: 'DeveloperAnalyticsComponents',
+    operations: 'DeveloperAnalyticsOperations',
+  },
+  developerClientRegistrationV1Oas3: {
+    components: 'DeveloperClientRegistrationComponents',
+    operations: 'DeveloperClientRegistrationOperations',
+  },
+  developerKeyManagementV1Oas3: {
+    components: 'DeveloperKeyManagementComponents',
+    operations: 'DeveloperKeyManagementOperations',
+  },
+  sellComplianceV1Oas3: {
+    components: 'SellComplianceComponents',
+    operations: 'SellComplianceOperations',
+  },
+};
+
 const ui = {
   success: chalk.green,
   warning: chalk.yellow,
@@ -24,6 +47,70 @@ const ui = {
   info: chalk.cyan,
   dim: chalk.dim,
   bold: chalk.bold,
+};
+
+/**
+ * Checks whether an openapi-typescript output exposes a generated namespace.
+ *
+ * @param content - Generated TypeScript declaration content to inspect.
+ * @param exportName - Namespace export that must exist before adding an alias.
+ * @returns True when the generated output exposes the requested namespace.
+ *
+ * @example
+ * ```ts
+ * hasGeneratedExport(content, 'components');
+ * ```
+ */
+const hasGeneratedExport = (content: string, exportName: 'components' | 'operations'): boolean =>
+  content.includes(`export interface ${exportName}`) ||
+  content.includes(`export type ${exportName}`);
+
+/**
+ * Appends repo-specific generated type aliases after openapi-typescript rewrites a file.
+ *
+ * @param outputPath - Generated TypeScript declaration file path.
+ * @param camelCaseName - OpenAPI spec basename used as the generated type file name.
+ * @returns Nothing; the generated file is updated in place when aliases are needed.
+ *
+ * @example
+ * ```ts
+ * preserveGeneratedTypeAliases(outputPath, 'sellComplianceV1Oas3');
+ * ```
+ */
+const preserveGeneratedTypeAliases = (outputPath: string, camelCaseName: string): void => {
+  const aliases = GENERATED_TYPE_ALIASES[camelCaseName];
+  if (!aliases) {
+    return;
+  }
+
+  const content = readFileSync(outputPath, 'utf-8');
+  const aliasLines: string[] = [];
+
+  if (
+    hasGeneratedExport(content, 'components') &&
+    !content.includes(`export type ${aliases.components}`)
+  ) {
+    aliasLines.push(
+      '/** Repo-specific alias for generated OpenAPI components. */',
+      `export type ${aliases.components} = components;`,
+    );
+  }
+
+  if (
+    hasGeneratedExport(content, 'operations') &&
+    !content.includes(`export type ${aliases.operations}`)
+  ) {
+    aliasLines.push(
+      '/** Repo-specific alias for generated OpenAPI operations. */',
+      `export type ${aliases.operations} = operations;`,
+    );
+  }
+
+  if (aliasLines.length === 0) {
+    return;
+  }
+
+  writeFileSync(outputPath, `${content.trimEnd()}\n\n${aliasLines.join('\n')}\n`);
 };
 
 function showSpinner(message: string): () => void {
@@ -237,6 +324,7 @@ function generateTypes(): number {
         );
 
         if (Either.isRight(generatedFile)) {
+          preserveGeneratedTypeAliases(outputPath, camelCaseName);
           console.log(`  ${ui.success('✓')} ${camelCaseName}.ts`);
           generated++;
         } else {

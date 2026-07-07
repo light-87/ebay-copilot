@@ -7,11 +7,19 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { getApiStatusFeed, type ApiStatusItem } from '@/utils/apiStatusFeed.js';
 import { getErrorMessage } from '@/utils/errors.js';
-import { Effect, Either } from 'effect';
+import { Data, Effect, Either } from 'effect';
 import process from 'node:process';
 
 const DEFAULT_LIMIT = 15;
 const OUT_PATH = join(process.cwd(), 'docs', 'API_STATUS.md');
+
+/** Tagged failure raised while updating the checked-in API status snapshot. */
+class ApiStatusDocUpdateError extends Data.TaggedError('ApiStatusDocUpdateError')<{
+  /** Human-readable script failure message. */
+  readonly message: string;
+  /** Lower-level feed or filesystem cause. */
+  readonly cause?: unknown;
+}> {}
 
 function escapeCell(s: string): string {
   return s.replace(/\|/g, '\\|').replace(/\n/g, ' ');
@@ -46,14 +54,43 @@ function buildMarkdown(items: ApiStatusItem[]): string {
   return lines.join('\n');
 }
 
+const updateApiStatusDoc = (): Effect.Effect<number, ApiStatusDocUpdateError> =>
+  Effect.gen(function* () {
+    const { items, error } = yield* getApiStatusFeed({ limit: DEFAULT_LIMIT }).pipe(
+      Effect.mapError(
+        (cause) =>
+          new ApiStatusDocUpdateError({
+            message: 'Failed to fetch API status feed',
+            cause,
+          }),
+      ),
+    );
+
+    if (error && items.length === 0) {
+      return yield* Effect.fail(
+        new ApiStatusDocUpdateError({
+          message: `Failed to fetch API status feed: ${error}`,
+          cause: error,
+        }),
+      );
+    }
+
+    const markdown = buildMarkdown(items);
+    yield* Effect.try({
+      try: () => writeFileSync(OUT_PATH, markdown, 'utf8'),
+      catch: (cause) =>
+        new ApiStatusDocUpdateError({
+          message: `Failed to write API status doc to ${OUT_PATH}`,
+          cause,
+        }),
+    });
+
+    return items.length;
+  });
+
 async function main(): Promise<void> {
-  const { items, error } = await Effect.runPromise(getApiStatusFeed({ limit: DEFAULT_LIMIT }));
-  if (error && items.length === 0) {
-    throw new Error(`Failed to fetch API status feed: ${error}`);
-  }
-  const markdown = buildMarkdown(items);
-  writeFileSync(OUT_PATH, markdown, 'utf8');
-  console.log(`Wrote ${items.length} items to ${OUT_PATH}`);
+  const count = await Effect.runPromise(updateApiStatusDoc());
+  console.log(`Wrote ${count} items to ${OUT_PATH}`);
 }
 
 void Effect.runPromise(

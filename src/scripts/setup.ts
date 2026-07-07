@@ -7,7 +7,7 @@ import { randomUUID } from 'crypto';
 import type { Server } from 'http';
 
 import chalk from 'chalk';
-import { Effect, Either } from 'effect';
+import { Data, Effect, Either } from 'effect';
 import { checkForUpdates } from '@/utils/version.js';
 import { describeHttpError, httpRequest } from '@/utils/http.js';
 import { config } from 'dotenv';
@@ -82,6 +82,14 @@ const ui = {
 
 const DEVELOPER_NAME = 'Yosef Hayim Sabag';
 const DEVELOPER_LINKEDIN = 'https://www.linkedin.com/in/yosef-hayim-sabag/';
+
+/** Tagged failure raised while the setup wizard captures the OAuth redirect. */
+class SetupCaptureError extends Data.TaggedError('SetupCaptureError')<{
+  /** Human-readable failure message shown by the interactive setup wizard. */
+  readonly message: string;
+  /** Lower-level browser, callback server, or OAuth redirect cause. */
+  readonly cause?: unknown;
+}> {}
 
 /** Render the wizard's branding header: logo, title, and developer credit. */
 function printWizardBanner(): void {
@@ -941,25 +949,53 @@ export const runSetup = async (): Promise<void> => {
             );
             const captured = await Effect.runPromise(
               Effect.either(
-                Effect.tryPromise({
-                  try: async () => {
-                    const started = await startCallbackServer(callbackPort, 300_000, {
-                      expectedState: state,
-                    });
-                    server = started.server;
-                    await context.openBrowser(authUrl);
-                    showInfo('1. Sign in to your eBay account in the browser');
-                    showInfo('2. Grant permissions to your app');
-                    showInfo('3. eBay redirects back automatically — no copy-paste needed');
-                    const result = await started.codePromise;
-                    if (!result.code) {
-                      throw new Error(
-                        result.errorDescription ?? result.error ?? 'No authorization code received',
-                      );
-                    }
-                    return result.code;
-                  },
-                  catch: (error) => error,
+                Effect.gen(function* () {
+                  const started = yield* Effect.tryPromise({
+                    try: () =>
+                      startCallbackServer(callbackPort, 300_000, {
+                        expectedState: state,
+                      }),
+                    catch: (cause) =>
+                      new SetupCaptureError({
+                        message: 'Failed to start OAuth callback server',
+                        cause,
+                      }),
+                  });
+                  server = started.server;
+
+                  yield* Effect.tryPromise({
+                    try: () => context.openBrowser(authUrl),
+                    catch: (cause) =>
+                      new SetupCaptureError({
+                        message: 'Failed to open OAuth authorization URL',
+                        cause,
+                      }),
+                  });
+
+                  showInfo('1. Sign in to your eBay account in the browser');
+                  showInfo('2. Grant permissions to your app');
+                  showInfo('3. eBay redirects back automatically — no copy-paste needed');
+
+                  const result = yield* Effect.tryPromise({
+                    try: () => started.codePromise,
+                    catch: (cause) =>
+                      new SetupCaptureError({
+                        message: 'Failed while waiting for eBay OAuth redirect',
+                        cause,
+                      }),
+                  });
+                  if (!result.code) {
+                    return yield* Effect.fail(
+                      new SetupCaptureError({
+                        message:
+                          result.errorDescription ??
+                          result.error ??
+                          'No authorization code received',
+                      }),
+                    );
+                  }
+
+                  return result.code;
                 }).pipe(
                   Effect.ensuring(
                     Effect.sync(() => {

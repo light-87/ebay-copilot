@@ -282,8 +282,10 @@ _Why:_ Shared object contracts should be inspectable and stable.
 
 Use the `@/` alias for anything outside the current folder and `./sibling.js`
 only for same-directory imports. Keep NodeNext `.js` extensions. Hand-written
-source/test/UI files use camelCase filenames. Generated files, upstream specs,
-and external docs keep their upstream naming.
+source/test/UI file basenames must be camelCase. Do not use kebab-case or
+snake_case for hand-written file basenames. Generated files, upstream specs,
+external docs, and root convention files such as `CODE-STYLE.md` and `AGENTS.md`
+keep their upstream or conventional naming.
 
 ```ts
 // chosen
@@ -296,9 +298,10 @@ import { getCustomPoliciesInputSchema } from '../../schemas/account-management/a
 
 _Why:_ Imports and filenames should be predictable across `src`, tests, and UI.
 
-If a hand-written source/test/UI filename is introduced or found in kebab-case,
-rename it in the same diff. User-facing enum values such as the
-`token-management` tool family key are data contracts, not filenames.
+If a hand-written source/test/UI filename is introduced or found in kebab-case or
+snake_case, rename it in the same diff. This rule is about file basenames; domain
+folder slugs and user-facing enum values such as the `token-management` tool
+family key are data contracts, not filenames.
 
 ### Module Boundaries · [taste]
 
@@ -328,13 +331,18 @@ _Why:_ stdout is the MCP protocol channel.
 
 ### Tool And Handler Shape · [taste]
 
-Tools stay co-located with handlers via `defineTool` by default. A handler
-validates/brands args, runs exactly one endpoint Effect program, and does no
-`try/catch`, mapping, or response reshaping except presentation-only UI maps.
+Tools stay co-located with handlers via `defineTool` by default.
+Endpoint-backed handlers validate/brand args, run exactly one endpoint Effect
+program, and do no `try/catch`, mapping, or response reshaping except
+presentation-only UI maps. Protocol/helper tools that do not mirror an eBay
+endpoint (`search`, `fetch`, OAuth token helpers, and API status feed helpers)
+own their protocol response at that boundary; keep that shaping local, explicit,
+and backed by tagged Effect failures.
+
 If a large catalog still pairs definitions and handlers from separate files, it
 must enforce one public definition per handler and must not keep hidden aliases.
-New or migrated tools should close schema/handler mismatches first, then move
-into a co-located `defineTool` entry.
+New or migrated endpoint tools should close schema/handler mismatches first,
+then move into a co-located `defineTool` entry.
 
 _Why:_ Registry entries should make the tool-to-endpoint link obvious.
 
@@ -566,7 +574,8 @@ API exemplar:
 
 - Never use `as any`; narrow or use a documented boundary cast.
 - Never add default exports.
-- Never add or keep kebab-case hand-written source/test/UI filenames.
+- Never add or keep kebab-case or snake_case hand-written source/test/UI file
+  basenames.
 - Never use `try/catch` in endpoint/tool code when the work can be an Effect.
 - Never throw custom untagged errors from migrated API code.
 - Never use `?? 'unknown'`, `?? 'N/A'`, or invented semantic display fallbacks in

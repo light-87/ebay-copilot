@@ -45,20 +45,20 @@ export const formatAmount = (amount: MoneyLike | undefined): string | null => {
  * Turns eBay's `SCREAMING_SNAKE_CASE` status codes into human-readable sentence
  * case (`"ITEM_NOT_RECEIVED"` → `"Item not received"`): underscores become
  * spaces and only the first word is capitalised, which reads more naturally for
- * multi-word statuses than Title Case. Returns an em dash for a missing status
- * so tables and cards never render a blank cell.
+ * multi-word statuses than Title Case. Returns `null` for a missing status so
+ * the React view, not the mapper, owns placeholder rendering.
  *
  * @param status - Optional eBay enum/status value.
- * @returns A display label, or an em dash when no status was provided.
+ * @returns A display label, or null when no status was provided.
  *
  * @example
  * ```ts
  * humanizeStatus('ITEM_NOT_RECEIVED');
  * ```
  */
-export const humanizeStatus = (status: string | undefined): string => {
+export const humanizeStatus = (status: string | undefined): string | null => {
   if (!status) {
-    return '—';
+    return null;
   }
   const lowered = status.toLowerCase().replace(/_/g, ' ');
   return lowered.charAt(0).toUpperCase() + lowered.slice(1);
@@ -101,25 +101,26 @@ export const statusTone = (status: string | undefined): CardBadge['tone'] => {
 /**
  * Coerces an untyped JSON leaf (the analytics specs type report values as
  * `Record<string, never>`, though at runtime they are numbers or numeric
- * strings) to a finite number, defaulting to `0`. Used for chart Y values.
+ * strings) to a finite number. Missing or invalid values return `null` so chart
+ * mappers can omit the point instead of inventing a zero.
  *
  * @param value - Analytics value leaf from an eBay report response.
- * @returns A finite number for chart points, defaulting to 0 for non-numeric input.
+ * @returns A finite number for chart points, or null for non-numeric input.
  *
  * @example
  * ```ts
  * toNumber('42');
  * ```
  */
-export const toNumber = (value: unknown): number => {
+export const toNumber = (value: unknown): number | null => {
   if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : 0;
+    return Number.isFinite(value) ? value : null;
   }
   if (typeof value === 'string') {
     const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : 0;
+    return Number.isFinite(parsed) ? parsed : null;
   }
-  return 0;
+  return null;
 };
 
 /**

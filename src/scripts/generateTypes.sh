@@ -36,6 +36,52 @@ GENERATED_COUNT=0
 SKIPPED_COUNT=0
 ERROR_COUNT=0
 
+# Preserve handwritten import contracts that point at generated OpenAPI namespaces.
+preserve_type_aliases() {
+    local output_file="$1"
+    local spec_name="$2"
+    local components_alias=""
+    local operations_alias=""
+
+    case "${spec_name}" in
+        developerAnalyticsV1BetaOas3)
+            components_alias="DeveloperAnalyticsComponents"
+            operations_alias="DeveloperAnalyticsOperations"
+            ;;
+        developerClientRegistrationV1Oas3)
+            components_alias="DeveloperClientRegistrationComponents"
+            operations_alias="DeveloperClientRegistrationOperations"
+            ;;
+        developerKeyManagementV1Oas3)
+            components_alias="DeveloperKeyManagementComponents"
+            operations_alias="DeveloperKeyManagementOperations"
+            ;;
+        sellComplianceV1Oas3)
+            components_alias="SellComplianceComponents"
+            operations_alias="SellComplianceOperations"
+            ;;
+    esac
+
+    if [ -z "${components_alias}" ]; then
+        return 0
+    fi
+
+    if grep -Eq "export (interface|type) components" "${output_file}" && ! grep -q "export type ${components_alias}" "${output_file}"; then
+        {
+            echo ""
+            echo "/** Repo-specific alias for generated OpenAPI components. */"
+            echo "export type ${components_alias} = components;"
+        } >> "${output_file}"
+    fi
+
+    if grep -Eq "export (interface|type) operations" "${output_file}" && ! grep -q "export type ${operations_alias}" "${output_file}"; then
+        {
+            echo "/** Repo-specific alias for generated OpenAPI operations. */"
+            echo "export type ${operations_alias} = operations;"
+        } >> "${output_file}"
+    fi
+}
+
 # Function to generate types from OpenAPI spec
 generate_types() {
     local input_file="$1"
@@ -54,6 +100,7 @@ generate_types() {
 
     # Generate types using openapi-typescript, ensuring --dts is used for declaration files
     if npx openapi-typescript "${input_file}" -o "${output_file}" --silent --dts 2>/dev/null; then
+        preserve_type_aliases "${output_file}" "${spec_name}"
         echo -e "  ${GREEN}✓ Success${NC}"
         ((GENERATED_COUNT++)) # Increment GENERATED_COUNT on success
     else

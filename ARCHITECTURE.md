@@ -54,7 +54,7 @@ Full guide: [CODE-STYLE.md](CODE-STYLE.md). In short:
 | Rule | Shape |
 | --- | --- |
 | Imports | `@/` alias except same-dir siblings; keep NodeNext `.js` |
-| Files | hand-written source/test/UI filenames are camelCase; generated/upstream filenames keep source names |
+| Files | hand-written source/test/UI file basenames are camelCase, never kebab-case or snake_case; generated/upstream filenames keep source names |
 | Casts | boundary-only; never `as any`; no hand-written source excluded from typecheck |
 | Functions | new/migrated exported functions use `export const ... = (...) =>`; named exports only |
 | Errors | fallible API/IO returns typed Effects; run with `Effect.runPromise` only at MCP/HTTP/CLI boundaries |

@@ -77,10 +77,10 @@ const sleep = (delayMs: number): Effect.Effect<void> =>
  * backoff) responses.
  */
 export class EbayApiClient {
-  private authClient: EbayOAuthClient;
-  private baseUrl: string;
-  private rateLimitTracker: RateLimitTracker;
-  private config: EbayConfig;
+  private readonly authClient: EbayOAuthClient;
+  private readonly baseUrl: string;
+  private readonly rateLimitTracker: RateLimitTracker;
+  private readonly config: EbayConfig;
   private readonly timeoutMs = 30_000;
 
   /**
@@ -134,7 +134,7 @@ export class EbayApiClient {
    */
   private ebayErrorDetail(data: unknown): string | undefined {
     if (isRecord(data) && Array.isArray(data.errors)) {
-      const firstError = data.errors[0];
+      const [firstError] = data.errors;
       if (isRecord(firstError)) {
         const detail = firstError.longMessage ?? firstError.message;
         if (typeof detail === 'string') {

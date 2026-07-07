@@ -12,11 +12,12 @@
  * asserts the two agree so adding a category without updating this list fails CI.
  */
 
+import process from 'node:process';
+
 /**
  * Canonical tool-family keys, mirroring `toolCategories[].key`. These are the
  * accepted tokens in a static `EBAY_MCP_TOOLS` list (e.g. `inventory,fulfillment`).
  */
-import process from 'node:process';
 export const TOOL_FAMILY_KEYS = [
   'connector',
   'token-management',

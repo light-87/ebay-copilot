@@ -27,7 +27,11 @@ export interface FindListingRecommendationsInput {
   readonly marketplaceId: string;
 }
 
-/** Generated request body for findListingRecommendations. */
+/**
+ * Request body accepted by findListingRecommendations.
+ *
+ * @see https://developer.ebay.com/api-docs/sell/recommendation/resources/find/methods/findListingRecommendations
+ */
 export type FindListingRecommendationRequest =
   components['schemas']['FindListingRecommendationRequest'];
 

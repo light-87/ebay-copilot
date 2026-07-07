@@ -87,20 +87,24 @@ export const summarizeView = (view: ViewModel): string => {
     case 'table': {
       const count = view.rows.length;
       const tail = view.footnote ? ` — ${view.footnote}` : '';
-      return `${view.title ?? 'Results'}: ${count} ${count === 1 ? 'row' : 'rows'}${tail}. Rendered as an interactive table.`;
+      const prefix = view.title ? `${view.title}: ` : '';
+      return `${prefix}${count} ${count === 1 ? 'row' : 'rows'}${tail}. Rendered as an interactive table.`;
     }
     case 'card': {
-      const subtitle = view.subtitle ? ` — ${view.subtitle}` : '';
+      const heading = [view.title, view.subtitle].filter(Boolean).join(' — ');
+      const prefix = heading ? `${heading}: ` : '';
       const fieldCount = view.sections.reduce((total, section) => total + section.fields.length, 0);
-      return `${view.title ?? 'Details'}${subtitle}: ${fieldCount} ${fieldCount === 1 ? 'field' : 'fields'}. Rendered as an interactive detail card.`;
+      return `${prefix}${fieldCount} ${fieldCount === 1 ? 'field' : 'fields'}. Rendered as an interactive detail card.`;
     }
     case 'chart': {
       const pointCount = view.series.reduce((total, series) => total + series.points.length, 0);
-      return `${view.title ?? 'Chart'} (${view.kind}): ${view.series.length} series, ${pointCount} ${pointCount === 1 ? 'point' : 'points'}. Rendered as an interactive chart.`;
+      const prefix = view.title ? `${view.title} (${view.kind}): ` : '';
+      return `${prefix}${view.series.length} series, ${pointCount} ${pointCount === 1 ? 'point' : 'points'}. Rendered as an interactive chart.`;
     }
     case 'stat': {
       const count = view.tiles.length;
-      return `${view.title ?? 'Metrics'}: ${count} ${count === 1 ? 'metric' : 'metrics'}. Rendered as an interactive stat grid.`;
+      const prefix = view.title ? `${view.title}: ` : '';
+      return `${prefix}${count} ${count === 1 ? 'metric' : 'metrics'}. Rendered as an interactive stat grid.`;
     }
   }
 };

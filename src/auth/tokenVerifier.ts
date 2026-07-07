@@ -92,7 +92,14 @@ export class TokenVerifier {
   }
 
   /**
-   * Initialize the verifier by loading OAuth server metadata
+   * Initialize the verifier by loading OAuth server metadata.
+   *
+   * @returns An Effect that completes after metadata is loaded or assigned.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(verifier.initialize());
+   * ```
    */
   initialize = (): Effect.Effect<void, TokenVerifierError> =>
     Effect.gen(this, function* () {
@@ -111,7 +118,15 @@ export class TokenVerifier {
     });
 
   /**
-   * Verify an access token
+   * Verify an access token.
+   *
+   * @param token - Bearer token received by the MCP HTTP transport.
+   * @returns An Effect that succeeds with verified token claims.
+   *
+   * @example
+   * ```ts
+   * const verified = await Effect.runPromise(verifier.verifyToken(token));
+   * ```
    */
   verifyToken = (token: string): Effect.Effect<VerifiedToken, TokenVerifierError> =>
     Effect.gen(this, function* () {

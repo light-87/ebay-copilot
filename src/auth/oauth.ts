@@ -40,6 +40,26 @@ export class EbayOAuthError extends Data.TaggedError('EbayOAuthError')<{
   readonly cause?: unknown;
 }> {}
 
+/** Scope comparison returned by OAuth token status diagnostics. */
+export interface OAuthTokenScopeInfo {
+  /** Scopes carried by the current user token. */
+  readonly tokenScopes: string[];
+  /** Scopes expected for the configured eBay environment. */
+  readonly environmentScopes: string[];
+  /** Expected scopes missing from the current user token. */
+  readonly missingScopes: string[];
+}
+
+/** Current in-memory OAuth token state used by status and diagnostic tools. */
+export interface OAuthTokenInfo {
+  /** Whether a non-expired user token is available. */
+  readonly hasUserToken: boolean;
+  /** Whether a non-expired app access token is available. */
+  readonly hasAppAccessToken: boolean;
+  /** Scope comparison details when a user token exposes its granted scopes. */
+  readonly scopeInfo?: OAuthTokenScopeInfo;
+}
+
 const mapCredentialStoreError = (
   operation: OAuthOperation,
   message: string,
@@ -89,6 +109,13 @@ export class EbayOAuthClient {
 
   /**
    * Initialize user tokens from validated runtime config.
+   *
+   * @returns An Effect that completes after loading and refreshing configured tokens.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(oauthClient.initialize());
+   * ```
    */
   initialize = (): Effect.Effect<void> =>
     Effect.gen(this, function* () {
@@ -131,7 +158,14 @@ export class EbayOAuthClient {
     });
 
   /**
-   * Check if user tokens are available
+   * Check if user tokens are available.
+   *
+   * @returns True when user tokens are currently loaded in memory.
+   *
+   * @example
+   * ```ts
+   * const hasTokens = oauthClient.hasUserTokens();
+   * ```
    */
   hasUserTokens(): boolean {
     return this.userTokens !== null;
@@ -155,6 +189,13 @@ export class EbayOAuthClient {
    * Get a valid access token, with priority order:
    * 1. User access token (if available and valid, or refreshable)
    * 2. App access token from client credentials (fallback)
+   *
+   * @returns An Effect that succeeds with the token used for eBay API requests.
+   *
+   * @example
+   * ```ts
+   * const token = await Effect.runPromise(oauthClient.getAccessToken());
+   * ```
    */
   getAccessToken = (): Effect.Effect<string, EbayOAuthError> =>
     Effect.gen(this, function* () {
@@ -200,8 +241,20 @@ export class EbayOAuthClient {
     });
 
   /**
-   * Set user access token and refresh token
-   * Stores tokens in memory and updates .env file for persistence
+   * Set user access token and refresh token.
+   *
+   * Stores tokens in memory and updates `.env` for persistence.
+   *
+   * @param accessToken - User access token returned by eBay OAuth.
+   * @param refreshToken - User refresh token returned by eBay OAuth.
+   * @param accessTokenExpiry - Optional access-token expiry timestamp in milliseconds.
+   * @param refreshTokenExpiry - Optional refresh-token expiry timestamp in milliseconds.
+   * @returns An Effect that completes after the tokens are stored and persisted.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(oauthClient.setUserTokens(accessToken, refreshToken));
+   * ```
    */
   setUserTokens = (
     accessToken: string,
@@ -234,6 +287,13 @@ export class EbayOAuthClient {
    * Get or refresh the app access token using the client credentials flow.
    * This method ensures that a valid app access token is always available.
    * Rate limit: 1,000 requests/day
+   *
+   * @returns An Effect that succeeds with a cached or newly minted app access token.
+   *
+   * @example
+   * ```ts
+   * const appToken = await Effect.runPromise(oauthClient.getOrRefreshAppAccessToken());
+   * ```
    */
   getOrRefreshAppAccessToken = (): Effect.Effect<string, EbayOAuthError> =>
     Effect.gen(this, function* () {
@@ -295,8 +355,17 @@ export class EbayOAuthClient {
     });
 
   /**
-   * Exchange authorization code for user access token
-   * Persists received tokens to .env automatically
+   * Exchange authorization code for user access token.
+   *
+   * Persists received tokens to `.env` automatically.
+   *
+   * @param code - Authorization code received from eBay's OAuth redirect.
+   * @returns An Effect that succeeds with eBay's user token response.
+   *
+   * @example
+   * ```ts
+   * const token = await Effect.runPromise(oauthClient.exchangeCodeForToken(code));
+   * ```
    */
   exchangeCodeForToken = (code: string): Effect.Effect<EbayUserToken, EbayOAuthError> =>
     Effect.gen(this, function* () {
@@ -362,8 +431,16 @@ export class EbayOAuthClient {
     });
 
   /**
-   * Refresh user access token using refresh token from .env
-   * This method is public and can be called by LLMs when encountering authentication errors
+   * Refresh user access token using the stored refresh token.
+   *
+   * This method is public so tools can recover from authentication errors.
+   *
+   * @returns An Effect that completes after the user token is refreshed and persisted.
+   *
+   * @example
+   * ```ts
+   * await Effect.runPromise(oauthClient.refreshUserToken());
+   * ```
    */
   refreshUserToken = (): Effect.Effect<void, EbayOAuthError> =>
     Effect.gen(this, function* () {
@@ -440,7 +517,14 @@ export class EbayOAuthClient {
     });
 
   /**
-   * Check if currently authenticated (either user or app credentials)
+   * Check if currently authenticated with user or app credentials.
+   *
+   * @returns True when a non-expired user token or app token is available.
+   *
+   * @example
+   * ```ts
+   * const authenticated = oauthClient.isAuthenticated();
+   * ```
    */
   isAuthenticated(): boolean {
     if (this.userTokens && !this.isUserAccessTokenExpired(this.userTokens)) {
@@ -450,8 +534,16 @@ export class EbayOAuthClient {
   }
 
   /**
-   * Clear all authentication tokens from memory
-   * Note: To persist this change, remove EBAY_USER_REFRESH_TOKEN from .env
+   * Clear all authentication tokens from memory.
+   *
+   * To persist this change, remove `EBAY_USER_REFRESH_TOKEN` from `.env`.
+   *
+   * @returns Nothing; the in-memory token cache is cleared synchronously.
+   *
+   * @example
+   * ```ts
+   * oauthClient.clearAllTokens();
+   * ```
    */
   clearAllTokens(): void {
     this.appAccessToken = null;
@@ -460,18 +552,17 @@ export class EbayOAuthClient {
   }
 
   /**
-   * Get current token info for debugging
+   * Get current token info for debugging and status tools.
+   *
+   * @returns Token availability and scope comparison details.
+   *
+   * @example
+   * ```ts
+   * const tokenInfo = oauthClient.getTokenInfo();
+   * ```
    */
-  getTokenInfo(): {
-    hasUserToken: boolean;
-    hasAppAccessToken: boolean;
-    scopeInfo?: { tokenScopes: string[]; environmentScopes: string[]; missingScopes: string[] };
-  } {
-    const info: {
-      hasUserToken: boolean;
-      hasAppAccessToken: boolean;
-      scopeInfo?: { tokenScopes: string[]; environmentScopes: string[]; missingScopes: string[] };
-    } = {
+  getTokenInfo(): OAuthTokenInfo {
+    const info: OAuthTokenInfo = {
       hasUserToken: this.userTokens !== null && !this.isUserAccessTokenExpired(this.userTokens),
       hasAppAccessToken: this.appAccessToken !== null && Date.now() < this.appAccessTokenExpiry,
     };
@@ -483,10 +574,13 @@ export class EbayOAuthClient {
       const tokenScopeSet = new Set(tokenScopes);
       const missingScopes = environmentScopes.filter((scope) => !tokenScopeSet.has(scope));
 
-      info.scopeInfo = {
-        tokenScopes,
-        environmentScopes,
-        missingScopes,
+      return {
+        ...info,
+        scopeInfo: {
+          tokenScopes,
+          environmentScopes,
+          missingScopes,
+        },
       };
     }
 
@@ -494,7 +588,15 @@ export class EbayOAuthClient {
   }
 
   /**
-   * Get internal user tokens (for debugging/status tools)
+   * Get internal user tokens for debugging and status tools.
+   *
+   * @returns The loaded user token data, or null when no user token is available.
+   *
+   * @example
+   * ```ts
+   * const tokens = oauthClient.getUserTokens();
+   * ```
+   *
    * @internal
    */
   getUserTokens(): StoredTokenData | null {
@@ -502,7 +604,15 @@ export class EbayOAuthClient {
   }
 
   /**
-   * Get internal app access token cached value (for debugging/status tools)
+   * Get internal app access token cached value for debugging and status tools.
+   *
+   * @returns The cached app access token, or null when no token is cached.
+   *
+   * @example
+   * ```ts
+   * const appToken = oauthClient.getCachedAppAccessToken();
+   * ```
+   *
    * @internal
    */
   getCachedAppAccessToken(): string | null {
@@ -510,7 +620,15 @@ export class EbayOAuthClient {
   }
 
   /**
-   * Get internal app access token expiry (for debugging/status tools)
+   * Get internal app access token expiry for debugging and status tools.
+   *
+   * @returns The cached app access token expiry timestamp in milliseconds.
+   *
+   * @example
+   * ```ts
+   * const expiresAt = oauthClient.getCachedAppAccessTokenExpiry();
+   * ```
+   *
    * @internal
    */
   getCachedAppAccessTokenExpiry(): number {

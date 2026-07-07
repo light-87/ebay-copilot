@@ -70,6 +70,12 @@ const footnoteFor = (shown: number, total: number | undefined): string | undefin
   return total > shown ? `Showing ${shown} of ${total}` : `${total} total`;
 };
 
+/** Builds a status badge only when eBay returned a status value to display. */
+const statusBadge = (status: string | undefined): CardBadge | undefined => {
+  const label = humanizeStatus(status);
+  return label ? { label, tone: statusTone(status) } : undefined;
+};
+
 /**
  * Projects a seller's orders into a table; rows drill into a single-order card.
  *
@@ -331,20 +337,20 @@ export const mapDisputeSummariesToTable = (result: DisputeSummaryResponse): Tabl
  */
 export const mapOrderToCard = (result: Order): CardViewModel => {
   const lineItems = result.lineItems ?? [];
+  const badges: CardBadge[] = [];
+  const fulfillmentBadge = statusBadge(result.orderFulfillmentStatus);
+  if (fulfillmentBadge) {
+    badges.push(fulfillmentBadge);
+  }
+  const paymentBadge = statusBadge(result.orderPaymentStatus);
+  if (paymentBadge) {
+    badges.push(paymentBadge);
+  }
   return {
     archetype: 'card',
     title: result.orderId ? `Order ${result.orderId}` : 'Order',
     subtitle: result.buyer?.username ? `Buyer: ${result.buyer.username}` : undefined,
-    badges: [
-      {
-        label: humanizeStatus(result.orderFulfillmentStatus),
-        tone: statusTone(result.orderFulfillmentStatus),
-      },
-      {
-        label: humanizeStatus(result.orderPaymentStatus),
-        tone: statusTone(result.orderPaymentStatus),
-      },
-    ],
+    badges,
     sections: [
       {
         heading: 'Summary',
@@ -357,7 +363,7 @@ export const mapOrderToCard = (result: Order): CardViewModel => {
       {
         heading: 'Items',
         fields: lineItems.map((lineItem) => ({
-          label: truncate(lineItem.title, 60) || (lineItem.sku ?? 'Item'),
+          label: truncate(lineItem.title, 60) || lineItem.sku || '',
           value: lineItem.quantity == null ? null : `×${lineItem.quantity}`,
         })),
       },
@@ -377,11 +383,16 @@ export const mapOrderToCard = (result: Order): CardViewModel => {
  * ```
  */
 export const mapOfferToCard = (result: EbayOfferDetailsWithAll): CardViewModel => {
-  const badges: CardBadge[] = [
-    { label: humanizeStatus(result.status), tone: statusTone(result.status) },
-  ];
+  const badges: CardBadge[] = [];
+  const offerStatusBadge = statusBadge(result.status);
+  if (offerStatusBadge) {
+    badges.push(offerStatusBadge);
+  }
   if (result.format) {
-    badges.push({ label: humanizeStatus(result.format) });
+    const formatLabel = humanizeStatus(result.format);
+    if (formatLabel) {
+      badges.push({ label: formatLabel });
+    }
   }
   return {
     archetype: 'card',
@@ -423,11 +434,12 @@ export const mapInventoryItemToCard = (
   result: InventoryItemWithSkuLocaleGroupid,
 ): CardViewModel => {
   const product = result.product;
+  const conditionBadge = statusBadge(result.condition);
   return {
     archetype: 'card',
     title: result.sku ? `SKU ${result.sku}` : 'Inventory item',
     subtitle: product?.title ? truncate(product.title, 80) : undefined,
-    badges: [{ label: humanizeStatus(result.condition), tone: statusTone(result.condition) }],
+    badges: conditionBadge ? [conditionBadge] : undefined,
     sections: [
       {
         heading: 'Product',
@@ -479,21 +491,17 @@ export const mapDisputeToCard = (result: PaymentDispute): CardViewModel => {
     sections.push({
       heading: 'Available actions',
       fields: result.availableChoices.map((choice) => ({
-        label: humanizeStatus(choice),
+        label: humanizeStatus(choice) ?? '',
         value: null,
       })),
     });
   }
+  const disputeBadge = statusBadge(result.paymentDisputeStatus);
   return {
     archetype: 'card',
     title: result.paymentDisputeId ? `Dispute ${result.paymentDisputeId}` : 'Payment dispute',
     subtitle: result.orderId ? `Order: ${result.orderId}` : undefined,
-    badges: [
-      {
-        label: humanizeStatus(result.paymentDisputeStatus),
-        tone: statusTone(result.paymentDisputeStatus),
-      },
-    ],
+    badges: disputeBadge ? [disputeBadge] : undefined,
     sections,
   };
 };
@@ -525,18 +533,17 @@ export const mapStandardsProfileToCard = (result: StandardsProfile): CardViewMod
     sections.push({
       heading: 'Metrics',
       fields: metrics.map((metric) => ({
-        label: humanizeStatus(metric.metricKey),
+        label: humanizeStatus(metric.metricKey) ?? '',
         value: metric.value ?? null,
       })),
     });
   }
+  const standardsBadge = statusBadge(result.standardsLevel);
   return {
     archetype: 'card',
-    title: result.program ? humanizeStatus(result.program) : 'Seller standards',
-    subtitle: result.cycle?.cycleType ? humanizeStatus(result.cycle.cycleType) : undefined,
-    badges: [
-      { label: humanizeStatus(result.standardsLevel), tone: statusTone(result.standardsLevel) },
-    ],
+    title: humanizeStatus(result.program) ?? 'Seller standards',
+    subtitle: humanizeStatus(result.cycle?.cycleType) ?? undefined,
+    badges: standardsBadge ? [standardsBadge] : undefined,
     sections,
   };
 };
@@ -560,11 +567,11 @@ export const mapTrafficReportToChart = (result: Report): ChartViewModel => {
   const metricDefs = result.header?.metrics ?? [];
   const seriesCount = metricDefs.length || records[0]?.metricValues?.length || 0;
   const series: ChartSeries[] = Array.from({ length: seriesCount }, (_unused, metricIndex) => ({
-    name: metricDefs[metricIndex]?.key ?? `Metric ${metricIndex + 1}`,
-    points: records.map((record) => ({
-      x: toLabel(record.dimensionValues?.[0]?.value),
-      y: toNumber(record.metricValues?.[metricIndex]?.value),
-    })),
+    name: metricDefs[metricIndex]?.key ?? '',
+    points: records.flatMap((record) => {
+      const y = toNumber(record.metricValues?.[metricIndex]?.value);
+      return y === null ? [] : [{ x: toLabel(record.dimensionValues?.[0]?.value), y }];
+    }),
   }));
   return {
     archetype: 'chart',
@@ -595,9 +602,13 @@ export const mapCustomerServiceMetricToChart = (
   for (const dimensionMetric of dimensionMetrics) {
     const x = toLabel(dimensionMetric.dimension?.value ?? dimensionMetric.dimension?.name);
     for (const metric of dimensionMetric.metrics ?? []) {
-      const key = metric.metricKey ?? 'Value';
+      const key = metric.metricKey ?? '';
+      const y = toNumber(metric.value);
+      if (y === null) {
+        continue;
+      }
       const points = pointsByMetric.get(key) ?? [];
-      points.push({ x, y: toNumber(metric.value) });
+      points.push({ x, y });
       pointsByMetric.set(key, points);
     }
   }
@@ -646,7 +657,7 @@ const rateLimitTiles = (result: RateLimitsResponse): StatTile[] => {
       const limit = rate.limit ?? 0;
       const parts = [rateLimit.apiContext, rateLimit.apiName, resource.name].filter(Boolean);
       tiles.push({
-        label: parts.length > 0 ? parts.join(' · ') : 'Resource',
+        label: parts.length > 0 ? parts.join(' · ') : '',
         value: remaining.toLocaleString('en-US'),
         sub: `of ${limit.toLocaleString('en-US')}`,
         tone: headroomTone(remaining, limit),
