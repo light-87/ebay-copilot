@@ -40,7 +40,11 @@ const asRecordArray = (value: unknown): Record<string, unknown>[] => {
   return value.filter(isRecord);
 };
 
-/** Parsed Trading API object payload returned by listing write calls. */
+/**
+ * Parsed Trading API object payload returned unchanged from XML calls.
+ *
+ * @see https://developer.ebay.com/devzone/xml/docs/reference/ebay/index.html
+ */
 export type TradingRecordResponse = Record<string, unknown>;
 
 /**

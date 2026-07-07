@@ -348,14 +348,14 @@ import { describe, it, expect } from 'vitest';
 import { getInventoryItemInputSchema } from '@/schemas';
 
 describe('Inventory Schemas', () => {
-  it('should validate correct input', () => {
+  it('validates correct input', () => {
     const result = getInventoryItemInputSchema.safeParse({
       sku: 'TEST-SKU-123',
     });
     expect(result.success).toBe(true);
   });
 
-  it('should reject invalid input', () => {
+  it('rejects invalid input', () => {
     const result = getInventoryItemInputSchema.safeParse({});
     expect(result.success).toBe(false);
   });
