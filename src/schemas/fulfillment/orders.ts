@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { ReasonForRefund } from '@/types/ebayEnums.js';
 
 /**
  * Fulfillment/Order Management API Schemas
  *
- * This file contains Zod schemas for all Order Management and Fulfillment endpoints.
+ * This file contains Effect-backed schemas for all Order Management and Fulfillment endpoints.
  */
 
 // ============================================================================
@@ -541,7 +541,7 @@ export const fetchEvidenceContentInputSchema = z.object({
 // ============================================================================
 
 /**
- * Converts Fulfillment API Zod schemas to JSON Schema format for MCP tools.
+ * Converts Fulfillment API Effect-backed schemas to JSON Schema format for MCP tools.
  *
  * @returns Fulfillment API JSON schemas keyed by endpoint or shared model name.
  * @example

@@ -17,20 +17,20 @@ import type {
 } from '@/utils/trading/trading.js';
 import { isRecord } from '@/utils/typeGuards.js';
 import { Effect } from 'effect';
-import type { z } from 'zod';
+import type { InferEffectSchema } from '@/utils/effectSchemaTypes.js';
 
 /** Input accepted by getActiveListings. */
-type GetActiveListingsInput = z.infer<typeof getActiveListingsSchema>;
+type GetActiveListingsInput = InferEffectSchema<typeof getActiveListingsSchema>;
 /** Input accepted by getListing. */
-type GetListingInput = z.infer<typeof getListingSchema>;
+type GetListingInput = InferEffectSchema<typeof getListingSchema>;
 /** Input accepted by createListing. */
-type CreateListingInput = z.infer<typeof createListingSchema>;
+type CreateListingInput = InferEffectSchema<typeof createListingSchema>;
 /** Input accepted by reviseListing. */
-type ReviseListingInput = z.infer<typeof reviseListingSchema>;
+type ReviseListingInput = InferEffectSchema<typeof reviseListingSchema>;
 /** Input accepted by endListing. */
-type EndListingInput = z.infer<typeof endListingSchema>;
+type EndListingInput = InferEffectSchema<typeof endListingSchema>;
 /** Input accepted by relistItem. */
-type RelistItemInput = z.infer<typeof relistItemSchema>;
+type RelistItemInput = InferEffectSchema<typeof relistItemSchema>;
 
 const asRecordArray = (value: unknown): Record<string, unknown>[] => {
   if (!Array.isArray(value)) {

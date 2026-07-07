@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 
 /**
- * Zod schemas for Translation API input validation
+ * Effect-backed schemas for Translation API input validation
  * Based on: src/api/other/translation.ts
  * OpenAPI spec: docs/sell-apps/other-apis/commerce_translation_v1_beta_oas3.json
  * Types from: src/types/commerce_translation_v1_beta_oas3.ts

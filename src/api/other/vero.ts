@@ -20,15 +20,15 @@ import type {
 } from '@/schemas/other/otherApis.js';
 import type { components } from '@/types/sell-apps/other-apis/commerceVeroV1Oas3.js';
 import { Effect } from 'effect';
-import type { z } from 'zod';
+import type { InferEffectSchema } from '@/utils/effectSchemaTypes.js';
 
 /** Generated request body for createVeroReport. */
 type CreateVeroReportRequest = components['schemas']['VeroReportItemsRequest'];
-type CreateVeroReportInput = z.infer<typeof createVeroReportInputSchema>;
-type GetVeroReportInput = z.infer<typeof getVeroReportInputSchema>;
-type GetVeroReportItemsInput = z.infer<typeof getVeroReportItemsInputSchema>;
-type GetVeroReasonCodeInput = z.infer<typeof getVeroReasonCodeInputSchema>;
-type GetVeroReasonCodesInput = z.infer<typeof getVeroReasonCodesInputSchema>;
+type CreateVeroReportInput = InferEffectSchema<typeof createVeroReportInputSchema>;
+type GetVeroReportInput = InferEffectSchema<typeof getVeroReportInputSchema>;
+type GetVeroReportItemsInput = InferEffectSchema<typeof getVeroReportItemsInputSchema>;
+type GetVeroReasonCodeInput = InferEffectSchema<typeof getVeroReasonCodeInputSchema>;
+type GetVeroReasonCodesInput = InferEffectSchema<typeof getVeroReasonCodesInputSchema>;
 
 /**
  * Response returned by createVeroReport.

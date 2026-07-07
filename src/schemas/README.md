@@ -1,6 +1,6 @@
 # eBay MCP API Schemas
 
-This directory contains comprehensive Zod schemas for all eBay API endpoints, organized by functional area. These schemas provide both **input validation** and **output type safety** for MCP (Model Context Protocol) tools.
+This directory contains comprehensive Effect-backed schemas for eBay API endpoints, organized by functional area. Schemas are authored with `@/utils/effectSchema.js`, which attaches Effect Schema metadata while preserving the Zod-compatible carrier required by the MCP SDK and `zod-to-json-schema`.
 
 ## 📁 Directory Structure
 
@@ -32,10 +32,10 @@ src/schemas/
 
 The schemas in this directory serve multiple purposes:
 
-1. **Input Validation**: Validate request parameters before sending to eBay APIs
+1. **Input Validation**: Decode request parameters through Effect before sending to eBay APIs
 2. **Output Validation**: Ensure API responses match expected structures
 3. **Type Safety**: Provide TypeScript types for compile-time checking
-4. **JSON Schema Generation**: Convert Zod schemas to JSON Schema format for MCP tools
+4. **JSON Schema Generation**: Convert the Zod-compatible adapter carrier to JSON Schema for MCP tools
 5. **Documentation**: Self-documenting code with schema descriptions
 
 ## 🚀 Usage
@@ -68,20 +68,23 @@ const allSchemas = getAllJsonSchemas();
 const marketingCampaignSchema = allSchemas.marketing.createCampaignInput;
 ```
 
-### Using Zod Schemas for Validation
+### Using Effect-Backed Schemas for Validation
 
 ```typescript
 import { Effect } from 'effect';
 import { getInventoryItemInputSchema, getInventoryItemOutputSchema } from '@/schemas';
+import { decodeEffectSchema } from '@/utils/effectSchema.js';
 
 // Validate input
-const input = getInventoryItemInputSchema.parse({
-  sku: 'ABC123',
-});
+const input = await Effect.runPromise(
+  decodeEffectSchema(getInventoryItemInputSchema, { sku: 'ABC123' }),
+);
 
 // Validate output
 const response = await Effect.runPromise(api.inventory.getInventoryItem(input));
-const validatedOutput = getInventoryItemOutputSchema.parse(response);
+const validatedOutput = await Effect.runPromise(
+  decodeEffectSchema(getInventoryItemOutputSchema, response),
+);
 ```
 
 ### Using JSON Schemas with MCP Tools
@@ -296,7 +299,7 @@ When adding schemas for new endpoints:
 
 1. **Create a new file** in the appropriate category folder
 2. **Import required enums** from `@/types/ebayEnums.js`
-3. **Define Zod schemas** for inputs and outputs
+3. **Define Effect-backed schemas** for inputs and outputs
 4. **Add JSON Schema converter function** (e.g., `getMarketingJsonSchemas()`)
 5. **Export from `index.ts`**
 6. **Update this README** with the new category
@@ -304,8 +307,8 @@ When adding schemas for new endpoints:
 ### Example Template:
 
 ```typescript
-import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z } from '@/utils/effectSchema.js';
 
 // Common schemas
 const errorSchema = z.object({...});
@@ -323,7 +326,7 @@ export const actionNameOutputSchema = z.object({
 });
 
 /**
- * Converts category Zod schemas to JSON Schema format for MCP tools.
+ * Converts category schemas to JSON Schema format for MCP tools.
  *
  * @returns Category JSON schemas keyed by endpoint or shared model name.
  * @example
@@ -345,26 +348,28 @@ To test schema validation:
 
 ```typescript
 import { describe, it, expect } from 'vitest';
+import { Effect } from 'effect';
 import { getInventoryItemInputSchema } from '@/schemas';
+import { decodeEffectSchema } from '@/utils/effectSchema.js';
 
 describe('Inventory Schemas', () => {
-  it('validates correct input', () => {
-    const result = getInventoryItemInputSchema.safeParse({
-      sku: 'TEST-SKU-123',
-    });
-    expect(result.success).toBe(true);
+  it('validates correct input', async () => {
+    await expect(
+      Effect.runPromise(decodeEffectSchema(getInventoryItemInputSchema, { sku: 'TEST-SKU-123' })),
+    ).resolves.toEqual({ sku: 'TEST-SKU-123' });
   });
 
-  it('rejects invalid input', () => {
-    const result = getInventoryItemInputSchema.safeParse({});
-    expect(result.success).toBe(false);
+  it('rejects invalid input', async () => {
+    await expect(
+      Effect.runPromise(decodeEffectSchema(getInventoryItemInputSchema, {})),
+    ).rejects.toThrow();
   });
 });
 ```
 
 ## 📖 Related Documentation
 
-- [Zod Documentation](https://zod.dev/)
+- [Effect Schema Documentation](https://effect.website/docs/schema/introduction/)
 - [zod-to-json-schema](https://github.com/StefanTerdell/zod-to-json-schema)
 - [eBay API Documentation](https://developer.ebay.com/api-docs/)
 - [MCP Protocol Specification](https://modelcontextprotocol.io/)
@@ -372,7 +377,7 @@ describe('Inventory Schemas', () => {
 ## 🎨 Design Principles
 
 1. **DRY (Don't Repeat Yourself)**: Reuse common schemas (error, amount, address)
-2. **Type Safety**: Leverage TypeScript and Zod for compile-time and runtime safety
+2. **Type Safety**: Leverage TypeScript and Effect Schema for compile-time and runtime safety
 3. **Descriptive**: Use `.describe()` to document schema fields
 4. **Optional by Default**: Make fields optional unless they're truly required
 5. **Passthrough**: Use `.passthrough()` to allow additional properties from eBay
@@ -380,7 +385,7 @@ describe('Inventory Schemas', () => {
 
 ## ✅ Completion Status
 
-All eBay API endpoints now have comprehensive Zod schemas!
+All eBay API endpoints now have comprehensive Effect-backed schemas!
 
 - [x] **Account Management** - 21 endpoints ✅
 - [x] **Inventory Management** - 30 endpoints ✅
@@ -414,7 +419,7 @@ All eBay API endpoints now have comprehensive Zod schemas!
 
 ## 📊 Statistics
 
-- **Total Zod Schemas**: 450+
+- **Total Effect-Backed Schemas**: 450+
 - **Total JSON Schemas**: 220+
 - **Lines of Code**: 5,000+
 - **API Categories**: 9
@@ -424,6 +429,7 @@ All eBay API endpoints now have comprehensive Zod schemas!
 
 **Last Updated**: 2025-11-16
 **Status**: ✅ Complete
-**Zod Version**: 3.x
+**Effect Version**: see `package.json`
+**Zod Compatibility Carrier**: 3.x
 **zod-to-json-schema Version**: 3.24.6
 **Validation Status**: All schemas verified against TypeScript types

@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { MessageReferenceType, FeedbackRating } from '@/types/ebayEnums.js';
 
 /**
  * Communication API Schemas - Messages, Feedback, and Notifications
  *
- * This file contains Zod schemas for all Communication endpoints including:
+ * This file contains Effect-backed schemas for all Communication endpoints including:
  * - Message API
  * - Feedback API
  * - Notification API
@@ -410,7 +410,7 @@ export const sendOfferToInterestedBuyersOutputSchema = z.object({
 // ============================================================================
 
 /**
- * Converts Communication API Zod schemas to JSON Schema format for MCP tools.
+ * Converts Communication API Effect-backed schemas to JSON Schema format for MCP tools.
  *
  * @returns Communication API JSON schemas keyed by endpoint or shared model name.
  * @example

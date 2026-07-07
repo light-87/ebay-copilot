@@ -1,10 +1,10 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 /**
  * Analytics API Schemas
  *
- * This file contains Zod schemas for the Sell Analytics API.
+ * This file contains Effect-backed schemas for the Sell Analytics API.
  * Schemas are organized by type and include all analytics-related endpoints.
  */
 
@@ -193,7 +193,7 @@ export const getTrafficReportInputSchema = z.object({
 // ============================================================================
 
 /**
- * Converts Analytics API Zod schemas to JSON Schema format for MCP tools.
+ * Converts Analytics API Effect-backed schemas to JSON Schema format for MCP tools.
  *
  * @returns Analytics API JSON schemas keyed by endpoint or shared model name.
  * @example

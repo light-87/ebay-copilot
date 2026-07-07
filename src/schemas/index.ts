@@ -1,8 +1,8 @@
 /**
  * Central export for all eBay MCP API Schemas
  *
- * This file provides convenient access to all Zod schemas and their JSON Schema conversions
- * for use with MCP (Model Context Protocol) tools.
+ * This file provides convenient access to all Effect-backed schemas and their
+ * JSON Schema conversions for use with MCP (Model Context Protocol) tools.
  *
  * Usage:
  * ```typescript

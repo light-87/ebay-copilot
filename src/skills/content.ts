@@ -98,8 +98,8 @@ export const buildUsingDoc = (snapshot: RegistrySnapshot): SkillDoc => ({
 export const buildContributingDoc = (snapshot: RegistrySnapshot): SkillDoc => ({
   slug: 'ebay-mcp-contributing',
   title: 'Contributing to ebay-mcp',
-  description: `Work on the ebay-mcp server itself: ${snapshot.toolCount} tools across eBay's Sell APIs (TypeScript/ESM, Zod, OpenAPI-generated types). Use when adding or changing eBay tools/endpoints, wiring the registry, or running the project's checks.`,
-  intro: `A local MCP server exposing **${snapshot.toolCount} tools across 100% of eBay's Sell APIs** — TypeScript/Node.js (ESM), \`@modelcontextprotocol/sdk\`, Zod validation, OpenAPI-generated types. Entry points: \`src/index.ts\` (STDIO) and \`src/serverHttp.ts\` (HTTP).`,
+  description: `Work on the ebay-mcp server itself: ${snapshot.toolCount} tools across eBay's Sell APIs (TypeScript/ESM, Effect-backed validation, OpenAPI-generated types). Use when adding or changing eBay tools/endpoints, wiring the registry, or running the project's checks.`,
+  intro: `A local MCP server exposing **${snapshot.toolCount} tools across 100% of eBay's Sell APIs** — TypeScript/Node.js (ESM), \`@modelcontextprotocol/sdk\`, Effect-backed validation, OpenAPI-generated types. Entry points: \`src/index.ts\` (STDIO) and \`src/serverHttp.ts\` (HTTP).`,
   sections: [
     {
       heading: 'Validation (run before a PR)',
@@ -122,7 +122,7 @@ export const buildContributingDoc = (snapshot: RegistrySnapshot): SkillDoc => ({
         '| `config/` | Environment loading, constants, marketplace defaults |',
         '| `tools/` | Tool wiring — `registry.ts`, `contracts.ts`, `defineTool.ts`, and `categories/` (13 family files that co-locate each tool definition with its handler via `defineTool`) |',
         "| `skills/` | Agent-skills generator (this skill's source) |",
-        '| `schemas/` | Shared Zod schemas |',
+        '| `schemas/` | Shared Effect-backed schemas |',
         "| `types/` | TypeScript types — **auto-generated** from OpenAPI specs (don't hand-edit) |",
         '| `scripts/` | CLI tooling: `setup.ts`, `skills.ts`, `devSync.ts`, `diagnostics.ts` |',
         '| `utils/` | Shared utilities (logging, http, errors) |',
@@ -142,7 +142,7 @@ export const buildContributingDoc = (snapshot: RegistrySnapshot): SkillDoc => ({
       heading: 'Conventions',
       body: [
         '- **No `any`** — specific types; prefer narrowing over assertions. `types/` is generated, so model new shapes from the specs.',
-        '- Validate tool inputs with Zod; derive related schemas rather than duplicating fields.',
+        '- Validate tool inputs with Effect-backed schemas from `@/utils/effectSchema.js`; derive related schemas rather than duplicating fields.',
         '- Commit with Conventional Commits (releases are changeset-driven).',
         '- Logs go to **stderr** only — stdout is reserved for the MCP protocol.',
       ].join('\n'),

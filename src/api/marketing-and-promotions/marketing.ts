@@ -93,7 +93,7 @@ import type {
 } from '@/schemas/marketing/marketing.js';
 import type { operations } from '@/types/sell-apps/markeitng-and-promotions/sellMarketingV1Oas3.js';
 import type { Effect } from 'effect';
-import type { z } from 'zod';
+import type { InferEffectSchema } from '@/utils/effectSchemaTypes.js';
 
 const MARKETING_BASE_PATH = '/sell/marketing/v1';
 
@@ -112,104 +112,124 @@ type MarketingOperationResponse<Operation extends keyof operations> =
           ? JsonContent<operations[Operation]['responses'][204]>
           : void;
 
-type BulkCreateAdsByInventoryReferenceInput = z.infer<
+type BulkCreateAdsByInventoryReferenceInput = InferEffectSchema<
   typeof bulkCreateAdsByInventoryReferenceInputSchema
 >;
-type BulkCreateAdsByListingIdInput = z.infer<typeof bulkCreateAdsByListingIdInputSchema>;
-type BulkDeleteAdsByInventoryReferenceInput = z.infer<
+type BulkCreateAdsByListingIdInput = InferEffectSchema<typeof bulkCreateAdsByListingIdInputSchema>;
+type BulkDeleteAdsByInventoryReferenceInput = InferEffectSchema<
   typeof bulkDeleteAdsByInventoryReferenceInputSchema
 >;
-type BulkDeleteAdsByListingIdInput = z.infer<typeof bulkDeleteAdsByListingIdInputSchema>;
-type BulkUpdateAdsBidByInventoryReferenceInput = z.infer<
+type BulkDeleteAdsByListingIdInput = InferEffectSchema<typeof bulkDeleteAdsByListingIdInputSchema>;
+type BulkUpdateAdsBidByInventoryReferenceInput = InferEffectSchema<
   typeof bulkUpdateAdsBidByInventoryReferenceInputSchema
 >;
-type BulkUpdateAdsBidByListingIdInput = z.infer<typeof bulkUpdateAdsBidByListingIdInputSchema>;
-type BulkUpdateAdsStatusInput = z.infer<typeof bulkUpdateAdsStatusInputSchema>;
-type BulkUpdateAdsStatusByListingIdInput = z.infer<
+type BulkUpdateAdsBidByListingIdInput = InferEffectSchema<
+  typeof bulkUpdateAdsBidByListingIdInputSchema
+>;
+type BulkUpdateAdsStatusInput = InferEffectSchema<typeof bulkUpdateAdsStatusInputSchema>;
+type BulkUpdateAdsStatusByListingIdInput = InferEffectSchema<
   typeof bulkUpdateAdsStatusByListingIdInputSchema
 >;
-type GetAdsInput = z.infer<typeof getAdsInputSchema>;
-type CreateAdByListingIdInput = z.infer<typeof createAdByListingIdInputSchema>;
-type CreateAdsByInventoryReferenceInput = z.infer<typeof createAdsByInventoryReferenceInputSchema>;
-type GetAdInput = z.infer<typeof getAdInputSchema>;
-type DeleteAdInput = z.infer<typeof deleteAdInputSchema>;
-type DeleteAdsByInventoryReferenceInput = z.infer<typeof deleteAdsByInventoryReferenceInputSchema>;
-type GetAdsByInventoryReferenceInput = z.infer<typeof getAdsByInventoryReferenceInputSchema>;
-type UpdateBidInput = z.infer<typeof updateBidInputSchema>;
-type GetAdGroupsInput = z.infer<typeof getAdGroupsInputSchema>;
-type CreateAdGroupInput = z.infer<typeof createAdGroupInputSchema>;
-type GetAdGroupInput = z.infer<typeof getAdGroupInputSchema>;
-type UpdateAdGroupInput = z.infer<typeof updateAdGroupInputSchema>;
-type SuggestBidsInput = z.infer<typeof suggestBidsInputSchema>;
-type SuggestKeywordsInput = z.infer<typeof suggestKeywordsInputSchema>;
-type CloneCampaignInput = z.infer<typeof cloneCampaignInputSchema>;
-type GetCampaignsInput = z.infer<typeof getCampaignsInputSchema>;
-type CreateCampaignInput = z.infer<typeof createCampaignInputSchema>;
-type GetCampaignInput = z.infer<typeof getCampaignInputSchema>;
-type DeleteCampaignInput = z.infer<typeof deleteCampaignInputSchema>;
-type EndCampaignInput = z.infer<typeof endCampaignInputSchema>;
-type FindCampaignByAdReferenceInput = z.infer<typeof findCampaignByAdReferenceInputSchema>;
-type GetCampaignByNameInput = z.infer<typeof getCampaignByNameInputSchema>;
-type LaunchCampaignInput = z.infer<typeof launchCampaignInputSchema>;
-type PauseCampaignInput = z.infer<typeof pauseCampaignInputSchema>;
-type ResumeCampaignInput = z.infer<typeof resumeCampaignInputSchema>;
-type SetupQuickCampaignInput = z.infer<typeof setupQuickCampaignInputSchema>;
-type SuggestBudgetInput = z.infer<typeof suggestBudgetInputSchema>;
-type SuggestItemsInput = z.infer<typeof suggestItemsInputSchema>;
-type SuggestMaxCpcInput = z.infer<typeof suggestMaxCpcInputSchema>;
-type UpdateAdRateStrategyInput = z.infer<typeof updateAdRateStrategyInputSchema>;
-type UpdateBiddingStrategyInput = z.infer<typeof updateBiddingStrategyInputSchema>;
-type UpdateCampaignBudgetInput = z.infer<typeof updateCampaignBudgetInputSchema>;
-type UpdateCampaignIdentificationInput = z.infer<typeof updateCampaignIdentificationInputSchema>;
-type BulkCreateKeywordInput = z.infer<typeof bulkCreateKeywordInputSchema>;
-type BulkUpdateKeywordInput = z.infer<typeof bulkUpdateKeywordInputSchema>;
-type GetKeywordsInput = z.infer<typeof getKeywordsInputSchema>;
-type CreateKeywordInput = z.infer<typeof createKeywordInputSchema>;
-type GetKeywordInput = z.infer<typeof getKeywordInputSchema>;
-type UpdateKeywordInput = z.infer<typeof updateKeywordInputSchema>;
-type BulkCreateNegativeKeywordInput = z.infer<typeof bulkCreateNegativeKeywordInputSchema>;
-type BulkUpdateNegativeKeywordInput = z.infer<typeof bulkUpdateNegativeKeywordInputSchema>;
-type GetNegativeKeywordsInput = z.infer<typeof getNegativeKeywordsInputSchema>;
-type CreateNegativeKeywordInput = z.infer<typeof createNegativeKeywordInputSchema>;
-type GetNegativeKeywordInput = z.infer<typeof getNegativeKeywordInputSchema>;
-type UpdateNegativeKeywordInput = z.infer<typeof updateNegativeKeywordInputSchema>;
-type GetReportInput = z.infer<typeof getReportInputSchema>;
-type GetReportMetadataInput = z.infer<typeof getReportMetadataInputSchema>;
-type GetReportMetadataForReportTypeInput = z.infer<
+type GetAdsInput = InferEffectSchema<typeof getAdsInputSchema>;
+type CreateAdByListingIdInput = InferEffectSchema<typeof createAdByListingIdInputSchema>;
+type CreateAdsByInventoryReferenceInput = InferEffectSchema<
+  typeof createAdsByInventoryReferenceInputSchema
+>;
+type GetAdInput = InferEffectSchema<typeof getAdInputSchema>;
+type DeleteAdInput = InferEffectSchema<typeof deleteAdInputSchema>;
+type DeleteAdsByInventoryReferenceInput = InferEffectSchema<
+  typeof deleteAdsByInventoryReferenceInputSchema
+>;
+type GetAdsByInventoryReferenceInput = InferEffectSchema<
+  typeof getAdsByInventoryReferenceInputSchema
+>;
+type UpdateBidInput = InferEffectSchema<typeof updateBidInputSchema>;
+type GetAdGroupsInput = InferEffectSchema<typeof getAdGroupsInputSchema>;
+type CreateAdGroupInput = InferEffectSchema<typeof createAdGroupInputSchema>;
+type GetAdGroupInput = InferEffectSchema<typeof getAdGroupInputSchema>;
+type UpdateAdGroupInput = InferEffectSchema<typeof updateAdGroupInputSchema>;
+type SuggestBidsInput = InferEffectSchema<typeof suggestBidsInputSchema>;
+type SuggestKeywordsInput = InferEffectSchema<typeof suggestKeywordsInputSchema>;
+type CloneCampaignInput = InferEffectSchema<typeof cloneCampaignInputSchema>;
+type GetCampaignsInput = InferEffectSchema<typeof getCampaignsInputSchema>;
+type CreateCampaignInput = InferEffectSchema<typeof createCampaignInputSchema>;
+type GetCampaignInput = InferEffectSchema<typeof getCampaignInputSchema>;
+type DeleteCampaignInput = InferEffectSchema<typeof deleteCampaignInputSchema>;
+type EndCampaignInput = InferEffectSchema<typeof endCampaignInputSchema>;
+type FindCampaignByAdReferenceInput = InferEffectSchema<
+  typeof findCampaignByAdReferenceInputSchema
+>;
+type GetCampaignByNameInput = InferEffectSchema<typeof getCampaignByNameInputSchema>;
+type LaunchCampaignInput = InferEffectSchema<typeof launchCampaignInputSchema>;
+type PauseCampaignInput = InferEffectSchema<typeof pauseCampaignInputSchema>;
+type ResumeCampaignInput = InferEffectSchema<typeof resumeCampaignInputSchema>;
+type SetupQuickCampaignInput = InferEffectSchema<typeof setupQuickCampaignInputSchema>;
+type SuggestBudgetInput = InferEffectSchema<typeof suggestBudgetInputSchema>;
+type SuggestItemsInput = InferEffectSchema<typeof suggestItemsInputSchema>;
+type SuggestMaxCpcInput = InferEffectSchema<typeof suggestMaxCpcInputSchema>;
+type UpdateAdRateStrategyInput = InferEffectSchema<typeof updateAdRateStrategyInputSchema>;
+type UpdateBiddingStrategyInput = InferEffectSchema<typeof updateBiddingStrategyInputSchema>;
+type UpdateCampaignBudgetInput = InferEffectSchema<typeof updateCampaignBudgetInputSchema>;
+type UpdateCampaignIdentificationInput = InferEffectSchema<
+  typeof updateCampaignIdentificationInputSchema
+>;
+type BulkCreateKeywordInput = InferEffectSchema<typeof bulkCreateKeywordInputSchema>;
+type BulkUpdateKeywordInput = InferEffectSchema<typeof bulkUpdateKeywordInputSchema>;
+type GetKeywordsInput = InferEffectSchema<typeof getKeywordsInputSchema>;
+type CreateKeywordInput = InferEffectSchema<typeof createKeywordInputSchema>;
+type GetKeywordInput = InferEffectSchema<typeof getKeywordInputSchema>;
+type UpdateKeywordInput = InferEffectSchema<typeof updateKeywordInputSchema>;
+type BulkCreateNegativeKeywordInput = InferEffectSchema<
+  typeof bulkCreateNegativeKeywordInputSchema
+>;
+type BulkUpdateNegativeKeywordInput = InferEffectSchema<
+  typeof bulkUpdateNegativeKeywordInputSchema
+>;
+type GetNegativeKeywordsInput = InferEffectSchema<typeof getNegativeKeywordsInputSchema>;
+type CreateNegativeKeywordInput = InferEffectSchema<typeof createNegativeKeywordInputSchema>;
+type GetNegativeKeywordInput = InferEffectSchema<typeof getNegativeKeywordInputSchema>;
+type UpdateNegativeKeywordInput = InferEffectSchema<typeof updateNegativeKeywordInputSchema>;
+type GetReportInput = InferEffectSchema<typeof getReportInputSchema>;
+type GetReportMetadataInput = InferEffectSchema<typeof getReportMetadataInputSchema>;
+type GetReportMetadataForReportTypeInput = InferEffectSchema<
   typeof getReportMetadataForReportTypeInputSchema
 >;
-type GetReportTasksInput = z.infer<typeof getReportTasksInputSchema>;
-type CreateReportTaskInput = z.infer<typeof createReportTaskInputSchema>;
-type GetReportTaskInput = z.infer<typeof getReportTaskInputSchema>;
-type DeleteReportTaskInput = z.infer<typeof deleteReportTaskInputSchema>;
-type CreateItemPriceMarkdownPromotionInput = z.infer<
+type GetReportTasksInput = InferEffectSchema<typeof getReportTasksInputSchema>;
+type CreateReportTaskInput = InferEffectSchema<typeof createReportTaskInputSchema>;
+type GetReportTaskInput = InferEffectSchema<typeof getReportTaskInputSchema>;
+type DeleteReportTaskInput = InferEffectSchema<typeof deleteReportTaskInputSchema>;
+type CreateItemPriceMarkdownPromotionInput = InferEffectSchema<
   typeof createItemPriceMarkdownPromotionInputSchema
 >;
-type GetItemPriceMarkdownPromotionInput = z.infer<typeof getItemPriceMarkdownPromotionInputSchema>;
-type UpdateItemPriceMarkdownPromotionInput = z.infer<
+type GetItemPriceMarkdownPromotionInput = InferEffectSchema<
+  typeof getItemPriceMarkdownPromotionInputSchema
+>;
+type UpdateItemPriceMarkdownPromotionInput = InferEffectSchema<
   typeof updateItemPriceMarkdownPromotionInputSchema
 >;
-type DeleteItemPriceMarkdownPromotionInput = z.infer<
+type DeleteItemPriceMarkdownPromotionInput = InferEffectSchema<
   typeof deleteItemPriceMarkdownPromotionInputSchema
 >;
-type CreateItemPromotionInput = z.infer<typeof createItemPromotionInputSchema>;
-type GetItemPromotionInput = z.infer<typeof getItemPromotionInputSchema>;
-type UpdateItemPromotionInput = z.infer<typeof updateItemPromotionInputSchema>;
-type DeleteItemPromotionInput = z.infer<typeof deleteItemPromotionInputSchema>;
-type GetListingSetInput = z.infer<typeof getListingSetInputSchema>;
-type GetPromotionsInput = z.infer<typeof getPromotionsInputSchema>;
-type PausePromotionInput = z.infer<typeof pausePromotionInputSchema>;
-type ResumePromotionInput = z.infer<typeof resumePromotionInputSchema>;
-type GetPromotionReportsInput = z.infer<typeof getPromotionReportsInputSchema>;
-type GetPromotionSummaryReportInput = z.infer<typeof getPromotionSummaryReportInputSchema>;
-type GetEmailCampaignsInput = z.infer<typeof getEmailCampaignsInputSchema>;
-type CreateEmailCampaignInput = z.infer<typeof createEmailCampaignInputSchema>;
-type GetEmailCampaignInput = z.infer<typeof getEmailCampaignInputSchema>;
-type UpdateEmailCampaignInput = z.infer<typeof updateEmailCampaignInputSchema>;
-type DeleteEmailCampaignInput = z.infer<typeof deleteEmailCampaignInputSchema>;
-type GetAudiencesInput = z.infer<typeof getAudiencesInputSchema>;
-type GetEmailPreviewInput = z.infer<typeof getEmailPreviewInputSchema>;
-type GetEmailReportInput = z.infer<typeof getEmailReportInputSchema>;
+type CreateItemPromotionInput = InferEffectSchema<typeof createItemPromotionInputSchema>;
+type GetItemPromotionInput = InferEffectSchema<typeof getItemPromotionInputSchema>;
+type UpdateItemPromotionInput = InferEffectSchema<typeof updateItemPromotionInputSchema>;
+type DeleteItemPromotionInput = InferEffectSchema<typeof deleteItemPromotionInputSchema>;
+type GetListingSetInput = InferEffectSchema<typeof getListingSetInputSchema>;
+type GetPromotionsInput = InferEffectSchema<typeof getPromotionsInputSchema>;
+type PausePromotionInput = InferEffectSchema<typeof pausePromotionInputSchema>;
+type ResumePromotionInput = InferEffectSchema<typeof resumePromotionInputSchema>;
+type GetPromotionReportsInput = InferEffectSchema<typeof getPromotionReportsInputSchema>;
+type GetPromotionSummaryReportInput = InferEffectSchema<
+  typeof getPromotionSummaryReportInputSchema
+>;
+type GetEmailCampaignsInput = InferEffectSchema<typeof getEmailCampaignsInputSchema>;
+type CreateEmailCampaignInput = InferEffectSchema<typeof createEmailCampaignInputSchema>;
+type GetEmailCampaignInput = InferEffectSchema<typeof getEmailCampaignInputSchema>;
+type UpdateEmailCampaignInput = InferEffectSchema<typeof updateEmailCampaignInputSchema>;
+type DeleteEmailCampaignInput = InferEffectSchema<typeof deleteEmailCampaignInputSchema>;
+type GetAudiencesInput = InferEffectSchema<typeof getAudiencesInputSchema>;
+type GetEmailPreviewInput = InferEffectSchema<typeof getEmailPreviewInputSchema>;
+type GetEmailReportInput = InferEffectSchema<typeof getEmailReportInputSchema>;
 
 /**
  * Response returned by eBay Marketing API bulkCreateAdsByInventoryReference.

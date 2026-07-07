@@ -45,13 +45,14 @@
 
 ---
 
-**eBay MCP** is a local [Model Context Protocol](https://modelcontextprotocol.io) server that connects AI assistants — Claude Desktop, Claude Code, Cursor, Cline, Windsurf, Zed, Continue.dev, Roo Code, and Amazon Q — directly to **[eBay's Sell APIs](https://developer.ebay.com/api-docs/sell/static/overview.html)**. It exposes **322 tools** spanning **100% of eBay's Sell API surface** (270 unique endpoints) for inventory management, order fulfillment, promoted-listings marketing, analytics, and developer tooling. Everything runs on your machine over STDIO or local HTTP — **no cloud relay**, and your eBay credentials never leave your computer.
+**eBay MCP** is a local [Model Context Protocol](https://modelcontextprotocol.io) server that connects AI assistants — [Claude Desktop](https://claude.ai/download), [Claude Code](https://code.claude.com/docs/en/overview), [Cursor](https://cursor.com/), [Cline](https://cline.bot/), [Windsurf](https://windsurf.com/), [Zed](https://zed.dev/), [Continue.dev](https://docs.continue.dev/), [Roo Code](https://roocode.com/), and [Amazon Q Developer](https://aws.amazon.com/q/developer/) — directly to **[eBay's Sell APIs](https://developer.ebay.com/api-docs/sell/static/overview.html)**. It exposes **322 tools** spanning **100% of eBay's Sell API surface** (270 unique endpoints) for inventory management, order fulfillment, promoted-listings marketing, analytics, and developer tooling. Everything runs on your machine over STDIO or local HTTP — **no cloud relay**, and your eBay credentials never leave your computer.
 
 > **Disclaimer:** Unofficial, third-party project — **not affiliated with or endorsed by eBay Inc.** Provided "as is" without warranty. You are responsible for complying with [eBay's API License Agreement](https://developer.ebay.com/join/api-license-agreement) and [data-handling requirements](https://developer.ebay.com/api-docs/static/data-handling-update.html), keeping your credentials secure, and staying within rate limits. Test in sandbox before production. See [LICENSE](LICENSE), [SECURITY.md](SECURITY.md), and [EBAY_COMPLIANCE.md](EBAY_COMPLIANCE.md).
 
 ## Table of contents
 
 - [Features](#features)
+- [Capability map](#capability-map)
 - [eBay MCP vs. the raw eBay API](#ebay-mcp-vs-the-raw-ebay-api)
 - [One-click AI setup](#one-click-ai-setup)
 - [Quick start](#quick-start)
@@ -60,6 +61,7 @@
 - [Available tools](#available-tools)
 - [Interactive UI (MCP Apps) — beta](#interactive-ui-mcp-apps)
 - [Usage examples](#usage-examples)
+- [Scope and safety](#scope-and-safety)
 - [Logging & troubleshooting](#logging--troubleshooting)
 - [FAQ](#faq)
 - [Contributing](#contributing)
@@ -73,11 +75,29 @@
 - **9 AI clients, auto-configured** — Claude Desktop, Cursor, Zed, Cline, Continue.dev, Windsurf, Roo Code, Claude Code CLI, and Amazon Q Developer.
 - **OAuth 2.0 built in** — full user-token management with automatic refresh, and smart fallback from user tokens (10k–50k req/day) to client credentials (1k req/day).
 - **Resilient by default** — automatic retry with exponential backoff on `429` rate limits, and consistent, loud error surfacing.
-- **Type-safe** — [TypeScript](https://www.typescriptlang.org/) end to end, [Zod](https://zod.dev/)-validated tool inputs, and [OpenAPI](https://www.openapis.org/)-generated types.
+- **Type-safe** — [TypeScript](https://www.typescriptlang.org/) end to end, [Effect](https://effect.website/docs)-backed tool input validation, and [OpenAPI](https://www.openapis.org/)-generated types.
 - **Local-first & private** — runs over STDIO or local HTTP; your credentials and data never leave your machine.
 - **Sandbox and production** — switch environments with a single variable.
 - **One-command setup** — `npm run setup` configures credentials, OAuth, and your MCP client, with a browser auto-opened for the OAuth flow.
-- **Well tested** — 1,000+ automated tests run in CI on every change.
+- **Well tested** — 1,000+ automated tests run in CI on every change through [GitHub Actions](https://docs.github.com/en/actions).
+
+## Capability map
+
+Use this map when deciding which tool family to expose, or when asking an assistant what it can do. The family names match `EBAY_MCP_TOOLS`, so you can run with all tools, dynamic discovery, or only the families needed for a specific workflow.
+
+| Family | What it unlocks | Good first request |
+| --- | --- | --- |
+| `account` | Business policies, fulfillment policies, payment policies, return policies, sales tax, subscriptions, and programs | "Show my eBay fulfillment policies." |
+| `inventory` | Inventory items, offers, inventory locations, item groups, bulk offer flows, and SKU/location mapping | "List my active inventory items and their available quantity." |
+| `fulfillment` | Orders, shipping fulfillments, refunds, payment disputes, and dispute evidence | "Show unfulfilled orders from the last 7 days." |
+| `marketing` | Promoted Listings campaigns, ads, promotions, bidding, and marketing reports | "List my active promoted listing campaigns." |
+| `analytics` | Traffic reports, seller standards, and customer-service metrics | "Show my seller standards profile." |
+| `communication` | Buyer-seller messaging, negotiations, notifications, and feedback | "Show recent buyer messages that need a response." |
+| `metadata` / `taxonomy` | Category trees, aspects, item conditions, return-policy metadata, tax jurisdictions, and vehicle compatibility | "Find required item aspects for this category." |
+| `other` | Identity, compliance, VeRO, translation, and international shipping support APIs | "Show my current seller identity details." |
+| `developer` / `token-management` | Rate limits, signing keys, OAuth URLs, token refresh, and diagnostics | "Check my eBay API rate limits." |
+| `trading` | Legacy XML fixed-price listing create, revise, relist, and end operations | "Create a fixed-price listing draft from this SKU." |
+| `connector` | ChatGPT connector search/fetch tools over the eBay MCP catalogue | "Search the eBay tool catalogue for order tools." |
 
 ## eBay MCP vs. the raw eBay API
 
@@ -88,7 +108,7 @@ Both talk to the same eBay endpoints — the difference is everything you'd othe
 | Interface | Natural language through your AI assistant | Hand-written HTTP requests and JSON parsing |
 | OAuth & token refresh | Built in, with automatic refresh | You implement and maintain it |
 | Rate-limit handling | Automatic retry with exponential backoff | Manual `429` handling and backoff |
-| Input validation | Zod schemas + TypeScript types on every tool | None — you validate your own payloads |
+| Input validation | Effect-backed schemas + TypeScript types on every tool | None — you validate your own payloads |
 | Setup | One wizard (`npm run setup`) | Per-call auth, headers, and marketplace wiring |
 | AI client support | 9 clients auto-configured | Not applicable |
 | API coverage | 322 tools across 100% of the Sell APIs, ready to call | Build each request from the docs |
@@ -155,9 +175,17 @@ npm run setup
 
 The wizard configures your eBay credentials, sets up OAuth (for higher rate limits), auto-detects and configures your MCP client, and saves everything automatically.
 
-### 4. Use
+### 4. Verify with a read-only request
 
-Restart your MCP client (Claude Desktop, etc.) and start managing eBay through your AI assistant.
+Restart your MCP client and ask:
+
+> "Check my eBay API rate limits."
+
+That should call `ebay_get_rate_limits` or `ebay_get_user_rate_limits` and confirms the server, credentials, and MCP client wiring without changing seller data.
+
+### 5. Use
+
+Start managing eBay through your AI assistant. Begin with read-only questions, then move to mutating inventory, order, or campaign tools after you have confirmed the target environment is sandbox or production.
 
 <details>
 <summary><strong>📸 Visual setup walkthrough (eBay Developer Portal)</strong></summary>
@@ -259,6 +287,7 @@ Auto-configured by `npm run setup`. Requires [Node.js](https://nodejs.org/en) �
 
 | Category | What you can do |
 | --- | --- |
+| [Connector](src/tools/categories/connector.ts) | ChatGPT connector search/fetch tools over the eBay MCP catalogue |
 | [Account](src/tools/categories/account.ts) | Business, fulfillment, payment, and return policies; programs; subscriptions; sales tax |
 | [Inventory](src/tools/categories/inventory.ts) | Inventory items, offers, locations, item groups, bulk operations, SKU/location mapping |
 | [Fulfillment](src/tools/categories/fulfillment.ts) | Orders, shipping, refunds, disputes, payment-dispute evidence |
@@ -267,6 +296,7 @@ Auto-configured by `npm run setup`. Requires [Node.js](https://nodejs.org/en) �
 | [Communication](src/tools/categories/communication.ts) | Buyer–seller messaging, negotiations, notifications, feedback |
 | [Metadata](src/tools/categories/metadata.ts) | Return policies, sales-tax jurisdictions, automotive compatibility |
 | [Taxonomy](src/tools/categories/taxonomy.ts) | Category trees, item aspects, item conditions |
+| [Other](src/tools/categories/other.ts) | Identity, compliance, VeRO, translation, and international shipping support APIs |
 | [Trading (legacy XML)](src/tools/categories/trading.ts) | Fixed-price listing create, revise, relist, end |
 | [Developer](src/tools/categories/developer.ts) | Rate limits, signing keys, client registration |
 | [Token Management](src/tools/categories/tokenManagement.ts) | OAuth URL generation and token management |
@@ -313,6 +343,15 @@ Common tasks, phrased as you'd ask your AI assistant:
 - **Process orders** — *"Get all unfulfilled orders from the last 7 days."* → `ebay_get_orders` with date and fulfillment-status filters.
 - **Create campaigns** — *"Create a promoted-listing campaign for electronics."* → `ebay_create_campaign` and related marketing tools.
 - **Bulk operations** — *"Apply a 10% discount to all 'Vintage Watches' items."* → `ebay_get_inventory_items` + `ebay_update_offer` across matches.
+
+## Scope and safety
+
+- **Unofficial project.** This is not an eBay product and does not grant any additional API rights beyond your own eBay Developer account.
+- **Local server, live APIs.** The MCP server runs on your machine, but tools still call eBay's sandbox or production APIs over the internet.
+- **Mutating tools can change seller data.** Inventory, fulfillment, marketing, and Trading tools may create, revise, refund, end, or otherwise update eBay records. Test in sandbox first.
+- **Tool exposure is configurable.** Use `EBAY_MCP_TOOLS=dynamic` or a family list when you want a smaller, workflow-specific tool surface.
+- **Interactive views are read-only.** MCP Apps views can page, refresh, and drill into read tools, but they do not mutate eBay data.
+- **Compliance remains yours.** Keep credentials secure, monitor rate limits, and follow eBay's API terms and data-handling rules.
 
 ## Logging & troubleshooting
 
@@ -408,7 +447,7 @@ Credentials are stored locally in your `.env` file and used only to call eBay di
 <details>
 <summary><strong>How is this different from calling the eBay API directly?</strong></summary>
 
-You interact in natural language through your AI assistant. OAuth token management, automatic retries with backoff, and type-safe Zod validation are built in. See the [comparison table](#ebay-mcp-vs-the-raw-ebay-api) above.
+You interact in natural language through your AI assistant. OAuth token management, automatic retries with backoff, and type-safe Effect-backed validation are built in. See the [comparison table](#ebay-mcp-vs-the-raw-ebay-api) above.
 
 </details>
 
@@ -429,7 +468,7 @@ Complete the OAuth flow with `npm run setup` to authenticate with a user token (
 <details>
 <summary><strong>What is it built with?</strong></summary>
 
-TypeScript and Node.js (ESM), using the official MCP SDK, Zod for validation, and OpenAPI-generated types.
+TypeScript and Node.js (ESM), using the official MCP SDK, Effect-backed validation with a Zod-compatible MCP adapter, and OpenAPI-generated types.
 
 </details>
 
@@ -452,18 +491,25 @@ No. "Runs locally" means the server process runs on your machine — it still ne
 Contributions welcome. Fork → branch → add tests → `npm run check && npm test` → commit with [Conventional Commits](https://www.conventionalcommits.org/) → open a PR.
 
 - Working on the codebase or with a coding agent? Start with **[AGENTS.md](AGENTS.md)** — build/test commands, module map, and the add-an-endpoint workflow.
-- Full guidelines: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+- Code style lives in **[CODE-STYLE.md](CODE-STYLE.md)**. Architecture and decision context live in **[ARCHITECTURE.md](ARCHITECTURE.md)** and [ADRs](docs/adr/current/).
+- Full contribution guidelines: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 
 ## Resources
 
-- [eBay Developer Portal](https://developer.ebay.com/) — API docs and credentials
-- [eBay API License Agreement](https://developer.ebay.com/join/api-license-agreement) — terms and compliance
-- [eBay Data Handling Requirements](https://developer.ebay.com/api-docs/static/data-handling-update.html) — data protection and privacy
-- [MCP Documentation](https://modelcontextprotocol.io/) — Model Context Protocol spec
-- [OAuth Quick Reference](docs/auth/OAUTH_QUICK_REFERENCE.md) — scopes, troubleshooting, examples
-- [eBay API Status](https://developer.ebay.com/support/api-status) — official status page (also via the `ebay_get_api_status` tool and the [in-repo snapshot](docs/API_STATUS.md))
-- [CHANGELOG.md](CHANGELOG.md) · [SECURITY.md](SECURITY.md) · [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
-- [Issue Tracker](https://github.com/YosefHayim/ebay-mcp/issues) — bug reports and feature requests
+Project docs:
+
+- [Configuration Guide](docs/auth/CONFIGURATION.md) — every environment variable, OAuth step, and eBay scope.
+- [OAuth Quick Reference](docs/auth/OAUTH_QUICK_REFERENCE.md) — scopes, troubleshooting, and examples.
+- [Logging Guide](docs/logging.md) and [Troubleshooting Guide](docs/troubleshooting.md) — operational help after setup.
+- [Architecture](ARCHITECTURE.md), [CODE-STYLE.md](CODE-STYLE.md), [AGENTS.md](AGENTS.md), and [llms.txt](llms.txt) — contributor and agent entry points.
+- [CHANGELOG.md](CHANGELOG.md), [SECURITY.md](SECURITY.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), and the [Issue Tracker](https://github.com/YosefHayim/ebay-mcp/issues).
+
+Official specs and tooling:
+
+- [eBay Developer Portal](https://developer.ebay.com/), [Sell API docs](https://developer.ebay.com/api-docs/sell/static/overview.html), [API License Agreement](https://developer.ebay.com/join/api-license-agreement), [Data Handling Requirements](https://developer.ebay.com/api-docs/static/data-handling-update.html), and [API Status](https://developer.ebay.com/support/api-status).
+- [Model Context Protocol](https://modelcontextprotocol.io/) and the [MCP Apps SDK](https://github.com/modelcontextprotocol/ext-apps).
+- [Node.js](https://nodejs.org/en), [npm package](https://www.npmjs.com/package/ebay-mcp), [TypeScript](https://www.typescriptlang.org/), [Effect](https://effect.website/docs), [Biome](https://biomejs.dev/), [Vitest](https://vitest.dev/), and [GitHub Actions](https://docs.github.com/en/actions).
+- [AGENTS.md convention](https://agents.md/), [Claude Code](https://code.claude.com/docs/en/overview), [GitHub Copilot repository instructions](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/add-custom-instructions/add-repository-instructions), and [llms.txt](https://llmstxt.org/).
 
 ## License
 

@@ -4,7 +4,7 @@ Guidance for coding agents (and humans) working **on** this repo. For using the 
 
 ## What this is
 
-A local [MCP](https://modelcontextprotocol.io) server exposing 322 tools across 100% of eBay's Sell APIs. TypeScript/Node.js (ESM), built with `@modelcontextprotocol/sdk`, Zod validation, and OpenAPI-generated types.
+A local [MCP](https://modelcontextprotocol.io) server exposing 322 tools across 100% of eBay's Sell APIs. TypeScript/Node.js (ESM), built with `@modelcontextprotocol/sdk`, Effect-backed validation, a Zod SDK adapter, and OpenAPI-generated types.
 
 - **Entry points:** `src/index.ts` (STDIO transport — default) and `src/serverHttp.ts` (HTTP transport).
 - **Runtime:** Node.js ≥ 20. Package manager: pnpm (`pnpm@10.14.0`); npm scripts work too.
@@ -13,10 +13,11 @@ A local [MCP](https://modelcontextprotocol.io) server exposing 322 tools across 
 
 - **Shared agent contract:** this `AGENTS.md`.
 - **Claude Code:** [CLAUDE.md](CLAUDE.md) imports `AGENTS.md`; keep Claude-only notes there only when needed.
+- **GitHub Copilot:** [.github/copilot-instructions.md](.github/copilot-instructions.md) keeps Copilot-specific reminders and points back here.
 - **Code style:** [CODE-STYLE.md](CODE-STYLE.md) owns the full rules; the digest below must stay aligned with it.
 - **Domain/architecture read order:** [CONTEXT.md](CONTEXT.md), [LANGUAGE.md](LANGUAGE.md), [ARCHITECTURE.md](ARCHITECTURE.md), then relevant ADRs in `docs/adr/current/`.
 - **User docs:** [README.md](README.md) is for installing and using the server, not contributor or agent rules.
-- **Other agent surfaces:** add `GEMINI.md`, `.cursor/rules`, `.kiro/steering`, `.roo/rules*`, or Copilot instructions only for genuinely tool-specific or path-scoped behavior.
+- **Other agent surfaces:** add `GEMINI.md`, `.cursor/rules`, `.kiro/steering`, or `.roo/rules*` only for genuinely tool-specific or path-scoped behavior.
 
 ## Validation commands
 
@@ -58,7 +59,7 @@ Other useful scripts:
 | `config/`        | Environment loading, constants, marketplace defaults                                                                                                                                                                                                                                                                                         |
 | `tools/`         | MCP tool wiring — `registry.ts`, `contracts.ts`, `schemas.ts`, `defineTool.ts`, and `categories/` (family files co-locate each tool definition with its handler via `defineTool`; marketing pairs a large definition catalog with a handler map and must keep one public definition per handler) |
 | `skills/`        | Agent-skills generator (`ebay-mcp skills`) — renders using/contributing skills for Codex, Claude Code, and Cursor                                                                                                                                                                                                                            |
-| `schemas/`       | Shared Zod schemas                                                                                                                                                                                                                                                                                                                           |
+| `schemas/`       | Shared Effect-backed schemas using the `@/utils/effectSchema.js` adapter                                                                                                                                                                                                                                                                     |
 | `types/`         | TypeScript types — **auto-generated** from OpenAPI specs (don't hand-edit)                                                                                                                                                                                                                                                                   |
 | `scripts/`       | CLI tooling: `setup.ts`, `skills.ts`, `devSync.ts`, `diagnostics.ts`                                                                                                                                                                                                                                                                        |
 | `utils/`         | Shared utilities (logging, http, errors)                                                                                                                                                                                                                                                                                                     |
@@ -81,7 +82,7 @@ Other useful scripts:
 - **Effect & errors:** fallible async/API work returns `Effect.Effect<Success, TaggedError, Requirements>`; run with `Effect.runPromise` only at MCP/HTTP/CLI boundaries. No endpoint/tool `try/catch`; migrated API code uses typed tagged errors.
 - **Docs:** endpoint-backed API methods require TSDoc with `@param`, `@returns`, a small `@example`, and the official eBay `@see` URL. Exported shared utilities document params/returns; public generated-response aliases include `@see`.
 - **Types:** no `as any` — narrow, or use a documented boundary cast; no hand-written source excluded from typecheck. `types/` is generated — model new shapes from the specs, don't hand-edit.
-- **Tools:** the Zod endpoint input schema is the SSOT; `defineTool` derives the wire schema from `.shape`, and handlers run one endpoint Effect without response reshaping. Marketing's catalog adapter must keep one public definition per handler and is not a pattern for new tools.
+- **Tools:** the Effect-backed endpoint input schema is the SSOT; import runtime schema helpers from `@/utils/effectSchema.js` and inference/helper types from `@/utils/effectSchemaTypes.js`; never add compatibility re-export facades. Derive the MCP wire schema from `.shape`, and let `defineTool` decode raw args through Effect before handlers run one endpoint Effect without response reshaping. Marketing's catalog adapter must keep one public definition per handler and is not a pattern for new tools.
 - **API params:** endpoint methods pass an allowed-key object to the shared params builder. The builder owns omission/normalization; endpoints own wire names.
 - **Mapping/UI:** API returns generated eBay DTOs. UI maps only at the presentation boundary; no one-use `toXRow` helpers and no `?? 'unknown'` display fallbacks.
 - **Size:** split by purpose, not line count alone. Biome warns past ~300 lines/file and ~60 lines/function on logic dirs; declarative/generated/table files stay warning-exempt.

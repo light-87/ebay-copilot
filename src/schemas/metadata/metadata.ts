@@ -1,10 +1,10 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 /**
  * Metadata API Schemas
  *
- * This file contains Zod schemas for all Metadata API endpoints.
+ * This file contains Effect-backed schemas for all Metadata API endpoints.
  * Schemas are organized by endpoint and include both input and output validation.
  */
 

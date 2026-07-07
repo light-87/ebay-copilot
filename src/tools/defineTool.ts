@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import type { EbaySellerApi } from '@/api/index.js';
 import type { OutputArgs, ToolAnnotations } from '@/tools/definitions/types.js';
 import type { ResolvedToolUi, ToolEntry } from '@/tools/registry.js';
@@ -11,6 +10,8 @@ import type {
   TableViewModel,
   ViewModel,
 } from '@/tools/ui/viewModels.js';
+import { decodeEffectSchemaSync, z } from '@/utils/effectSchema.js';
+import type { EffectBackedRawShape, InferEffectRawShape } from '@/utils/effectSchemaTypes.js';
 
 /**
  * Declarative opt-in for the interactive MCP Apps layer, co-located on the tool
@@ -35,21 +36,21 @@ export type ToolUiSpec<Result> =
  * Specification for a single MCP tool, co-locating its public definition with a
  * type-safe handler.
  *
- * `Shape` is the Zod raw shape backing the tool's input. It is the single source
- * of truth for two things that used to be declared separately and drift apart:
- * the schema advertised to MCP clients, and the compile-time type of the
- * arguments the handler receives. Because the handler's `args` are inferred from
- * `Shape`, call sites read `args.sku` as a `string` (not `unknown`) and never
- * cast.
+ * `Shape` is the Effect-backed raw shape backing the tool's input. It is the
+ * single source of truth for two things that used to be declared separately and
+ * drift apart: the schema advertised to MCP clients, and the compile-time type
+ * of the arguments the handler receives. Because the handler's `args` are
+ * inferred from `Shape`, call sites read `args.sku` as a `string` (not
+ * `unknown`) and never cast.
  *
  * `Result` is inferred from the handler's return type and exists so an optional
  * {@link ToolUiSpec} can be type-checked against the exact data the handler
  * produces. Tools that do not opt into UI never name it.
  */
-export interface ToolSpec<Shape extends z.ZodRawShape, Result = unknown> {
+export interface ToolSpec<Shape extends EffectBackedRawShape, Result = unknown> {
   name: string;
   description: string;
-  /** Zod raw shape; doubles as the MCP wire schema and the handler arg types. */
+  /** Effect-backed raw shape; doubles as the MCP wire schema and handler arg types. */
   inputSchema: Shape;
   title?: string;
   outputSchema?: OutputArgs;
@@ -57,7 +58,7 @@ export interface ToolSpec<Shape extends z.ZodRawShape, Result = unknown> {
   /** Opaque MCP metadata (e.g. connector category/version) passed through verbatim. */
   _meta?: Record<string, unknown>;
   /** Executes the tool against validated, fully-typed arguments; may be async. */
-  handler: (api: EbaySellerApi, args: z.infer<z.ZodObject<Shape>>) => Result;
+  handler: (api: EbaySellerApi, args: InferEffectRawShape<Shape>) => Result;
   /** Optional interactive view rendered by hosts that support MCP Apps. */
   ui?: ToolUiSpec<Awaited<Result>>;
 }
@@ -80,7 +81,7 @@ function resolveToolUi<Result>(ui: ToolUiSpec<Result>): ResolvedToolUi {
 }
 
 /** Builds the public MCP definition from the richer tool spec. */
-function toDefinition<Shape extends z.ZodRawShape, Result>(
+function toDefinition<Shape extends EffectBackedRawShape, Result>(
   spec: ToolSpec<Shape, Result>,
 ): ToolEntry['definition'] {
   return {
@@ -95,14 +96,14 @@ function toDefinition<Shape extends z.ZodRawShape, Result>(
 }
 
 /**
- * Binds a tool's Zod input shape to its handler so the shape is the single
+ * Binds a tool's Effect-backed input shape to its handler so the shape is the single
  * source of truth for both the advertised MCP schema and the handler's
  * compile-time argument types.
  *
  * The returned {@link ToolEntry} carries a `ToolHandler` that validates raw
- * arguments against the shape before delegating. Re-validating on the SDK path
- * is intentional and cheap: input schemas contain no `.transform()` or async
- * refinements, so the second parse is idempotent.
+ * arguments against the Effect schema before delegating. Re-validating on the
+ * SDK path is intentional and cheap: input schemas contain no async refinements,
+ * so the second decode is idempotent.
  *
  * @param spec - Tool definition, input schema, handler, and optional UI projection.
  * @returns A registry entry whose handler validates args from the schema before execution.
@@ -117,14 +118,15 @@ function toDefinition<Shape extends z.ZodRawShape, Result>(
  * });
  * ```
  */
-export const defineTool = <Shape extends z.ZodRawShape, Result>(
+export const defineTool = <Shape extends EffectBackedRawShape, Result>(
   spec: ToolSpec<Shape, Result>,
 ): ToolEntry => {
   const schema = z.object(spec.inputSchema);
-  // Non-async: `schema.parse` runs synchronously so invalid input rejects via
+  // Non-async: Effect decode runs synchronously so invalid input rejects via
   // the caller's `await`, and the handler's returned promise passes straight
   // through without an extra await layer.
-  const handler: ToolHandler = (api, args) => spec.handler(api, schema.parse(args));
+  const handler: ToolHandler = (api, args) =>
+    spec.handler(api, decodeEffectSchemaSync(schema, args));
 
   return {
     definition: toDefinition(spec),
@@ -161,11 +163,10 @@ export const defineTool = <Shape extends z.ZodRawShape, Result>(
  * });
  * ```
  */
-export const rawTool = <Shape extends z.ZodRawShape, Result>(
+export const rawTool = <Shape extends EffectBackedRawShape, Result>(
   spec: ToolSpec<Shape, Result>,
 ): ToolEntry => {
-  const handler: ToolHandler = (api, args) =>
-    spec.handler(api, args as z.infer<z.ZodObject<Shape>>);
+  const handler: ToolHandler = (api, args) => spec.handler(api, args as InferEffectRawShape<Shape>);
 
   return {
     definition: toDefinition(spec),

@@ -1,10 +1,10 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 /**
  * Taxonomy/Metadata API Schemas
  *
- * This file contains Zod schemas for the Sell Metadata API (Taxonomy section).
+ * This file contains Effect-backed schemas for the Sell Metadata API (Taxonomy section).
  * Schemas are organized by policy type and include category-related metadata.
  */
 
@@ -609,7 +609,7 @@ const specificationRequestSchema = z.object({
 // ============================================================================
 
 /**
- * Converts Taxonomy API Zod schemas to JSON Schema format for MCP tools.
+ * Converts Taxonomy API Effect-backed schemas to JSON Schema format for MCP tools.
  *
  * @returns Taxonomy API JSON schemas keyed by endpoint or shared model name.
  * @example

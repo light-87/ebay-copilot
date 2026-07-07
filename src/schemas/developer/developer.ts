@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 /** Input accepted by the public eBay API status feed tool. */
@@ -126,7 +126,7 @@ export const querySigningKeysResponseSchema = z.object({
 });
 
 /**
- * Converts Developer API Zod schemas to JSON Schema format for MCP tools.
+ * Converts Developer API Effect-backed schemas to JSON Schema format for MCP tools.
  *
  * @returns Developer API JSON schemas keyed by endpoint or shared model name.
  *

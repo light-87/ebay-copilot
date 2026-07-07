@@ -1,5 +1,6 @@
 import type { OutputArgs, ToolAnnotations, ToolDefinition } from '@/tools/definitions/types.js';
 import { getToolEntries } from '@/tools/registry.js';
+import { isEffectBackedSchema } from '@/utils/effectSchema.js';
 
 /** Public tool contract shape exposed to consumers after registry normalization. */
 export interface ToolContract {
@@ -9,7 +10,7 @@ export interface ToolContract {
   description: string;
   /** Stable MCP tool name used by clients and handlers. */
   name: string;
-  /** Zod raw shape advertised as the tool input schema. */
+  /** Effect-backed raw shape advertised as the tool input schema. */
   inputSchema: ToolDefinition['inputSchema'];
   /** Optional JSON schema describing structured tool output. */
   outputSchema?: OutputArgs;
@@ -21,7 +22,7 @@ export interface ToolContract {
 export interface ToolContractValidation {
   /** Tool names declared more than once. */
   duplicateContracts: string[];
-  /** Input fields that are not Zod-like schemas. */
+  /** Input fields that are not Effect-backed schemas. */
   invalidInputSchemaFields: string[];
   /** Tool names whose output schema is not an object or reference schema. */
   malformedOutputSchemas: string[];
@@ -54,12 +55,6 @@ export const getToolContracts = (): ToolContract[] =>
     title: definition.title,
   }));
 
-const isZodLikeSchema = (schema: unknown): boolean =>
-  typeof schema === 'object' &&
-  schema !== null &&
-  'safeParse' in schema &&
-  typeof schema.safeParse === 'function';
-
 /**
  * Validates tool contracts for unique names, descriptions, input schemas, and output schemas.
  *
@@ -91,7 +86,7 @@ export const validateToolContracts = (
       missingInputSchemas.push(contract.name);
     } else {
       for (const [fieldName, schema] of Object.entries(contract.inputSchema)) {
-        if (!isZodLikeSchema(schema)) {
+        if (!isEffectBackedSchema(schema)) {
           invalidInputSchemaFields.push(`${contract.name}.${fieldName}`);
         }
       }

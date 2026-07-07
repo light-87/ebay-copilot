@@ -9,8 +9,8 @@ work and close it in the same ownership slice.
 
 ## Stack & Framework Practices
 
-This repo is TypeScript/Node ESM, MCP SDK, Zod, Effect, Biome, Vitest, and a
-small MCP Apps React surface.
+This repo is TypeScript/Node ESM, MCP SDK, Effect, a Zod compatibility adapter,
+Biome, Vitest, and a small MCP Apps React surface.
 
 - MCP tools/transports -> [Model Context Protocol](https://modelcontextprotocol.io)
   and `@modelcontextprotocol/sdk`.
@@ -142,25 +142,35 @@ export interface CustomPoliciesModel {
 _Why:_ The OpenAPI types are the contract; internal models are only for
 presentation boundaries.
 
-### Zod Schema Is The Tool Input SSOT · [taste]
+### Effect-Backed Schema Is The Tool Input SSOT · [taste]
 
-The endpoint/tool input schema is the single source of truth. MCP tools derive
-`inputSchema` from `.shape`; handlers receive typed args from `defineTool`. Use
-branded/opaque types for stable IDs before deeper Effect code when an identifier
-crosses layers.
+Endpoint/tool input schemas are authored through `@/utils/effectSchema.js`; that
+schema is the single source of truth. MCP tools derive `inputSchema` from
+`.shape`; `defineTool` decodes raw args through the attached Effect Schema before
+handlers run. Zod exists only as the MCP SDK / `zod-to-json-schema`
+compatibility carrier inside the adapter boundary. Do not import `zod` directly
+from endpoint, tool, API, or shared schema files. Runtime schema factories come
+from `@/utils/effectSchema.js`; schema inference/helper types come from
+`@/utils/effectSchemaTypes.js`. Do not add compatibility re-export facades or
+imported-as aliases just to preserve older import paths.
 
 ```ts
 // chosen
+import { z } from '@/utils/effectSchema.js';
+
 export const getCustomPoliciesInputSchema = z.object({ policyTypes: z.string().optional() });
 inputSchema: getCustomPoliciesInputSchema.shape,
 handler: (api, args) => Effect.runPromise(api.account.getCustomPolicies(args)),
 
 // not this
+import { z } from 'zod';
+
 inputSchema: { policyTypes: z.string().optional() },
 handler: (api, args) => api.account.getCustomPolicies(args.policyTypes as string),
 ```
 
-_Why:_ One schema prevents schema/handler drift.
+_Why:_ One schema prevents schema/handler drift while keeping fallible runtime
+decode on Effect.
 
 ### Unified Params Builder · [taste]
 
@@ -406,7 +416,6 @@ documentation, not a direct patch.
 
 ````ts
 import { Data, Effect } from 'effect';
-import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import type { EbayApiClient } from '@/api/client.js';
 import type { QueryParams } from '@/api/shared/request.js';
@@ -414,8 +423,10 @@ import { customPolicyResponseSchema } from '@/schemas/account-management/account
 import type { OutputArgs } from '@/tools/definitions/types.js';
 import { defineTool } from '@/tools/defineTool.js';
 import type { components } from '@/types/sell-apps/account-management/sellAccountV1Oas3.js';
+import type { InferEffectSchema } from '@/utils/effectSchemaTypes.js';
+import { z } from '@/utils/effectSchema.js';
 
-type GetCustomPoliciesInput = z.infer<typeof getCustomPoliciesInputSchema>;
+type GetCustomPoliciesInput = InferEffectSchema<typeof getCustomPoliciesInputSchema>;
 
 /**
  * Response returned by eBay Account API getCustomPolicies.
@@ -527,7 +538,8 @@ export const accountEntries = [
 
 1. Find the operation in `docs/sell-apps/**/<spec>.json` and copy the official
    eBay docs URL for the method.
-2. Add or reuse a Zod input schema. The tool derives `inputSchema` from `.shape`.
+2. Add or reuse an Effect-backed input schema from `@/utils/effectSchema.js`.
+   The tool derives `inputSchema` from `.shape`.
 3. Add generated response aliases from `src/types/**`, with `@see` when exported.
 4. Add the API method as an Effect-returning endpoint method with full TSDoc.
 5. Build query params through the shared params builder; do not hand-roll query
@@ -563,7 +575,7 @@ export const accountEntries = [
 Current files are temporary exemplars until the Effect migration creates a full
 API exemplar:
 
-- `src/tools/defineTool.ts` - typed `defineTool`, schema SSOT, and useful
+- `src/tools/defineTool.ts` - typed `defineTool`, Effect schema SSOT, and useful
   boundary comments.
 - `ui/host.tsx` - concise TSDoc around a real trust boundary and small reusable
   UI primitives.

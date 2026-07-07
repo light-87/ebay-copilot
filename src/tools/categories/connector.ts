@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 import { Effect } from 'effect';
 import { defineTool } from '@/tools/defineTool.js';
 import type { ToolEntry } from '@/tools/registry.js';

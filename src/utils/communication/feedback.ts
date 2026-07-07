@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 
 /**
- * Zod schemas for Feedback API input validation.
+ * Effect-backed schemas for Feedback API input validation.
  * OpenAPI spec: docs/sell-apps/communication/commerce_feedback_v1_beta_oas3.json
  */
 

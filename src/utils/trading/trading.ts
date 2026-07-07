@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 
 /** Input accepted by getActiveListings. */
 export const getActiveListingsSchema = z.object({

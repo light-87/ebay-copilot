@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import {
   Condition,
@@ -15,7 +15,7 @@ import {
 /**
  * Inventory Management API Schemas
  *
- * This file contains Zod schemas for all Inventory Management endpoints.
+ * This file contains Effect-backed schemas for all Inventory Management endpoints.
  * Schemas are organized by endpoint and include both input and output validation.
  */
 
@@ -618,7 +618,7 @@ export const bulkPublishResponseSchema = z.object({
 // ============================================================================
 
 /**
- * Converts Inventory Management API Zod schemas to JSON Schema format for MCP tools.
+ * Converts Inventory Management API Effect-backed schemas to JSON Schema format for MCP tools.
  *
  * @returns Inventory Management API JSON schemas keyed by endpoint or shared model name.
  * @example

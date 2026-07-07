@@ -1,10 +1,10 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 /**
  * Other eBay APIs Schemas
  *
- * This file contains Zod schemas for various eBay APIs including:
+ * This file contains Effect-backed schemas for various eBay APIs including:
  * - Commerce Identity API
  * - Sell Compliance API
  * - Commerce Translation API
@@ -378,7 +378,7 @@ export const getVeroReasonCodesInputSchema = z.object({});
 // ============================================================================
 
 /**
- * Converts other eBay API Zod schemas to JSON Schema format for MCP tools.
+ * Converts other eBay API Effect-backed schemas to JSON Schema format for MCP tools.
  *
  * @returns Other API JSON schemas keyed by endpoint or shared model name.
  * @example

@@ -1,8 +1,9 @@
 /**
- * Tests for Zod schema validation with native enums
+ * Tests for Effect-backed schema validation with native enums
  */
 
 import { describe, it, expect } from 'vitest';
+import { Effect, Either } from 'effect';
 import {
   timeDurationSchema,
   regionSchema,
@@ -43,15 +44,34 @@ import {
   FeedbackRating,
   ReportedItemType,
 } from '@/types/ebayEnums.js';
+import { decodeEffectSchema, decodeEffectSchemaSync } from '@/utils/effectSchema.js';
+import type { EffectBackedSchema, InferEffectSchema } from '@/utils/effectSchemaTypes.js';
 
-describe('Zod Schema Enum Validation', () => {
+type DecodeResult<TValue> = { success: true; data: TValue } | { success: false; error: unknown };
+
+const decode = <TSchema extends EffectBackedSchema>(
+  schema: TSchema,
+  value: unknown,
+): InferEffectSchema<TSchema> => decodeEffectSchemaSync(schema, value);
+
+const decodeResult = <TSchema extends EffectBackedSchema>(
+  schema: TSchema,
+  value: unknown,
+): DecodeResult<InferEffectSchema<TSchema>> => {
+  const decoded = Effect.runSync(Effect.either(decodeEffectSchema(schema, value)));
+  return Either.isRight(decoded)
+    ? { success: true, data: decoded.right }
+    : { success: false, error: decoded.left };
+};
+
+describe('Effect-backed schema enum validation', () => {
   describe('timeDurationSchema', () => {
     it('accept valid TimeDurationUnit enum values', () => {
       const validData = {
         unit: TimeDurationUnit.DAY,
         value: 30,
       };
-      expect(() => timeDurationSchema.parse(validData)).not.toThrow();
+      expect(() => decode(timeDurationSchema, validData)).not.toThrow();
     });
 
     it('accept all TimeDurationUnit values', () => {
@@ -69,7 +89,7 @@ describe('Zod Schema Enum Validation', () => {
 
       units.forEach((unit) => {
         const data = { unit, value: 10 };
-        expect(() => timeDurationSchema.parse(data)).not.toThrow();
+        expect(() => decode(timeDurationSchema, data)).not.toThrow();
       });
     });
 
@@ -78,7 +98,7 @@ describe('Zod Schema Enum Validation', () => {
         unit: 'INVALID_UNIT',
         value: 30,
       };
-      expect(() => timeDurationSchema.parse(invalidData)).toThrow();
+      expect(() => decode(timeDurationSchema, invalidData)).toThrow();
     });
   });
 
@@ -88,7 +108,7 @@ describe('Zod Schema Enum Validation', () => {
         regionName: 'United States',
         regionType: RegionType.COUNTRY,
       };
-      expect(() => regionSchema.parse(validData)).not.toThrow();
+      expect(() => decode(regionSchema, validData)).not.toThrow();
     });
 
     it('accept all RegionType values', () => {
@@ -102,7 +122,7 @@ describe('Zod Schema Enum Validation', () => {
 
       types.forEach((regionType) => {
         const data = { regionName: 'Test Region', regionType };
-        expect(() => regionSchema.parse(data)).not.toThrow();
+        expect(() => decode(regionSchema, data)).not.toThrow();
       });
     });
   });
@@ -114,7 +134,7 @@ describe('Zod Schema Enum Validation', () => {
         optionType: ShippingOptionType.DOMESTIC,
         shippingServices: [],
       };
-      expect(() => shippingOptionSchema.parse(validData)).not.toThrow();
+      expect(() => decode(shippingOptionSchema, validData)).not.toThrow();
     });
 
     it('accept CALCULATED cost type', () => {
@@ -123,7 +143,7 @@ describe('Zod Schema Enum Validation', () => {
         optionType: ShippingOptionType.INTERNATIONAL,
         shippingServices: [],
       };
-      expect(() => shippingOptionSchema.parse(data)).not.toThrow();
+      expect(() => decode(shippingOptionSchema, data)).not.toThrow();
     });
   });
 
@@ -134,7 +154,7 @@ describe('Zod Schema Enum Validation', () => {
         depositAmount: { currency: 'USD', value: '10' },
         dueIn: { unit: TimeDurationUnit.DAY, value: 7 },
       };
-      expect(() => depositSchema.parse(validData)).not.toThrow();
+      expect(() => decode(depositSchema, validData)).not.toThrow();
     });
 
     it('accept FIXED_AMOUNT deposit type', () => {
@@ -143,7 +163,7 @@ describe('Zod Schema Enum Validation', () => {
         depositAmount: { currency: 'USD', value: '100' },
         dueIn: { unit: TimeDurationUnit.DAY, value: 7 },
       };
-      expect(() => depositSchema.parse(data)).not.toThrow();
+      expect(() => decode(depositSchema, data)).not.toThrow();
     });
   });
 
@@ -157,7 +177,7 @@ describe('Zod Schema Enum Validation', () => {
         returnShippingCostPayer: ReturnShippingCostPayer.SELLER,
         returnsAccepted: true,
       };
-      expect(() => returnPolicySchema.parse(validData)).not.toThrow();
+      expect(() => decode(returnPolicySchema, validData)).not.toThrow();
     });
 
     it('accept MERCHANDISE_CREDIT refund method', () => {
@@ -166,7 +186,7 @@ describe('Zod Schema Enum Validation', () => {
         marketplaceId: 'EBAY_US',
         refundMethod: RefundMethod.MERCHANDISE_CREDIT,
       };
-      expect(() => returnPolicySchema.parse(data)).not.toThrow();
+      expect(() => decode(returnPolicySchema, data)).not.toThrow();
     });
   });
 
@@ -184,7 +204,7 @@ describe('Zod Schema Enum Validation', () => {
           description: 'Test Description',
         },
       };
-      expect(() => inventoryItemSchema.parse(validData)).not.toThrow();
+      expect(() => decode(inventoryItemSchema, validData)).not.toThrow();
     });
 
     it('accept all Condition values', () => {
@@ -213,7 +233,7 @@ describe('Zod Schema Enum Validation', () => {
             description: 'Test Description',
           },
         };
-        expect(() => inventoryItemSchema.parse(data)).not.toThrow();
+        expect(() => decode(inventoryItemSchema, data)).not.toThrow();
       });
     });
 
@@ -240,7 +260,7 @@ describe('Zod Schema Enum Validation', () => {
           },
         },
       };
-      expect(() => inventoryItemSchema.parse(data)).not.toThrow();
+      expect(() => decode(inventoryItemSchema, data)).not.toThrow();
     });
   });
 
@@ -250,7 +270,7 @@ describe('Zod Schema Enum Validation', () => {
         price: { currency: 'USD', value: '99.99' },
         pricingVisibility: PricingVisibility.PRE_CHECKOUT,
       };
-      expect(() => pricingSchema.parse(validData)).not.toThrow();
+      expect(() => decode(pricingSchema, validData)).not.toThrow();
     });
 
     it('accept all PricingVisibility values', () => {
@@ -265,7 +285,7 @@ describe('Zod Schema Enum Validation', () => {
           price: { currency: 'USD', value: '99.99' },
           pricingVisibility,
         };
-        expect(() => pricingSchema.parse(data)).not.toThrow();
+        expect(() => decode(pricingSchema, data)).not.toThrow();
       });
     });
   });
@@ -287,7 +307,7 @@ describe('Zod Schema Enum Validation', () => {
           price: { currency: 'USD', value: '99.99' },
         },
       };
-      expect(() => offerSchema.parse(validData)).not.toThrow();
+      expect(() => decode(offerSchema, validData)).not.toThrow();
     });
 
     it('accept AUCTION format type', () => {
@@ -306,7 +326,7 @@ describe('Zod Schema Enum Validation', () => {
           price: { currency: 'USD', value: '0.99' },
         },
       };
-      expect(() => offerSchema.parse(data)).not.toThrow();
+      expect(() => decode(offerSchema, data)).not.toThrow();
     });
   });
 
@@ -326,7 +346,7 @@ describe('Zod Schema Enum Validation', () => {
           },
         },
       };
-      expect(() => locationSchema.parse(validData)).not.toThrow();
+      expect(() => decode(locationSchema, validData)).not.toThrow();
     });
 
     it('accept STORE location type', () => {
@@ -344,7 +364,7 @@ describe('Zod Schema Enum Validation', () => {
           },
         },
       };
-      expect(() => locationSchema.parse(data)).not.toThrow();
+      expect(() => decode(locationSchema, data)).not.toThrow();
     });
 
     it('accept valid DayOfWeek in operating hours', () => {
@@ -372,7 +392,7 @@ describe('Zod Schema Enum Validation', () => {
           },
         ],
       };
-      expect(() => locationSchema.parse(data)).not.toThrow();
+      expect(() => decode(locationSchema, data)).not.toThrow();
     });
   });
 
@@ -381,7 +401,7 @@ describe('Zod Schema Enum Validation', () => {
       const validData = {
         reasonForRefund: ReasonForRefund.ITEM_DAMAGED,
       };
-      expect(() => refundDataSchema.parse(validData)).not.toThrow();
+      expect(() => decode(refundDataSchema, validData)).not.toThrow();
     });
 
     it('accept all ReasonForRefund values', () => {
@@ -399,7 +419,7 @@ describe('Zod Schema Enum Validation', () => {
 
       reasons.forEach((reasonForRefund) => {
         const data = { reasonForRefund };
-        expect(() => refundDataSchema.parse(data)).not.toThrow();
+        expect(() => decode(refundDataSchema, data)).not.toThrow();
       });
     });
   });
@@ -410,7 +430,7 @@ describe('Zod Schema Enum Validation', () => {
         fundingModel: FundingModel.COST_PER_SALE,
         bidPercentage: '5.0',
       };
-      expect(() => fundingStrategySchema.parse(validData)).not.toThrow();
+      expect(() => decode(fundingStrategySchema, validData)).not.toThrow();
     });
 
     it('accept COST_PER_CLICK funding model', () => {
@@ -418,7 +438,7 @@ describe('Zod Schema Enum Validation', () => {
         fundingModel: FundingModel.COST_PER_CLICK,
         bidPercentage: '0.50',
       };
-      expect(() => fundingStrategySchema.parse(data)).not.toThrow();
+      expect(() => decode(fundingStrategySchema, data)).not.toThrow();
     });
   });
 
@@ -431,7 +451,7 @@ describe('Zod Schema Enum Validation', () => {
           referenceType: MessageReferenceType.LISTING,
         },
       };
-      expect(() => messageDataSchema.parse(validData)).not.toThrow();
+      expect(() => decode(messageDataSchema, validData)).not.toThrow();
     });
 
     it('accept ORDER reference type', () => {
@@ -442,7 +462,7 @@ describe('Zod Schema Enum Validation', () => {
           referenceType: MessageReferenceType.ORDER,
         },
       };
-      expect(() => messageDataSchema.parse(data)).not.toThrow();
+      expect(() => decode(messageDataSchema, data)).not.toThrow();
     });
   });
 
@@ -453,7 +473,7 @@ describe('Zod Schema Enum Validation', () => {
         rating: FeedbackRating.POSITIVE,
         feedbackText: 'Great buyer!',
       };
-      expect(() => feedbackDataSchema.parse(validData)).not.toThrow();
+      expect(() => decode(feedbackDataSchema, validData)).not.toThrow();
     });
 
     it('accept all FeedbackRating values', () => {
@@ -464,7 +484,7 @@ describe('Zod Schema Enum Validation', () => {
           orderLineItemId: 'order-123-item-1',
           rating,
         };
-        expect(() => feedbackDataSchema.parse(data)).not.toThrow();
+        expect(() => decode(feedbackDataSchema, data)).not.toThrow();
       });
     });
   });
@@ -476,7 +496,7 @@ describe('Zod Schema Enum Validation', () => {
         reportedItemType: ReportedItemType.LISTING,
         reportingReason: 'Copyright infringement',
       };
-      expect(() => infringementDataSchema.parse(validData)).not.toThrow();
+      expect(() => decode(infringementDataSchema, validData)).not.toThrow();
     });
 
     it('accept IMAGE reported item type', () => {
@@ -485,7 +505,7 @@ describe('Zod Schema Enum Validation', () => {
         reportedItemType: ReportedItemType.IMAGE,
         reportingReason: 'Unauthorized image use',
       };
-      expect(() => infringementDataSchema.parse(data)).not.toThrow();
+      expect(() => decode(infringementDataSchema, data)).not.toThrow();
     });
   });
 
@@ -500,7 +520,7 @@ describe('Zod Schema Enum Validation', () => {
           },
         ],
       };
-      expect(() => listingFeesRequestSchema.parse(validData)).not.toThrow();
+      expect(() => decode(listingFeesRequestSchema, validData)).not.toThrow();
     });
 
     it('accept AUCTION format in listing fees', () => {
@@ -513,7 +533,7 @@ describe('Zod Schema Enum Validation', () => {
           },
         ],
       };
-      expect(() => listingFeesRequestSchema.parse(data)).not.toThrow();
+      expect(() => decode(listingFeesRequestSchema, data)).not.toThrow();
     });
   });
 
@@ -525,14 +545,14 @@ describe('Zod Schema Enum Validation', () => {
       };
 
       // Used in both timeDurationSchema and depositSchema
-      expect(() => timeDurationSchema.parse(durationData)).not.toThrow();
+      expect(() => decode(timeDurationSchema, durationData)).not.toThrow();
 
       const depositData = {
         depositType: DepositType.PERCENTAGE,
         depositAmount: { currency: 'USD', value: '10' },
         dueIn: durationData,
       };
-      expect(() => depositSchema.parse(depositData)).not.toThrow();
+      expect(() => decode(depositSchema, depositData)).not.toThrow();
     });
 
     it('use the same FormatType across offer and listing fees schemas', () => {
@@ -554,7 +574,7 @@ describe('Zod Schema Enum Validation', () => {
         },
       };
 
-      expect(() => offerSchema.parse(offerData)).not.toThrow();
+      expect(() => decode(offerSchema, offerData)).not.toThrow();
 
       const feesData = {
         offers: [
@@ -566,7 +586,7 @@ describe('Zod Schema Enum Validation', () => {
         ],
       };
 
-      expect(() => listingFeesRequestSchema.parse(feesData)).not.toThrow();
+      expect(() => decode(listingFeesRequestSchema, feesData)).not.toThrow();
     });
   });
 
@@ -577,11 +597,11 @@ describe('Zod Schema Enum Validation', () => {
         value: 30,
       };
 
-      const parsed = timeDurationSchema.safeParse(invalidData);
+      const parsed = decodeResult(timeDurationSchema, invalidData);
 
       expect(parsed.success).toBe(false);
       if (!parsed.success) {
-        expect(parsed.error.issues[0]?.path).toContain('unit');
+        expect(String(parsed.error)).toContain('unit');
       }
     });
 
@@ -592,7 +612,7 @@ describe('Zod Schema Enum Validation', () => {
         dueIn: { unit: TimeDurationUnit.DAY, value: 7 },
       };
 
-      expect(() => depositSchema.parse(invalidData)).toThrow();
+      expect(() => decode(depositSchema, invalidData)).toThrow();
     });
   });
 });

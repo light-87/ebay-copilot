@@ -1,4 +1,4 @@
-import type { z } from 'zod';
+import type { EffectBackedRawShape } from '@/utils/effectSchemaTypes.js';
 
 /** JSON-schema-like output contract attached to a tool definition. */
 export interface OutputArgs {
@@ -18,11 +18,11 @@ export interface ToolAnnotations {
   openWorldHint?: boolean;
 }
 
-/** Public definition for a tool, including name, schemas, metadata, and annotations. */
+/** Public definition for a tool, including name, Effect-backed schemas, metadata, and annotations. */
 export interface ToolDefinition {
   name: string;
   description: string;
-  inputSchema: Record<string, z.ZodTypeAny>;
+  inputSchema: EffectBackedRawShape;
   title?: string;
   outputSchema?: OutputArgs;
   annotations?: ToolAnnotations;

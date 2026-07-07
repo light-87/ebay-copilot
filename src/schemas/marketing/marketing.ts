@@ -1,10 +1,10 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 /**
  * Marketing API Schemas
  *
- * This file contains Zod schemas for all Marketing API endpoints including:
+ * This file contains Effect-backed schemas for all Marketing API endpoints including:
  * - Campaign Management (create, get, update, pause, resume, end campaigns)
  * - Ad Operations (bulk and single ad operations)
  * - Ad Group Management
@@ -2192,7 +2192,7 @@ export const findListingRecommendationsInputSchema = z.object({
 // ============================================================================
 
 /**
- * Converts Marketing API Zod schemas to JSON Schema format for MCP tools.
+ * Converts Marketing API Effect-backed schemas to JSON Schema format for MCP tools.
  *
  * @returns Marketing API JSON schemas keyed by endpoint or shared model name.
  * @example

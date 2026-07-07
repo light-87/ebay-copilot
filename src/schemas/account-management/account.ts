@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@/utils/effectSchema.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import {
   TimeDurationUnit,
@@ -14,7 +14,7 @@ import {
 /**
  * Account Management API Schemas
  *
- * This file contains Zod schemas for all Account Management endpoints.
+ * This file contains Effect-backed schemas for all Account Management endpoints.
  * Schemas are organized by endpoint and include both input and output validation.
  */
 
@@ -650,7 +650,7 @@ export const getPrivilegesInputSchema = z.object({});
 // ============================================================================
 
 /**
- * Converts Account Management API Zod schemas to JSON Schema format for MCP tools.
+ * Converts Account Management API Effect-backed schemas to JSON Schema format for MCP tools.
  *
  * @returns Account Management API JSON schemas keyed by endpoint or shared model name.
  * @example
