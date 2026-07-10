@@ -236,3 +236,10 @@ Taskfile.yml
 
 # Kimi Code CLI local config + skills
 .kimi-code/
+
+# eBay Copilot generated output / working files (may contain live account data)
+dashboard*.html
+handoff/dashboard-demo.html
+.bg-removed/
+work/
+product.json
