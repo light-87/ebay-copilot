@@ -90,6 +90,46 @@ node handoff/scripts/list-from-url.mjs work/product.json --no-publish # stage a 
 
 ---
 
+## Example use cases
+
+Real things you can type into Claude Code, and what happens:
+
+**🛍️ List a product from a link**
+> *"List this product on my store: https://www.example.com/mens-running-jacket"*
+
+It opens the page, pulls the title, description, price, and every colour/size, strips the image
+backgrounds, and stages a multi-variation listing. You review, then say *"publish"*.
+
+**📦 List several at once**
+> *"Here are 5 product links — draft listings for all of them, £2 above the source price."*
+
+It works through the list and shows you each draft before anything goes live.
+
+**✏️ Edit a live listing**
+> *"Drop the price on my Ultraboost listing to £109 and add 'limited stock' to the title."*
+
+**📈 Morning check-in**
+> *"How did the store do this week? Any listings losing momentum?"*
+
+Live sales, views, and conversion — plus a heads-up on listings whose views are sliding.
+
+**🏆 Find your winners**
+> *"What are my top 10 sellers this month, and which ones have low stock?"*
+
+**🚨 Protect your seller rating**
+> *"Am I still Top Rated? Is anything about to drop me below standard?"*
+
+It reads your seller-standards metrics and flags the one that needs attention before it bites.
+
+**📊 A dashboard you can shape**
+> *"Generate my analytics dashboard."* → then *"add a profit column and compare this month vs last."*
+> Next week: *"refresh the analytics."*
+
+**🔁 Restock / relist**
+> *"Relist everything that sold out in the last 7 days."*
+
+---
+
 ## Important notes
 
 - This is a **live account** — the assistant asks before anything public or irreversible.
